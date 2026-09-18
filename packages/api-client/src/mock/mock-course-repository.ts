@@ -1,9 +1,10 @@
 import { courseFixtures } from '@isport/mock-data'
 import type { Course, CourseDetail, PageResult } from '@isport/shared'
-import { delay, paginate, resolveLatency } from '@isport/shared'
+import { paginate } from '@isport/shared'
 
 import { ApiError } from '../errors'
 import type { CourseListQuery, CoursePayload, CourseRepository } from '../repositories/course'
+import { delay, resolveLatency } from './delay'
 import type { MockOptions } from './options'
 
 function cloneCourse(course: CourseDetail): CourseDetail {

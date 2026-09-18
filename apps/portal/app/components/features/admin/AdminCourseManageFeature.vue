@@ -3,7 +3,7 @@ import type { CourseListQuery, CoursePayload } from '@isport/api-client'
 import { AdminPageHeader } from '@isport/ui-admin'
 import { UiEmptyState } from '@isport/ui-core'
 import type { Course, CourseDetail } from '@isport/shared'
-import { App, useBreakpoint } from 'antdv-next'
+import { App, Button as AButton, useBreakpoint } from 'antdv-next'
 
 const { t } = useI18n()
 const localized = useLocalizedText()
@@ -68,9 +68,9 @@ function onRemove(course: Course) {
   <section class="admin-course-manage">
     <AdminPageHeader :title="t('nav.courseManage')">
       <template #extra>
-        <a-button type="primary" @click="openCreate">
+        <AButton type="primary" @click="openCreate">
           {{ t('admin.createCourse') }}
-        </a-button>
+        </AButton>
       </template>
     </AdminPageHeader>
 

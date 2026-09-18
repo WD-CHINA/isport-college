@@ -17,9 +17,13 @@ test('/admin SSR HTML 不含业务数据（CSR 占位）', async ({ request }) =
   expect(html).not.toContain('课程总数')
 })
 
-test('robots.txt 禁止抓取管理端', async ({ request }) => {
+test('非生产环境 robots.txt 禁止抓取全站', async ({ request }) => {
   const response = await request.get('/robots.txt')
   const body = await response.text()
-  expect(body).toContain('Disallow: /admin')
-  expect(body).toContain('Disallow: /en/admin')
+  expect(body).toContain('Disallow: /')
+})
+
+test('非生产环境公开页面返回 noindex 响应头', async ({ request }) => {
+  const response = await request.get('/', { headers: { 'Accept-Language': 'zh-CN' } })
+  expect(response.headers()['x-robots-tag']).toBe('noindex, nofollow, noarchive')
 })

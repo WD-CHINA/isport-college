@@ -7,14 +7,17 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "vue-tsc --noEmit"
   },
   "peerDependencies": {
     "vue": "^3.5.0"
   },
   "devDependencies": {
-    "@isport/eslint-config": "workspace:*",
+    "@isport/tsconfig": "workspace:*",
     "eslint": "^9.35.0",
-    "vue": "^3.5.18"
+    "typescript": "^5.9.2",
+    "vue": "^3.5.18",
+    "vue-tsc": "^3.1.0"
   }
 }

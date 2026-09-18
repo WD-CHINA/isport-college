@@ -8,9 +8,11 @@
     "postinstall": "nuxi prepare",
     "lint": "eslint .",
     "typecheck": "nuxi typecheck",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:built": "E2E_USE_BUILT_OUTPUT=true playwright test"
   },
   "dependencies": {
+    "@antdv-next/icons": "^1.1.2",
     "@isport/api-client": "workspace:*",
     "@isport/design-tokens": "workspace:*",
     "@isport/i18n": "workspace:*",
@@ -23,13 +25,13 @@
     "@unocss/nuxt": "^66.10.5",
     "antdv-next": "^1.5.4",
     "dayjs": "^1.11.13",
+    "normalize.css": "^8.0.1",
     "nuxt": "^4.5.2",
     "pinia": "^3.0.3",
-    "vue": "^3.5.18",
-    "vue-router": "^4.5.1"
+    "vue": "^3.5.18"
   },
   "devDependencies": {
-    "@isport/eslint-config": "workspace:*",
+    "@antdv-next/nuxt": "^1.1.0",
     "@isport/tsconfig": "workspace:*",
     "@playwright/test": "^1.55.0",
     "eslint": "^9.35.0",

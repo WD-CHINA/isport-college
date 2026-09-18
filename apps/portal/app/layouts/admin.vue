@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { UiBrandLogo, UiLocaleSelect } from '@isport/ui-core'
-import { useBreakpoint } from 'antdv-next'
+import {
+  Drawer as ADrawer,
+  Dropdown as ADropdown,
+  Layout as ALayout,
+  LayoutContent as ALayoutContent,
+  LayoutHeader as ALayoutHeader,
+  LayoutSider as ALayoutSider,
+  Menu as AMenu,
+  useBreakpoint,
+} from 'antdv-next'
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -66,23 +75,23 @@ function handleUserMenuClick({ key }: { key: string | number }) {
     </NuxtLink>
   </div>
 
-  <a-layout v-else class="admin-layout">
+  <ALayout v-else class="admin-layout">
     <!-- 桌面侧边导航 -->
-    <a-layout-sider v-if="isDesktop" :width="232" theme="light" class="admin-sider">
+    <ALayoutSider v-if="isDesktop" :width="232" theme="light" class="admin-sider">
       <NuxtLink :to="localePath('/')" class="admin-sider__logo">
         <UiBrandLogo :name="t('seo.siteName')" />
       </NuxtLink>
-      <a-menu
+      <AMenu
         :items="menuItems"
         :selected-keys="selectedKeys"
         mode="inline"
         class="admin-sider__menu"
         @click="handleMenuClick"
       />
-    </a-layout-sider>
+    </ALayoutSider>
 
-    <a-layout>
-      <a-layout-header class="admin-header">
+    <ALayout>
+      <ALayoutHeader class="admin-header">
         <button
           v-if="!isDesktop"
           type="button"
@@ -111,38 +120,38 @@ function handleUserMenuClick({ key }: { key: string | number }) {
             :options="localeOptions"
             :label="t('common.language')"
           />
-          <a-dropdown trigger="click">
+          <ADropdown :trigger="['click']">
             <button type="button" class="admin-header__user">
               {{ auth.user?.name }}
             </button>
-            <template #overlay>
-              <a-menu :items="userMenuItems" @click="handleUserMenuClick" />
+            <template #popupRender>
+              <AMenu :items="userMenuItems" @click="handleUserMenuClick" />
             </template>
-          </a-dropdown>
+          </ADropdown>
         </div>
-      </a-layout-header>
+      </ALayoutHeader>
 
-      <a-layout-content class="admin-content">
+      <ALayoutContent class="admin-content">
         <slot />
-      </a-layout-content>
-    </a-layout>
+      </ALayoutContent>
+    </ALayout>
 
     <!-- 移动端抽屉导航 -->
-    <a-drawer
+    <ADrawer
       v-if="!isDesktop"
       v-model:open="drawerOpen"
       placement="left"
       :width="260"
       :title="t('seo.adminTitle')"
     >
-      <a-menu
+      <AMenu
         :items="menuItems"
         :selected-keys="selectedKeys"
         mode="inline"
         @click="handleMenuClick"
       />
-    </a-drawer>
-  </a-layout>
+    </ADrawer>
+  </ALayout>
 </template>
 
 <style scoped>

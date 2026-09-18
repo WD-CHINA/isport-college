@@ -15,7 +15,6 @@
     "unocss": "^66.10.5"
   },
   "devDependencies": {
-    "@isport/eslint-config": "workspace:*",
     "@isport/tsconfig": "workspace:*",
     "eslint": "^9.35.0",
     "typescript": "^5.9.2"

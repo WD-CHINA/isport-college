@@ -1,4 +1,4 @@
 {
-  "extends": "@isport/tsconfig/base.json",
+  "extends": "@isport/tsconfig/browser.json",
   "include": ["src/**/*.ts"]
 }

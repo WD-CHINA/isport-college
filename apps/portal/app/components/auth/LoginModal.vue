@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { isValidCnMobile, normalizePhone } from '@isport/shared'
-import { App, useBreakpoint } from 'antdv-next'
+import {
+  Alert as AAlert,
+  App,
+  Button as AButton,
+  Input as AInput,
+  InputPassword as AInputPassword,
+  Modal as AModal,
+  useBreakpoint,
+} from 'antdv-next'
 
 const auth = useAuthStore()
 const { message } = App.useApp()
@@ -62,18 +70,18 @@ async function submit() {
 </script>
 
 <template>
-  <a-modal
+  <AModal
     v-model:open="visible"
     :title="t('auth.loginTitle')"
     :width="modalWidth"
     :footer="null"
     centered
-    destroy-on-close
+    destroy-on-hidden
   >
     <p class="login-modal__subtitle">{{ reasonText }} · {{ t('auth.loginSubtitle') }}</p>
 
-    <a-alert class="login-modal__tip" type="info" :message="t('auth.demoTip')" show-icon />
-    <a-alert
+    <AAlert class="login-modal__tip" type="info" :message="t('auth.demoTip')" show-icon />
+    <AAlert
       v-if="failed"
       class="login-modal__tip"
       type="error"
@@ -84,7 +92,7 @@ async function submit() {
     <form class="login-modal__form" novalidate @submit.prevent="submit">
       <div class="login-modal__field">
         <label class="login-modal__label" for="login-phone">{{ t('auth.phone') }}</label>
-        <a-input
+        <AInput
           id="login-phone"
           v-model:value="form.phone"
           size="large"
@@ -98,7 +106,7 @@ async function submit() {
 
       <div class="login-modal__field">
         <label class="login-modal__label" for="login-password">{{ t('auth.password') }}</label>
-        <a-input-password
+        <AInputPassword
           id="login-password"
           v-model:value="form.password"
           size="large"
@@ -109,11 +117,11 @@ async function submit() {
         <p v-if="errors.password" class="login-modal__error">{{ errors.password }}</p>
       </div>
 
-      <a-button type="primary" size="large" block html-type="submit" :loading="submitting">
+      <AButton type="primary" size="large" block html-type="submit" :loading="submitting">
         {{ t('auth.submit') }}
-      </a-button>
+      </AButton>
     </form>
-  </a-modal>
+  </AModal>
 </template>
 
 <style scoped>

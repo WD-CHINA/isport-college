@@ -1,5 +1,3 @@
-import { LOCALE_COOKIE_NAME } from '@isport/shared'
-
 const adminNoIndex = {
   ssr: false,
   headers: {
@@ -12,14 +10,14 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-09-18',
   devtools: { enabled: false },
   components: [{ path: '~/components', pathPrefix: false }],
-  modules: ['@pinia/nuxt', '@unocss/nuxt', '@nuxtjs/i18n'],
+  modules: ['@pinia/nuxt', '@unocss/nuxt', '@nuxtjs/i18n', '@antdv-next/nuxt'],
   css: ['normalize.css', '@isport/design-tokens/css-vars', '~/assets/css/main.scss'],
   runtimeConfig: {
     public: {
       /** 部署环境：非 production 环境全站禁止收录 */
-      siteEnv: process.env.NUXT_PUBLIC_SITE_ENV ?? 'development',
+      siteEnv: 'development',
       /** 未来真实 API Base URL，通过环境变量注入，不写死在源码中 */
-      apiBase: process.env.NUXT_PUBLIC_API_BASE ?? '',
+      apiBase: '',
     },
   },
   app: {
@@ -44,21 +42,15 @@ export default defineNuxtConfig({
       { code: 'zh', language: 'zh-CN', name: '简体中文', file: 'zh-CN.ts' },
       { code: 'en', language: 'en-US', name: 'English', file: 'en-US.ts' },
     ],
-    detectBrowserLanguage: {
-      useCookie: true,
-      cookieKey: LOCALE_COOKIE_NAME,
-      redirectOn: 'root',
-      fallbackLocale: 'zh',
-    },
+    // 不做浏览器语言自动检测：语言偏好由 locale.client.ts 插件持久化到 localStorage，
+    // SSR 首屏恒为默认语言，客户端 hydration 完成后恢复用户偏好。
+    detectBrowserLanguage: false,
   },
-  build: {
-    // antdv-next 及内部 @v-c/* 组件库在 Node ESM 下使用无扩展名导入，必须内联打包
-    transpile: ['antdv-next', 'dayjs'],
-  },
-  nitro: {
-    externals: {
-      inline: [/^antdv-next/, /^@v-c\//, 'dayjs'],
-    },
+  // antdv-next 的 SSR 集成（transpile/noExternal、组件注册、dayjs、cssinjs 样式提取）
+  // 由官方模块 @antdv-next/nuxt 统一处理，无需手写 build.transpile / nitro.externals.inline。
+  antd: {
+    // 项目未使用 @antdv-next/icons 图标组件，不开启自动注册
+    icon: false,
   },
   imports: {
     // 递归扫描 composables 子目录（course/admin 等）

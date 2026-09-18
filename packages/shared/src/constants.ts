@@ -6,12 +6,12 @@ export type LocaleCode = (typeof SUPPORTED_LOCALES)[number]
 /** 默认语言：简体中文 */
 export const DEFAULT_LOCALE: LocaleCode = 'zh-CN'
 
-/** 语言偏好 Cookie，确保 SSR 首屏语言与客户端一致 */
-export const LOCALE_COOKIE_NAME = 'ic_locale'
+/** 语言偏好 localStorage 键（纯客户端存储，SSR 首屏恒为默认语言） */
+export const LOCALE_STORAGE_KEY = 'ic_locale'
 
-/** 登录状态 Cookie，默认有效期 7 天 */
-export const AUTH_COOKIE_NAME = 'ic_auth'
-export const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
+/** 登录会话 localStorage 键与有效期（秒，默认 7 天），纯客户端存储 */
+export const AUTH_STORAGE_KEY = 'ic_auth'
+export const AUTH_SESSION_TTL = 60 * 60 * 24 * 7
 
 /**
  * 路由语言码 → 数据语言码映射。

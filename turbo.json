@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".output/**", ".nuxt/**"]
+      "outputs": ["dist/**", ".output/**", "src/css-vars.css", "src/tokens.json"]
     },
     "dev": {
       "cache": false,
@@ -14,6 +14,10 @@
       "dependsOn": ["^build"]
     },
     "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "test:coverage": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
     },

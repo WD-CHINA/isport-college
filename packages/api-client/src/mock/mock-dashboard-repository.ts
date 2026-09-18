@@ -1,9 +1,9 @@
 import { courseFixtures } from '@isport/mock-data'
 import type { DashboardStats } from '@isport/shared'
-import { delay, resolveLatency } from '@isport/shared'
 
 import { ApiError } from '../errors'
 import type { DashboardRepository } from '../repositories/dashboard'
+import { delay, resolveLatency } from './delay'
 import type { MockOptions } from './options'
 
 /** Mock 仪表盘 Repository：从 Fixtures 派生统计数据 */

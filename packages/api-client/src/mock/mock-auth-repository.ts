@@ -1,9 +1,10 @@
 import { DEMO_ACCOUNT, demoUser } from '@isport/mock-data'
 import type { AuthSession, User } from '@isport/shared'
-import { delay, normalizePhone, resolveLatency } from '@isport/shared'
+import { normalizePhone } from '@isport/shared'
 
 import { ApiError } from '../errors'
 import type { AuthRepository, LoginPayload } from '../repositories/auth'
+import { delay, resolveLatency } from './delay'
 import type { MockOptions } from './options'
 
 /**

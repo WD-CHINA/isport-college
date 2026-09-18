@@ -61,15 +61,18 @@ async function handleLogout() {
           :options="localeOptions"
           :label="t('common.language')"
         />
-        <template v-if="auth.isLoggedIn">
-          <span class="app-header__user">{{ auth.user?.name }}</span>
-          <button type="button" class="btn-ghost" @click="handleLogout">
-            {{ t('common.logout') }}
+        <!-- 登录态仅存于客户端 localStorage，SSR 输出不含此区域，避免 hydration 不一致 -->
+        <ClientOnly>
+          <template v-if="auth.isLoggedIn">
+            <span class="app-header__user">{{ auth.user?.name }}</span>
+            <button type="button" class="btn-ghost" @click="handleLogout">
+              {{ t('common.logout') }}
+            </button>
+          </template>
+          <button v-else type="button" class="btn-primary" @click="openLogin">
+            {{ t('common.login') }}
           </button>
-        </template>
-        <button v-else type="button" class="btn-primary" @click="openLogin">
-          {{ t('common.login') }}
-        </button>
+        </ClientOnly>
         <!-- 移动端菜单按钮 -->
         <button
           type="button"

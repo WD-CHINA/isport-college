@@ -19,6 +19,7 @@ export default {
     '**/.nuxt/**',
     '**/.output/**',
     '**/.turbo/**',
+    '**/coverage/**',
     '**/css-vars.css',
     '**/tokens.json',
     '**/playwright-report/**',

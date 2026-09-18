@@ -710,3 +710,12 @@ Nuxt build
 | 后端       | 首期无真实后端，使用可替换的 Mock Repository    |
 | 设计系统   | UnoCSS 与 antdv-next 共用单一设计令牌来源       |
 | 浏览器     | 现代浏览器近期稳定版本，不强制支持 Chrome 88    |
+
+## 21. 工程配置约束
+
+- Node.js 统一使用 24，最低版本为 24.11.0。
+- 仓库只保留根目录一个 `eslint.config.mjs`，应用和包不得复制独立配置。
+- 纯 TypeScript 包继承 `@isport/tsconfig/base.json`；浏览器和 Vue 包继承 `browser.json`。
+- `shared` 不允许导入 Vue、Nuxt、Pinia，也不允许访问浏览器全局对象。
+- 任意 CI 平台统一执行 `pnpm check:ci`；本项目不维护 `.github/workflows`。
+- 普通单测不声明缓存产物，覆盖率由 `pnpm test:coverage` 独立生成。

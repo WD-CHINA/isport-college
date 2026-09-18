@@ -2,6 +2,17 @@
 import type { CoursePayload } from '@isport/api-client'
 import { COURSE_CATEGORIES, COURSE_LEVELS } from '@isport/shared'
 import type { CourseCategory, CourseDetail, CourseLevel } from '@isport/shared'
+import {
+  DatePicker as ADatePicker,
+  FormItem as AFormItem,
+  Input as AInput,
+  InputNumber as AInputNumber,
+  Modal as AModal,
+  Select as ASelect,
+  SelectOption as ASelectOption,
+  Switch as ASwitch,
+  TextArea as ATextarea,
+} from 'antdv-next'
 
 interface Props {
   /** 编辑中的课程；为空表示新建 */
@@ -152,7 +163,7 @@ function onSubmit() {
 </script>
 
 <template>
-  <a-modal
+  <AModal
     :open="open"
     :title="title"
     :confirm-loading="saving"
@@ -162,145 +173,137 @@ function onSubmit() {
   >
     <div class="admin-course-form">
       <div class="admin-course-form__row">
-        <a-form-item
+        <AFormItem
           class="admin-course-form__item"
           :label="t('admin.formName')"
           :validate-status="errors.name ? 'error' : ''"
           :help="errors.name"
         >
-          <a-input v-model:value="form.nameZh" placeholder="简体中文" />
-          <a-input
-            v-model:value="form.nameEn"
-            placeholder="English"
-            class="admin-course-form__mt"
-          />
-        </a-form-item>
+          <AInput v-model:value="form.nameZh" placeholder="简体中文" />
+          <AInput v-model:value="form.nameEn" placeholder="English" class="admin-course-form__mt" />
+        </AFormItem>
       </div>
 
       <div class="admin-course-form__row admin-course-form__row--two">
-        <a-form-item
+        <AFormItem
           class="admin-course-form__item"
           :label="t('admin.formCategory')"
           :validate-status="errors.category ? 'error' : ''"
           :help="errors.category"
         >
-          <a-select v-model:value="form.category" :placeholder="t('admin.formCategory')">
-            <a-select-option v-for="cat in COURSE_CATEGORIES" :key="cat" :value="cat">
+          <ASelect v-model:value="form.category" :placeholder="t('admin.formCategory')">
+            <ASelectOption v-for="cat in COURSE_CATEGORIES" :key="cat" :value="cat">
               {{ t(`course.categories.${cat}`) }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item
+            </ASelectOption>
+          </ASelect>
+        </AFormItem>
+        <AFormItem
           class="admin-course-form__item"
           :label="t('admin.formLevel')"
           :validate-status="errors.level ? 'error' : ''"
           :help="errors.level"
         >
-          <a-select v-model:value="form.level" :placeholder="t('admin.formLevel')">
-            <a-select-option v-for="lv in COURSE_LEVELS" :key="lv" :value="lv">
+          <ASelect v-model:value="form.level" :placeholder="t('admin.formLevel')">
+            <ASelectOption v-for="lv in COURSE_LEVELS" :key="lv" :value="lv">
               {{ t(`course.levels.${lv}`) }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
+            </ASelectOption>
+          </ASelect>
+        </AFormItem>
       </div>
 
       <div class="admin-course-form__row admin-course-form__row--two">
-        <a-form-item
+        <AFormItem
           class="admin-course-form__item"
           :label="t('admin.formCoach')"
           :validate-status="errors.coach ? 'error' : ''"
           :help="errors.coach"
         >
-          <a-input v-model:value="form.coach" />
-        </a-form-item>
-        <a-form-item
+          <AInput v-model:value="form.coach" />
+        </AFormItem>
+        <AFormItem
           class="admin-course-form__item"
           :label="t('admin.formStartDate')"
           :validate-status="errors.startDate ? 'error' : ''"
           :help="errors.startDate"
         >
-          <a-date-picker
+          <ADatePicker
             v-model:value="form.startDate"
             value-format="YYYY-MM-DD"
             class="admin-course-form__full"
           />
-        </a-form-item>
+        </AFormItem>
       </div>
 
       <div class="admin-course-form__row admin-course-form__row--three">
-        <a-form-item
+        <AFormItem
           class="admin-course-form__item"
           :label="t('admin.formDuration')"
           :validate-status="errors.durationMin ? 'error' : ''"
           :help="errors.durationMin"
         >
-          <a-input-number
-            v-model:value="form.durationMin"
-            :min="1"
-            class="admin-course-form__full"
-          />
-        </a-form-item>
-        <a-form-item
+          <AInputNumber v-model:value="form.durationMin" :min="1" class="admin-course-form__full" />
+        </AFormItem>
+        <AFormItem
           class="admin-course-form__item"
           :label="t('admin.formCapacity')"
           :validate-status="errors.capacity ? 'error' : ''"
           :help="errors.capacity"
         >
-          <a-input-number v-model:value="form.capacity" :min="1" class="admin-course-form__full" />
-        </a-form-item>
-        <a-form-item
+          <AInputNumber v-model:value="form.capacity" :min="1" class="admin-course-form__full" />
+        </AFormItem>
+        <AFormItem
           class="admin-course-form__item"
           :label="t('admin.formPrice')"
           :validate-status="errors.price ? 'error' : ''"
           :help="errors.price"
         >
-          <a-input-number v-model:value="form.price" :min="0" class="admin-course-form__full" />
-        </a-form-item>
+          <AInputNumber v-model:value="form.price" :min="0" class="admin-course-form__full" />
+        </AFormItem>
       </div>
 
-      <a-form-item
+      <AFormItem
         class="admin-course-form__item"
         :label="t('admin.formLocation')"
         :validate-status="errors.location ? 'error' : ''"
         :help="errors.location"
       >
-        <a-input v-model:value="form.locationZh" placeholder="简体中文" />
-        <a-input
+        <AInput v-model:value="form.locationZh" placeholder="简体中文" />
+        <AInput
           v-model:value="form.locationEn"
           placeholder="English"
           class="admin-course-form__mt"
         />
-      </a-form-item>
+      </AFormItem>
 
-      <a-form-item
+      <AFormItem
         class="admin-course-form__item"
         :label="t('admin.formDesc')"
         :validate-status="errors.desc ? 'error' : ''"
         :help="errors.desc"
       >
-        <a-textarea v-model:value="form.descZh" :rows="2" placeholder="简体中文" />
-        <a-textarea
+        <ATextarea v-model:value="form.descZh" :rows="2" placeholder="简体中文" />
+        <ATextarea
           v-model:value="form.descEn"
           :rows="2"
           placeholder="English"
           class="admin-course-form__mt"
         />
-      </a-form-item>
+      </AFormItem>
 
-      <a-form-item class="admin-course-form__item" :label="t('course.schedule')">
-        <a-input v-model:value="form.scheduleZh" placeholder="简体中文" />
-        <a-input
+      <AFormItem class="admin-course-form__item" :label="t('course.schedule')">
+        <AInput v-model:value="form.scheduleZh" placeholder="简体中文" />
+        <AInput
           v-model:value="form.scheduleEn"
           placeholder="English"
           class="admin-course-form__mt"
         />
-      </a-form-item>
+      </AFormItem>
 
-      <a-form-item class="admin-course-form__item" :label="t('home.featuredTitle')">
-        <a-switch v-model:checked="form.featured" />
-      </a-form-item>
+      <AFormItem class="admin-course-form__item" :label="t('home.featuredTitle')">
+        <ASwitch v-model:checked="form.featured" />
+      </AFormItem>
     </div>
-  </a-modal>
+  </AModal>
 </template>
 
 <style scoped>

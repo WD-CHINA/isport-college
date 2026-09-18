@@ -1,8 +1,5 @@
 {
-  "extends": "@isport/tsconfig/base.json",
-  "compilerOptions": {
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "jsx": "preserve"
-  },
+  "extends": "@isport/tsconfig/browser.json",
+  "compilerOptions": { "jsx": "preserve" },
   "include": ["src/**/*.ts", "src/**/*.vue"]
 }

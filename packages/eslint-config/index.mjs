@@ -22,11 +22,8 @@ const globalIgnores = {
 /**
  * 创建项目 ESLint flat config。
  * @param {{ vue?: boolean, tsconfigRootDir?: string }} [options]
- * vue 为 true 时启用 Vue SFC 规则（apps/portal 使用）。
- * tsconfigRootDir 必须传调用方 eslint.config.mjs 所在目录（import.meta.dirname）：
- * typescript-eslint 会把每个加载过的配置文件目录记为候选 tsconfigRootDir，
- * monorepo 中同一进程（如编辑器 ESLint server）加载多个子包配置后，
- * 未显式设置时会抛出 "multiple candidate TSConfigRootDirs" 解析错误。
+ * vue 为 true 时为整个工作区启用 Vue SFC 规则。
+ * tsconfigRootDir 由仓库根 eslint.config.mjs 显式传入，避免编辑器推断歧义。
  */
 export function defineConfig(options = {}) {
   const { vue = false, tsconfigRootDir } = options
@@ -39,20 +36,68 @@ export function defineConfig(options = {}) {
     {
       languageOptions: {
         globals: {
-          ...globals.browser,
-          ...globals.node,
           ...globals.es2022,
         },
         ...(tsconfigRootDir ? { parserOptions: { tsconfigRootDir } } : {}),
       },
       rules: {
         'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
-        // TS/Vue 文件由类型系统负责未定义变量检查（含 Nuxt 自动导入全局），no-undef 对 TS 不可靠
+      },
+    },
+    {
+      files: ['**/*.{ts,tsx,vue}'],
+      rules: {
+        // TS/Vue 文件由类型系统负责未定义变量检查，no-undef 对 TypeScript 不可靠
         'no-undef': 'off',
         '@typescript-eslint/consistent-type-imports': 'error',
         '@typescript-eslint/no-unused-vars': [
           'error',
           { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+        ],
+      },
+    },
+    {
+      files: [
+        'apps/portal/app/**/*.{js,ts,vue}',
+        'packages/ui-core/src/**/*.{js,ts,vue}',
+        'packages/ui-admin/src/**/*.{js,ts,vue}',
+      ],
+      languageOptions: {
+        globals: globals.browser,
+      },
+    },
+    {
+      files: [
+        '*.{js,mjs,cjs,ts}',
+        '**/*.config.{js,mjs,cjs,ts}',
+        'scripts/**/*.{js,mjs,cjs,ts}',
+        'packages/*/scripts/**/*.{js,mjs,cjs,ts}',
+        'apps/portal/server/**/*.ts',
+      ],
+      languageOptions: {
+        globals: globals.node,
+      },
+    },
+    {
+      files: ['packages/shared/src/**/*.ts'],
+      rules: {
+        'no-restricted-globals': [
+          'error',
+          { name: 'window', message: 'shared 必须保持平台无关，禁止使用浏览器全局。' },
+          { name: 'document', message: 'shared 必须保持平台无关，禁止使用浏览器全局。' },
+          { name: 'navigator', message: 'shared 必须保持平台无关，禁止使用浏览器全局。' },
+          { name: 'localStorage', message: 'shared 必须保持平台无关，禁止使用浏览器存储。' },
+          { name: 'sessionStorage', message: 'shared 必须保持平台无关，禁止使用浏览器存储。' },
+        ],
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              { group: ['vue', 'vue/*'], message: 'shared 不得依赖 Vue。' },
+              { group: ['nuxt', 'nuxt/*'], message: 'shared 不得依赖 Nuxt。' },
+              { group: ['pinia', '@pinia/*'], message: 'shared 不得依赖 Pinia。' },
+            ],
+          },
         ],
       },
     },
