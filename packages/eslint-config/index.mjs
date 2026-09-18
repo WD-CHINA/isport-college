@@ -21,10 +21,15 @@ const globalIgnores = {
 
 /**
  * 创建项目 ESLint flat config。
- * @param {{ vue?: boolean }} [options] vue 为 true 时启用 Vue SFC 规则（apps/portal 使用）
+ * @param {{ vue?: boolean, tsconfigRootDir?: string }} [options]
+ * vue 为 true 时启用 Vue SFC 规则（apps/portal 使用）。
+ * tsconfigRootDir 必须传调用方 eslint.config.mjs 所在目录（import.meta.dirname）：
+ * typescript-eslint 会把每个加载过的配置文件目录记为候选 tsconfigRootDir，
+ * monorepo 中同一进程（如编辑器 ESLint server）加载多个子包配置后，
+ * 未显式设置时会抛出 "multiple candidate TSConfigRootDirs" 解析错误。
  */
 export function defineConfig(options = {}) {
-  const { vue = false } = options
+  const { vue = false, tsconfigRootDir } = options
 
   /** @type {import('eslint').Linter.Config[]} */
   const configs = [
@@ -38,6 +43,7 @@ export function defineConfig(options = {}) {
           ...globals.node,
           ...globals.es2022,
         },
+        ...(tsconfigRootDir ? { parserOptions: { tsconfigRootDir } } : {}),
       },
       rules: {
         'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],

@@ -5,4 +5,4 @@ import { defineConfig } from '@isport/eslint-config'
  * 采用 Vue 全量规则作为各子包配置的超集：非 Vue 文件不受影响，
  * portal 的 .vue 文件获得与子包内一致的检查规则。
  */
-export default defineConfig({ vue: true })
+export default defineConfig({ vue: true, tsconfigRootDir: import.meta.dirname })

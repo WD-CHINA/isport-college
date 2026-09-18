@@ -1,3 +1,3 @@
 import { defineConfig } from '@isport/eslint-config'
 
-export default defineConfig()
+export default defineConfig({ tsconfigRootDir: import.meta.dirname })
