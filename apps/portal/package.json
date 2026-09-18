@@ -1,0 +1,41 @@
+{
+  "name": "@isport/portal",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "postinstall": "nuxi prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxi typecheck",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@isport/api-client": "workspace:*",
+    "@isport/design-tokens": "workspace:*",
+    "@isport/i18n": "workspace:*",
+    "@isport/shared": "workspace:*",
+    "@isport/ui-admin": "workspace:*",
+    "@isport/ui-core": "workspace:*",
+    "@isport/unocss-preset": "workspace:*",
+    "@nuxtjs/i18n": "^10.6.0",
+    "@pinia/nuxt": "^0.11.2",
+    "@unocss/nuxt": "^66.10.5",
+    "antdv-next": "^1.5.4",
+    "dayjs": "^1.11.13",
+    "nuxt": "^4.5.2",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.18",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@isport/eslint-config": "workspace:*",
+    "@isport/tsconfig": "workspace:*",
+    "@playwright/test": "^1.55.0",
+    "eslint": "^9.35.0",
+    "sass-embedded": "^1.104.1",
+    "typescript": "^5.9.2",
+    "unocss": "^66.10.5",
+    "vue-tsc": "^3.1.0"
+  }
+}

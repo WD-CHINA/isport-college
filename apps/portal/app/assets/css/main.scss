@@ -1,0 +1,18 @@
+// 全局基础样式。颜色/字号/间距等样式值一律消费设计令牌 CSS 变量。
+// normalize.css 经 nuxt.config.ts 的 css 数组首位引入，无需在此重复。
+
+// SCSS 变量仅作编译期别名；运行时主题值始终来自设计令牌 CSS 变量。
+$font-sans: var(--ic-font-family-sans);
+$bg-page: var(--ic-color-background-page);
+$text-primary: var(--ic-color-text-primary);
+$selection-bg: var(--ic-color-brand-200);
+
+body {
+  font-family: $font-sans;
+  background-color: $bg-page;
+  color: $text-primary;
+}
+
+::selection {
+  background-color: $selection-bg;
+}

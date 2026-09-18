@@ -1,0 +1,64 @@
+<script setup lang="ts">
+const { t } = useI18n()
+const localePath = useLocalePath()
+</script>
+
+<template>
+  <section class="home-hero">
+    <div class="container-page home-hero__inner">
+      <h1 class="home-hero__title">{{ t('home.heroTitle') }}</h1>
+      <p class="home-hero__subtitle">{{ t('home.heroSubtitle') }}</p>
+      <NuxtLink :to="localePath('/courses')" class="btn-primary home-hero__cta">
+        {{ t('home.heroPrimary') }}
+      </NuxtLink>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.home-hero {
+  background-image:
+    radial-gradient(60% 120% at 85% 10%, rgb(249 115 22 / 18%), transparent),
+    linear-gradient(160deg, var(--ic-color-brand-800, #1e3a8a), var(--ic-color-brand-500, #2563eb));
+  color: var(--ic-color-text-inverse, #fff);
+}
+
+.home-hero__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ic-spacing-4, 16px);
+  padding-top: var(--ic-spacing-16, 64px);
+  padding-bottom: var(--ic-spacing-16, 64px);
+}
+
+.home-hero__title {
+  max-width: 40rem;
+  font-size: var(--ic-font-size-3xl, 30px);
+  font-weight: var(--ic-font-weight-bold, 700);
+  line-height: var(--ic-line-height-tight, 1.25);
+}
+
+.home-hero__subtitle {
+  max-width: 34rem;
+  font-size: var(--ic-font-size-base, 16px);
+  color: rgb(255 255 255 / 85%);
+}
+
+.home-hero__cta {
+  margin-top: var(--ic-spacing-2, 8px);
+  background-color: #fff;
+  color: var(--ic-color-brand-600, #1d4ed8);
+}
+
+.home-hero__cta:hover {
+  background-color: var(--ic-color-brand-50, #eff6ff);
+  color: var(--ic-color-brand-700, #1e40af);
+}
+
+@media (min-width: 768px) {
+  .home-hero__title {
+    font-size: var(--ic-font-size-4xl, 36px);
+  }
+}
+</style>

@@ -1,0 +1,20 @@
+{
+  "name": "@isport/ui-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@isport/eslint-config": "workspace:*",
+    "eslint": "^9.35.0",
+    "vue": "^3.5.18"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@isport/design-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens": "./src/tokens.ts",
+    "./uno-theme": "./src/uno-theme.ts",
+    "./antdv-theme": "./src/antdv-theme.ts",
+    "./css-vars": "./src/css-vars.css",
+    "./tokens.json": "./src/tokens.json"
+  },
+  "scripts": {
+    "build": "node scripts/generate.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@isport/eslint-config": "workspace:*",
+    "@isport/tsconfig": "workspace:*",
+    "eslint": "^9.35.0",
+    "typescript": "^5.9.2"
+  }
+}

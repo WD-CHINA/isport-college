@@ -1,0 +1,22 @@
+{
+  "name": "@isport/ui-admin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "peerDependencies": {
+    "antdv-next": "^1.5.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@isport/eslint-config": "workspace:*",
+    "antdv-next": "^1.5.4",
+    "eslint": "^9.35.0",
+    "vue": "^3.5.18"
+  }
+}

@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+.output/
+.nuxt/
+.turbo/
+*.tsbuildinfo
+
+# test & coverage
+coverage/
+test-results/
+playwright-report/
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# env & local files
+.env
+.env.*
+!.env.example
+.DS_Store

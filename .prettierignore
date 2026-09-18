@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+**/dist
+**/.nuxt
+**/.output
+**/.turbo
+**/coverage
+**/playwright-report
+**/test-results
+pnpm-lock.yaml
+**/css-vars.css
+**/tokens.json
+*.log
