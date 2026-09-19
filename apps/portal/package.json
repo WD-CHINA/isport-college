@@ -16,6 +16,7 @@
     "@isport/api-client": "workspace:*",
     "@isport/design-tokens": "workspace:*",
     "@isport/i18n": "workspace:*",
+    "@isport/rich-text": "workspace:*",
     "@isport/shared": "workspace:*",
     "@isport/ui-admin": "workspace:*",
     "@isport/ui-core": "workspace:*",

@@ -1,0 +1,5 @@
+{
+  "extends": "@isport/tsconfig/browser.json",
+  "compilerOptions": { "jsx": "preserve" },
+  "include": ["src/**/*.ts", "src/**/*.vue"]
+}

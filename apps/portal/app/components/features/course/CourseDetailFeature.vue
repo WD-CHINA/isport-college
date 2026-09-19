@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RichTextContent } from '@isport/rich-text'
 import {
   Button as AButton,
   Card as ACard,
@@ -63,7 +64,7 @@ if (error.value) {
     <div class="course-detail__grid">
       <div class="course-detail__main">
         <ACard :title="t('course.courseDesc')">
-          <p class="course-detail__text">{{ localized(course.description) }}</p>
+          <RichTextContent :content="localized(course.description)" />
         </ACard>
         <ACard :title="t('course.schedule')" class="course-detail__section">
           <p class="course-detail__text">{{ localized(course.schedule) }}</p>

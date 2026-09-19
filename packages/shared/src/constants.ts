@@ -6,11 +6,11 @@ export type LocaleCode = (typeof SUPPORTED_LOCALES)[number]
 /** 默认语言：简体中文 */
 export const DEFAULT_LOCALE: LocaleCode = 'zh-CN'
 
-/** 语言偏好 localStorage 键（纯客户端存储，SSR 首屏恒为默认语言） */
-export const LOCALE_STORAGE_KEY = 'ic_locale'
+/** 语言偏好 Cookie 名称，由 @nuxtjs/i18n 在服务端与客户端共同读写 */
+export const LOCALE_COOKIE_NAME = 'ic_locale'
 
-/** 登录会话 localStorage 键与有效期（秒，默认 7 天），纯客户端存储 */
-export const AUTH_STORAGE_KEY = 'ic_auth'
+/** Mock 登录会话 Cookie 名称与有效期（秒，默认 7 天） */
+export const AUTH_COOKIE_NAME = 'ic_auth'
 export const AUTH_SESSION_TTL = 60 * 60 * 24 * 7
 
 /**

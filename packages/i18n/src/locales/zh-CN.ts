@@ -28,12 +28,12 @@ export default {
     courseManage: '课程管理',
   },
   seo: {
-    siteName: 'iSport 运动学院',
-    homeTitle: 'iSport 运动学院 - 专业体育培训课程',
+    siteName: '融梦体育学苑',
+    homeTitle: '融梦体育学苑 - 专业体育培训课程',
     homeDesc:
-      'iSport 运动学院提供体能训练、球类运动、水上运动、操课舞蹈与户外拓展等专业体育培训课程。',
+      '融梦体育学苑提供体能训练、球类运动、水上运动、操课舞蹈与户外拓展等专业体育培训课程。',
     coursesTitle: '课程中心',
-    coursesDesc: '浏览 iSport 运动学院全部课程，按分类、难度筛选并在线报名。',
+    coursesDesc: '浏览融梦体育学苑全部课程，按分类、难度筛选并在线报名。',
     adminTitle: '管理后台',
   },
   home: {
@@ -157,6 +157,19 @@ export default {
     mobileCardView: '移动端已切换为卡片列表',
     roleAdmin: '管理员',
     roleUser: '学员',
+  },
+  richText: {
+    bold: '加粗',
+    italic: '斜体',
+    strike: '删除线',
+    heading2: '二级标题',
+    heading3: '三级标题',
+    bulletList: '无序列表',
+    orderedList: '有序列表',
+    blockquote: '引用',
+    codeBlock: '代码块',
+    undo: '撤销',
+    redo: '重做',
   },
   error: {
     notFoundTitle: '页面不存在',

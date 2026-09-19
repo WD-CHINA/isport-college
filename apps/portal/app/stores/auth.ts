@@ -1,4 +1,5 @@
 import type { LoginPayload } from '@isport/api-client'
+import { AUTH_COOKIE_NAME, AUTH_SESSION_TTL } from '@isport/shared'
 import type { AuthSession } from '@isport/shared'
 
 export type AuthGateReason = 'enroll' | 'admin' | 'default'
@@ -12,17 +13,16 @@ export interface LoginIntent {
 
 export const useAuthStore = defineStore('auth', () => {
   /**
-   * 登录会话持久化在 localStorage（不再使用 Cookie），默认有效期 7 天。
-   * SSR 输出恒为未登录态；@pinia/nuxt 会将该值序列化进 payload 并在客户端水合覆盖，
-   * 因此初值必须为 null，由 restore() 在水合后显式恢复（见 plugins/auth.client.ts）。
-   * SSR 渲染中依赖登录态的区域（如 AppHeader 用户区）需用 <ClientOnly> 隔离。
+   * Mock 登录会话保存在可由 SSR 读取的 Cookie 中，默认有效期 7 天。
+   * 当前由浏览器端 Mock 登录写入，因此不是 HttpOnly；接入真实后端后应改由服务端
+   * 签发 HttpOnly、Secure Cookie，Pinia 只保留服务端解析后的会话视图。
    */
-  const session = shallowRef<AuthSession | null>(null)
-
-  /** 客户端启动时从 localStorage 恢复会话；需在路由初始导航前调用，保证门禁中间件读到正确状态 */
-  function restore() {
-    session.value = readAuthSession()
-  }
+  const sessionCookie = useCookie<AuthSession | null>(AUTH_COOKIE_NAME, {
+    maxAge: AUTH_SESSION_TTL,
+    path: '/',
+    sameSite: 'lax',
+  })
+  const session = shallowRef<AuthSession | null>(sessionCookie.value ?? null)
 
   const user = computed(() => session.value?.user ?? null)
   const isLoggedIn = computed(() => session.value !== null)
@@ -47,7 +47,7 @@ export const useAuthStore = defineStore('auth', () => {
     const { $authRepository } = useNuxtApp()
     const next = await $authRepository.login(payload)
     session.value = next
-    writeAuthSession(next)
+    sessionCookie.value = next
     return next
   }
 
@@ -61,12 +61,12 @@ export const useAuthStore = defineStore('auth', () => {
     await intent?.onSuccess?.()
   }
 
-  /** 显式退出登录：清理本地存储与内存状态 */
+  /** 显式退出登录：清理 Cookie 与内存状态 */
   async function logout() {
     const { $authRepository } = useNuxtApp()
     await $authRepository.logout()
     session.value = null
-    clearAuthSession()
+    sessionCookie.value = null
   }
 
   return {
@@ -76,7 +76,6 @@ export const useAuthStore = defineStore('auth', () => {
     isAdmin,
     loginModalVisible,
     loginIntent,
-    restore,
     openLoginModal,
     closeLoginModal,
     login,

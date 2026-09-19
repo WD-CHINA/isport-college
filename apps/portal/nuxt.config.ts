@@ -1,3 +1,5 @@
+import { LOCALE_COOKIE_NAME } from '@isport/shared'
+
 const adminNoIndex = {
   ssr: false,
   headers: {
@@ -42,9 +44,15 @@ export default defineNuxtConfig({
       { code: 'zh', language: 'zh-CN', name: '简体中文', file: 'zh-CN.ts' },
       { code: 'en', language: 'en-US', name: 'English', file: 'en-US.ts' },
     ],
-    // 不做浏览器语言自动检测：语言偏好由 locale.client.ts 插件持久化到 localStorage，
-    // SSR 首屏恒为默认语言，客户端 hydration 完成后恢复用户偏好。
-    detectBrowserLanguage: false,
+    // 使用 Cookie 让 SSR 在首个请求阶段即可确定语言；仅根路径执行自动重定向，
+    // 带语言前缀或具体业务路径的 URL 始终以路由为准。
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: LOCALE_COOKIE_NAME,
+      redirectOn: 'root',
+      alwaysRedirect: false,
+      fallbackLocale: 'zh',
+    },
   },
   // antdv-next 的 SSR 集成（transpile/noExternal、组件注册、dayjs、cssinjs 样式提取）
   // 由官方模块 @antdv-next/nuxt 统一处理，无需手写 build.transpile / nitro.externals.inline。

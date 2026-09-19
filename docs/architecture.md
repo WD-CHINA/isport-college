@@ -1,7 +1,7 @@
 # isport-college 前端架构设计
 
-> 状态：已确认的首版架构基线  
-> 更新日期：2026-09-18  
+> 状态：当前实现基线  
+> 更新日期：2026-09-19  
 > 适用范围：C 端门户与管理端前端
 
 ## 1. 背景与目标
@@ -108,6 +108,7 @@ flowchart TD
 │   ├── design-tokens/
 │   ├── i18n/
 │   ├── mock-data/
+│   ├── rich-text/
 │   ├── shared/
 │   ├── ui-core/
 │   ├── ui-admin/
@@ -133,6 +134,7 @@ flowchart TD
 | `api-client`    | DTO、Repository 接口、Mock/HTTP 适配器和统一错误模型 | 具体页面状态             |
 | `mock-data`     | Fixtures、数据工厂和演示数据                         | Vue 组件                 |
 | `i18n`          | 中英文公共语言包、locale 类型和格式化约定            | 组件实现                 |
+| `rich-text`     | Tiptap 编辑器、只读内容渲染与基础工具栏              | 页面业务逻辑和数据持久化 |
 | `shared`        | 纯 TypeScript 类型、常量和工具函数                   | Vue/Nuxt 生命周期依赖    |
 
 ### 4.2 依赖方向
@@ -239,6 +241,8 @@ C 端 SSR 是 Nuxt 默认行为，无需再配置全局 `/**: { ssr: true }`。
 
 这样可以保证中英文公开页面具有独立 URL、canonical 和 hreflang。管理端虽然不参与 SEO，但继续使用相同的路由规则可以避免在一个 Nuxt 应用中维护两套语言状态机制。
 
+语言检测由 `@nuxtjs/i18n` 完成，偏好写入 `ic_locale` Cookie。仅访问根路径时，服务端会优先使用已有 Cookie，其次参考浏览器语言，并重定向到相应语言路由；带前缀或具体业务路径的 URL 始终以路由为准。
+
 ### 6.3 文案和日期
 
 - 页面和组件中不得直接硬编码用户可见文案。
@@ -268,10 +272,12 @@ C 端 SSR 是 Nuxt 默认行为，无需再配置全局 `/**: { ssr: true }`。
 ### 7.2 登录状态
 
 - Mock 用户默认同时拥有 C 端用户和管理员演示角色。
-- 登录状态通过 Cookie 保存，默认有效期 7 天。
+- Mock 登录状态通过 `ic_auth` Cookie 保存，默认有效期 7 天。
 - Pinia Auth Store 负责内存中的用户、角色和登录状态。
-- Cookie 是 SSR 与客户端共享登录状态的来源，但首期仍可被用户自行伪造。
+- Store 初始化时通过 Nuxt `useCookie` 同时支持 SSR 与客户端读取，不再需要 hydration 后恢复。
+- 当前 Cookie 由前端 Mock 登录写入，不是 `HttpOnly`，可被用户读取或伪造，只用于原型。
 - 提供显式退出登录，并清理 Cookie 与内存状态。
+- 接入真实后端后改由服务端签发 `HttpOnly`、`Secure`、`SameSite` Cookie。
 
 ### 7.3 全局登录弹窗
 
@@ -344,7 +350,7 @@ Pinia 不用于：
 
 - 不在模块顶层创建跨请求共享的可变单例状态。
 - 不在 SSR 初始渲染中直接读取 `window`、`document` 或 `localStorage`。
-- Cookie 通过 Nuxt `useCookie` 读取。
+- SSR 需要使用的会话和偏好通过 Nuxt `useCookie` 或模块提供的服务端 Cookie 能力读取。
 - 仅客户端持久化的数据在 mounted 后恢复，并避免引起首屏 Hydration 不一致。
 
 ## 9. 数据访问与 Mock 架构

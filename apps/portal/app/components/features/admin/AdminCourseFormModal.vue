@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { CoursePayload } from '@isport/api-client'
+import { RichTextEditor } from '@isport/rich-text'
+import type { RichTextEditorLabels } from '@isport/rich-text'
 import { COURSE_CATEGORIES, COURSE_LEVELS } from '@isport/shared'
 import type { CourseCategory, CourseDetail, CourseLevel } from '@isport/shared'
 import {
@@ -11,7 +13,6 @@ import {
   Select as ASelect,
   SelectOption as ASelectOption,
   Switch as ASwitch,
-  TextArea as ATextarea,
 } from 'antdv-next'
 
 interface Props {
@@ -91,6 +92,19 @@ const form = reactive<FormState>(emptyForm())
 const errors = reactive<FormErrors>({})
 
 const title = computed(() => (props.course ? t('admin.editCourse') : t('admin.createCourse')))
+const richTextLabels = computed<RichTextEditorLabels>(() => ({
+  bold: t('richText.bold'),
+  italic: t('richText.italic'),
+  strike: t('richText.strike'),
+  heading2: t('richText.heading2'),
+  heading3: t('richText.heading3'),
+  bulletList: t('richText.bulletList'),
+  orderedList: t('richText.orderedList'),
+  blockquote: t('richText.blockquote'),
+  codeBlock: t('richText.codeBlock'),
+  undo: t('richText.undo'),
+  redo: t('richText.redo'),
+}))
 
 watch(open, visible => {
   if (!visible) return
@@ -281,10 +295,10 @@ function onSubmit() {
         :validate-status="errors.desc ? 'error' : ''"
         :help="errors.desc"
       >
-        <ATextarea v-model:value="form.descZh" :rows="2" placeholder="简体中文" />
-        <ATextarea
-          v-model:value="form.descEn"
-          :rows="2"
+        <RichTextEditor v-model="form.descZh" :labels="richTextLabels" placeholder="简体中文" />
+        <RichTextEditor
+          v-model="form.descEn"
+          :labels="richTextLabels"
           placeholder="English"
           class="admin-course-form__mt"
         />

@@ -62,18 +62,16 @@ async function handleLogout() {
           :options="localeOptions"
           :label="t('common.language')"
         />
-        <!-- 登录态仅存于客户端 localStorage，SSR 输出不含此区域，避免 hydration 不一致 -->
-        <ClientOnly>
-          <template v-if="auth.isLoggedIn">
-            <span class="app-header__user">{{ auth.user?.name }}</span>
-            <AButton type="text" @click="handleLogout">
-              {{ t('common.logout') }}
-            </AButton>
-          </template>
-          <AButton v-else type="primary" @click="openLogin">
-            {{ t('common.login') }}
+        <!-- Cookie 会话可由 SSR 读取，首屏与客户端使用同一登录态 -->
+        <template v-if="auth.isLoggedIn">
+          <span class="app-header__user">{{ auth.user?.name }}</span>
+          <AButton type="text" @click="handleLogout">
+            {{ t('common.logout') }}
           </AButton>
-        </ClientOnly>
+        </template>
+        <AButton v-else type="primary" @click="openLogin">
+          {{ t('common.login') }}
+        </AButton>
         <!-- 移动端菜单按钮 -->
         <AButton
           type="text"

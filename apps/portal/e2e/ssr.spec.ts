@@ -23,15 +23,12 @@ test('英文路由带 /en 前缀且 html[lang] 正确', async ({ page }) => {
   expect(html).toContain('Courses')
 })
 
-test('英文浏览器访问根路径不做语言重定向', async ({ request }) => {
-  // detectBrowserLanguage 已关闭：语言偏好由 localStorage 恢复，SSR 恒为默认中文
+test('英文浏览器首次访问根路径时由服务端重定向并写入语言 Cookie', async ({ request }) => {
   const response = await request.get('/', {
     headers: { 'Accept-Language': 'en-US' },
     maxRedirects: 0,
   })
-  expect(response.status()).toBe(200)
-  expect(response.headers()['location']).toBeUndefined()
-  const html = await response.text()
-  expect(html).toContain('lang="zh-CN"')
-  expect(html).toContain('精选课程')
+  expect(response.status()).toBe(302)
+  expect(response.headers()['location']).toBe('/en')
+  expect(response.headers()['set-cookie']).toContain('ic_locale=en')
 })
