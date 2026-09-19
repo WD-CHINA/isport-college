@@ -7,6 +7,14 @@ $bg-page: var(--ic-color-background-page);
 $text-primary: var(--ic-color-text-primary);
 $selection-bg: var(--ic-color-brand-200);
 
+// normalize.css 不设置盒模型，而 UnoCSS 原子类（w-full + px-* 等）按 border-box 语义设计；
+// 全局 border-box 避免移动端容器宽度超出视口产生横向滚动条。
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: $font-sans;
   background-color: $bg-page;

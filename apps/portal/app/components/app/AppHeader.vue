@@ -150,6 +150,11 @@ async function handleLogout() {
   flex-shrink: 0;
 }
 
+/* 窄屏仅显示 logo 图标：品牌文字与右侧操作区（语言/登录/菜单）争抢宽度会溢出视口 */
+.app-header__brand :deep(.ui-brand-logo__name) {
+  display: none;
+}
+
 .app-header__nav {
   display: none;
   align-items: center;
@@ -223,6 +228,10 @@ async function handleLogout() {
 }
 
 @media (min-width: 768px) {
+  .app-header__brand :deep(.ui-brand-logo__name) {
+    display: inline;
+  }
+
   .app-header__nav {
     display: flex;
   }
