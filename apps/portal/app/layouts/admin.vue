@@ -120,13 +120,14 @@ function handleUserMenuClick({ key }: { key: string | number }) {
             :options="localeOptions"
             :label="t('common.language')"
           />
-          <ADropdown :trigger="['click']">
+          <ADropdown
+            :trigger="['click']"
+            :menu="{ items: userMenuItems }"
+            @menu-click="handleUserMenuClick"
+          >
             <button type="button" class="admin-header__user">
               {{ auth.user?.name }}
             </button>
-            <template #popupRender>
-              <AMenu :items="userMenuItems" @click="handleUserMenuClick" />
-            </template>
           </ADropdown>
         </div>
       </ALayoutHeader>

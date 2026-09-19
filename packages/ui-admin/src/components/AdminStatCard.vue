@@ -11,7 +11,7 @@ defineProps<Props>()
 </script>
 
 <template>
-  <ACard :bordered="false" class="admin-stat-card">
+  <ACard variant="borderless" class="admin-stat-card">
     <AStatistic :title="title" :value="value" :loading="loading" />
   </ACard>
 </template>

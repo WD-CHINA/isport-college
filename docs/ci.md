@@ -13,7 +13,8 @@
 ```bash
 corepack enable
 pnpm install --frozen-lockfile
-pnpm exec playwright install --with-deps chromium
+# Playwright 只声明在 @isport/portal，需从该包调用 CLI
+pnpm --filter @isport/portal exec playwright install --with-deps chromium
 pnpm check:ci
 ```
 

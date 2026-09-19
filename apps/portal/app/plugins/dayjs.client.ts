@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
 import { resolveDataLocale } from '@isport/shared'
 import { dayjsLocaleMap } from '@isport/i18n'
 

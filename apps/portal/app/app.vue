@@ -2,8 +2,8 @@
 import { antdvThemeToken } from '@isport/design-tokens/antdv-theme'
 import { resolveDataLocale } from '@isport/shared'
 import { App as AApp, ConfigProvider as AConfigProvider } from 'antdv-next'
-import enUS from 'antdv-next/dist/locale/en_US'
-import zhCN from 'antdv-next/dist/locale/zh_CN'
+import enUS from 'antdv-next/locale/en_US'
+import zhCN from 'antdv-next/locale/zh_CN'
 
 const { locale, localeProperties, t } = useI18n()
 const runtimeConfig = useRuntimeConfig()
