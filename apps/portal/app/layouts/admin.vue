@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { UiBrandLogo, UiLocaleSelect } from '@isport/ui-core'
 import {
+  Button as AButton,
   Drawer as ADrawer,
   Dropdown as ADropdown,
   Layout as ALayout,
@@ -64,15 +65,17 @@ function handleUserMenuClick({ key }: { key: string | number }) {
   }
   void navigateTo(localePath('/'))
 }
+
+function goHome() {
+  void navigateTo(localePath('/'))
+}
 </script>
 
 <template>
   <!-- 未登录门禁空态：登录弹窗已由路由门禁打开 -->
   <div v-if="!auth.isLoggedIn" class="admin-gate">
     <p class="admin-gate__text">{{ t('auth.gateAdmin') }}</p>
-    <NuxtLink :to="localePath('/')" class="btn-outline">
-      {{ t('common.backHome') }}
-    </NuxtLink>
+    <AButton @click="goHome">{{ t('common.backHome') }}</AButton>
   </div>
 
   <ALayout v-else class="admin-layout">
@@ -92,9 +95,9 @@ function handleUserMenuClick({ key }: { key: string | number }) {
 
     <ALayout>
       <ALayoutHeader class="admin-header">
-        <button
+        <AButton
           v-if="!isDesktop"
-          type="button"
+          type="text"
           class="admin-header__burger"
           :aria-label="t('common.menu')"
           @click="drawerOpen = true"
@@ -112,7 +115,7 @@ function handleUserMenuClick({ key }: { key: string | number }) {
               stroke-linecap="round"
             />
           </svg>
-        </button>
+        </AButton>
         <span class="admin-header__title">{{ t('seo.adminTitle') }}</span>
         <div class="admin-header__right">
           <UiLocaleSelect
@@ -125,9 +128,9 @@ function handleUserMenuClick({ key }: { key: string | number }) {
             :menu="{ items: userMenuItems }"
             @menu-click="handleUserMenuClick"
           >
-            <button type="button" class="admin-header__user">
+            <AButton type="text" class="admin-header__user">
               {{ auth.user?.name }}
-            </button>
+            </AButton>
           </ADropdown>
         </div>
       </ALayoutHeader>
@@ -142,7 +145,7 @@ function handleUserMenuClick({ key }: { key: string | number }) {
       v-if="!isDesktop"
       v-model:open="drawerOpen"
       placement="left"
-      :width="260"
+      :size="260"
       :title="t('seo.adminTitle')"
     >
       <AMenu
@@ -229,18 +232,7 @@ function handleUserMenuClick({ key }: { key: string | number }) {
 }
 
 .admin-header__user {
-  display: inline-flex;
-  align-items: center;
   min-height: 44px;
-  padding: 0 var(--ic-spacing-3, 12px);
-  border-radius: var(--ic-border-radius-md, 8px);
-  font-size: var(--ic-font-size-sm, 14px);
-  color: var(--ic-color-text-primary, #0f172a);
-  cursor: pointer;
-}
-
-.admin-header__user:hover {
-  background-color: var(--ic-color-background-page, #f8fafc);
 }
 
 .admin-content {

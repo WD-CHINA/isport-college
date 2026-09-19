@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Button as AButton } from 'antdv-next'
+
 const { t } = useI18n()
 const localePath = useLocalePath()
 
@@ -9,6 +11,10 @@ const { data, status } = await useCourseList({
 
 const courses = computed(() => data.value?.list ?? [])
 const loading = computed(() => status.value === 'pending')
+
+function viewMore() {
+  void navigateTo(localePath('/courses'))
+}
 </script>
 
 <template>
@@ -18,9 +24,9 @@ const loading = computed(() => status.value === 'pending')
         <h2 class="featured-courses__title">{{ t('home.featuredTitle') }}</h2>
         <p class="featured-courses__subtitle">{{ t('home.featuredSubtitle') }}</p>
       </div>
-      <NuxtLink :to="localePath('/courses')" class="link featured-courses__more">
+      <AButton type="link" class="featured-courses__more" @click="viewMore">
         {{ t('common.viewMore') }}
-      </NuxtLink>
+      </AButton>
     </div>
     <CourseList :courses="courses" :loading="loading" />
   </section>

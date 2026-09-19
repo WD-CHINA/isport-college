@@ -2,6 +2,7 @@
 import type { CourseListQuery } from '@isport/api-client'
 import { COURSE_CATEGORIES, COURSE_LEVELS } from '@isport/shared'
 import type { CourseCategory, CourseLevel } from '@isport/shared'
+import { InputSearch as AInputSearch, Select as ASelect } from 'antdv-next'
 
 const model = defineModel<CourseListQuery>({ required: true })
 
@@ -17,47 +18,51 @@ function patch(partial: Partial<CourseListQuery>) {
   model.value = { ...model.value, ...partial, page: 1 }
 }
 
-function onCategoryChange(event: Event) {
-  const value = (event.target as HTMLSelectElement).value
+const categoryOptions = computed(() => [
+  { label: t('common.all'), value: '' },
+  ...COURSE_CATEGORIES.map(value => ({ label: t(`course.categories.${value}`), value })),
+])
+
+const levelOptions = computed(() => [
+  { label: t('common.all'), value: '' },
+  ...COURSE_LEVELS.map(value => ({ label: t(`course.levels.${value}`), value })),
+])
+
+function onCategoryChange(value: string) {
   patch({ category: (value || undefined) as CourseCategory | undefined })
 }
 
-function onLevelChange(event: Event) {
-  const value = (event.target as HTMLSelectElement).value
+function onLevelChange(value: string) {
   patch({ level: (value || undefined) as CourseLevel | undefined })
 }
 </script>
 
 <template>
   <div class="course-filters">
-    <input
-      v-model="keyword"
-      type="search"
+    <AInputSearch
+      v-model:value="keyword"
       class="course-filters__input"
       :placeholder="t('course.searchPlaceholder')"
       :aria-label="t('common.search')"
+      allow-clear
     />
     <label class="course-filters__field">
       <span class="course-filters__label">{{ t('course.categoryLabel') }}</span>
-      <select
+      <ASelect
         class="course-filters__select"
         :value="model.category ?? ''"
+        :options="categoryOptions"
         @change="onCategoryChange"
-      >
-        <option value="">{{ t('common.all') }}</option>
-        <option v-for="cat in COURSE_CATEGORIES" :key="cat" :value="cat">
-          {{ t(`course.categories.${cat}`) }}
-        </option>
-      </select>
+      />
     </label>
     <label class="course-filters__field">
       <span class="course-filters__label">{{ t('course.levelLabel') }}</span>
-      <select class="course-filters__select" :value="model.level ?? ''" @change="onLevelChange">
-        <option value="">{{ t('common.all') }}</option>
-        <option v-for="lv in COURSE_LEVELS" :key="lv" :value="lv">
-          {{ t(`course.levels.${lv}`) }}
-        </option>
-      </select>
+      <ASelect
+        class="course-filters__select"
+        :value="model.level ?? ''"
+        :options="levelOptions"
+        @change="onLevelChange"
+      />
     </label>
   </div>
 </template>
@@ -69,25 +74,13 @@ function onLevelChange(event: Event) {
   gap: var(--ic-spacing-3, 12px);
 }
 
-.course-filters__input,
-.course-filters__select {
-  min-height: 44px;
-  padding: 0 var(--ic-spacing-3, 12px);
-  border: 1px solid var(--ic-color-border-base, #e2e8f0);
-  border-radius: var(--ic-border-radius-md, 8px);
-  background: var(--ic-color-background-container, #fff);
-  color: var(--ic-color-text-primary, #0f172a);
-  font-size: var(--ic-font-size-sm, 14px);
-}
-
 .course-filters__input {
   flex: 1 1 220px;
+  min-width: 220px;
 }
 
-.course-filters__input:focus-visible,
-.course-filters__select:focus-visible {
-  border-color: var(--ic-color-brand-500, #2563eb);
-  outline: 2px solid var(--ic-color-brand-200, #bfdbfe);
+.course-filters__select {
+  min-width: 140px;
 }
 
 .course-filters__field {

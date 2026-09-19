@@ -1,6 +1,12 @@
 <script setup lang="ts">
+import { Button as AButton } from 'antdv-next'
+
 const { t } = useI18n()
 const localePath = useLocalePath()
+
+function viewCourses() {
+  void navigateTo(localePath('/courses'))
+}
 </script>
 
 <template>
@@ -8,9 +14,9 @@ const localePath = useLocalePath()
     <div class="container-page home-hero__inner">
       <h1 class="home-hero__title">{{ t('home.heroTitle') }}</h1>
       <p class="home-hero__subtitle">{{ t('home.heroSubtitle') }}</p>
-      <NuxtLink :to="localePath('/courses')" class="btn-primary home-hero__cta">
+      <AButton size="large" class="home-hero__cta" @click="viewCourses">
         {{ t('home.heroPrimary') }}
-      </NuxtLink>
+      </AButton>
     </div>
   </section>
 </template>
@@ -47,13 +53,7 @@ const localePath = useLocalePath()
 
 .home-hero__cta {
   margin-top: var(--ic-spacing-2, 8px);
-  background-color: #fff;
   color: var(--ic-color-brand-600, #1d4ed8);
-}
-
-.home-hero__cta:hover {
-  background-color: var(--ic-color-brand-50, #eff6ff);
-  color: var(--ic-color-brand-700, #1e40af);
 }
 
 @media (min-width: 768px) {

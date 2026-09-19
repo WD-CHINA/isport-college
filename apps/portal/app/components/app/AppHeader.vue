@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { UiBrandLogo, UiLocaleSelect } from '@isport/ui-core'
+import { Button as AButton } from 'antdv-next'
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -65,17 +66,17 @@ async function handleLogout() {
         <ClientOnly>
           <template v-if="auth.isLoggedIn">
             <span class="app-header__user">{{ auth.user?.name }}</span>
-            <button type="button" class="btn-ghost" @click="handleLogout">
+            <AButton type="text" @click="handleLogout">
               {{ t('common.logout') }}
-            </button>
+            </AButton>
           </template>
-          <button v-else type="button" class="btn-primary" @click="openLogin">
+          <AButton v-else type="primary" @click="openLogin">
             {{ t('common.login') }}
-          </button>
+          </AButton>
         </ClientOnly>
         <!-- 移动端菜单按钮 -->
-        <button
-          type="button"
+        <AButton
+          type="text"
           class="app-header__burger"
           :aria-expanded="menuOpen"
           :aria-label="t('common.menu')"
@@ -102,7 +103,7 @@ async function handleLogout() {
               stroke-linecap="round"
             />
           </svg>
-        </button>
+        </AButton>
       </div>
     </div>
 
@@ -117,14 +118,15 @@ async function handleLogout() {
       >
         {{ item.label }}
       </NuxtLink>
-      <button
+      <AButton
         v-if="auth.isLoggedIn"
-        type="button"
-        class="app-header__panel-link text-left"
+        type="text"
+        block
+        class="app-header__panel-action"
         @click="handleLogout"
       >
         {{ t('common.logout') }}（{{ auth.user?.name }}）
-      </button>
+      </AButton>
     </nav>
   </header>
 </template>
@@ -225,6 +227,12 @@ async function handleLogout() {
   padding: 0 var(--ic-spacing-3, 12px);
   font-size: var(--ic-font-size-base, 16px);
   color: var(--ic-color-text-primary, #0f172a);
+}
+
+.app-header__panel-action {
+  min-height: 44px;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 @media (min-width: 768px) {

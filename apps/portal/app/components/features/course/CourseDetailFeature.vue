@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import {
+  Button as AButton,
+  Card as ACard,
+  Descriptions as ADescriptions,
+  DescriptionsItem as ADescriptionsItem,
+  Skeleton as ASkeleton,
+  Tag as ATag,
+} from 'antdv-next'
+
 interface Props {
   courseId: string
 }
@@ -43,8 +52,8 @@ if (error.value) {
     >
       <div class="course-detail__cover-inner">
         <div class="course-detail__tags">
-          <span class="course-detail__tag">{{ t(`course.categories.${course.category}`) }}</span>
-          <span class="course-detail__tag">{{ t(`course.levels.${course.level}`) }}</span>
+          <ATag class="course-detail__tag">{{ t(`course.categories.${course.category}`) }}</ATag>
+          <ATag class="course-detail__tag">{{ t(`course.levels.${course.level}`) }}</ATag>
         </div>
         <h1 class="course-detail__name">{{ localized(course.name) }}</h1>
         <p class="course-detail__coach">{{ t('course.coach') }} · {{ course.coach }}</p>
@@ -53,53 +62,48 @@ if (error.value) {
 
     <div class="course-detail__grid">
       <div class="course-detail__main">
-        <section class="course-detail__section">
-          <h2 class="course-detail__section-title">{{ t('course.courseDesc') }}</h2>
+        <ACard :title="t('course.courseDesc')">
           <p class="course-detail__text">{{ localized(course.description) }}</p>
-        </section>
-        <section class="course-detail__section">
-          <h2 class="course-detail__section-title">{{ t('course.schedule') }}</h2>
+        </ACard>
+        <ACard :title="t('course.schedule')" class="course-detail__section">
           <p class="course-detail__text">{{ localized(course.schedule) }}</p>
-        </section>
+        </ACard>
       </div>
 
-      <aside class="course-detail__aside">
-        <dl class="course-detail__facts">
-          <div class="course-detail__fact">
-            <dt>{{ t('course.startDate') }}</dt>
-            <dd>{{ startDateText }}</dd>
-          </div>
-          <div class="course-detail__fact">
-            <dt>{{ t('course.duration') }}</dt>
-            <dd>{{ course.durationMin }}{{ t('course.durationUnit') }}</dd>
-          </div>
-          <div class="course-detail__fact">
-            <dt>{{ t('course.location') }}</dt>
-            <dd>{{ localized(course.location) }}</dd>
-          </div>
-          <div class="course-detail__fact">
-            <dt>{{ t('course.enrolledCount') }}</dt>
-            <dd>{{ course.enrolled }}/{{ course.capacity }}</dd>
-          </div>
-        </dl>
+      <ACard class="course-detail__aside">
+        <ADescriptions :column="1" size="small" :colon="false">
+          <ADescriptionsItem :label="t('course.startDate')">{{ startDateText }}</ADescriptionsItem>
+          <ADescriptionsItem :label="t('course.duration')">
+            {{ course.durationMin }}{{ t('course.durationUnit') }}
+          </ADescriptionsItem>
+          <ADescriptionsItem :label="t('course.location')">
+            {{ localized(course.location) }}
+          </ADescriptionsItem>
+          <ADescriptionsItem :label="t('course.enrolledCount')">
+            {{ course.enrolled }}/{{ course.capacity }}
+          </ADescriptionsItem>
+        </ADescriptions>
         <p class="course-detail__price">
           {{ priceText ?? t('course.priceFree') }}
         </p>
-        <button
-          type="button"
-          class="btn-primary course-detail__enroll"
+        <AButton
+          type="primary"
+          block
+          size="large"
+          class="course-detail__enroll"
+          :loading="enrolling"
           :disabled="enrolling || enrolled || isFull"
           @click="enroll"
         >
           <template v-if="enrolled">{{ t('course.enrolled') }}</template>
           <template v-else-if="isFull">{{ t('course.enrollFull') }}</template>
           <template v-else>{{ t('course.enroll') }}</template>
-        </button>
-      </aside>
+        </AButton>
+      </ACard>
     </div>
   </section>
   <div v-else-if="loading" class="container-page course-detail__loading">
-    {{ t('common.loading') }}
+    <ASkeleton active />
   </div>
 </template>
 
@@ -128,9 +132,10 @@ if (error.value) {
 }
 
 .course-detail__tag {
-  padding: 2px var(--ic-spacing-2, 8px);
-  border-radius: var(--ic-border-radius-full, 9999px);
+  margin-inline-end: 0;
+  border-color: transparent;
   background: rgb(255 255 255 / 18%);
+  color: var(--ic-color-text-inverse, #fff);
   font-size: var(--ic-font-size-xs, 12px);
   backdrop-filter: blur(4px);
 }
@@ -159,23 +164,10 @@ if (error.value) {
 }
 
 .course-detail__section {
-  padding: var(--ic-spacing-5, 20px);
-  border: 1px solid var(--ic-color-border-base, #e2e8f0);
-  border-radius: var(--ic-border-radius-lg, 12px);
-  background: var(--ic-color-background-container, #fff);
-}
-
-.course-detail__section + .course-detail__section {
   margin-top: var(--ic-spacing-4, 16px);
 }
 
-.course-detail__section-title {
-  font-size: var(--ic-font-size-lg, 18px);
-  font-weight: var(--ic-font-weight-semibold, 600);
-}
-
 .course-detail__text {
-  margin-top: var(--ic-spacing-2, 8px);
   line-height: var(--ic-line-height-relaxed, 1.75);
   color: var(--ic-color-text-secondary, #475569);
   white-space: pre-line;
@@ -183,27 +175,6 @@ if (error.value) {
 
 .course-detail__aside {
   align-self: start;
-  padding: var(--ic-spacing-5, 20px);
-  border: 1px solid var(--ic-color-border-base, #e2e8f0);
-  border-radius: var(--ic-border-radius-lg, 12px);
-  background: var(--ic-color-background-container, #fff);
-}
-
-.course-detail__fact {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--ic-spacing-3, 12px);
-  padding: var(--ic-spacing-2, 8px) 0;
-  font-size: var(--ic-font-size-sm, 14px);
-}
-
-.course-detail__fact dt {
-  color: var(--ic-color-text-tertiary, #94a3b8);
-}
-
-.course-detail__fact dd {
-  color: var(--ic-color-text-primary, #0f172a);
-  text-align: right;
 }
 
 .course-detail__price {
@@ -214,14 +185,7 @@ if (error.value) {
 }
 
 .course-detail__enroll {
-  width: 100%;
   margin-top: var(--ic-spacing-3, 12px);
-  min-height: 44px;
-}
-
-.course-detail__enroll:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 
 .course-detail__loading {

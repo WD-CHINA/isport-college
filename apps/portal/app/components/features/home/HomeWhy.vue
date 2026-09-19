@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Card as ACard } from 'antdv-next'
+
 const { t } = useI18n()
 
 const items = computed(() => [
@@ -11,12 +13,11 @@ const items = computed(() => [
 <template>
   <section class="container-page home-why">
     <h2 class="home-why__title">{{ t('home.whyTitle') }}</h2>
-    <ul class="home-why__grid">
-      <li v-for="item in items" :key="item.title" class="card home-why__item">
-        <h3 class="home-why__item-title">{{ item.title }}</h3>
+    <div class="home-why__grid">
+      <ACard v-for="item in items" :key="item.title" :title="item.title">
         <p class="home-why__item-desc">{{ item.desc }}</p>
-      </li>
-    </ul>
+      </ACard>
+    </div>
   </section>
 </template>
 
@@ -37,17 +38,7 @@ const items = computed(() => [
   gap: var(--ic-spacing-4, 16px);
 }
 
-.home-why__item {
-  padding: var(--ic-spacing-5, 20px);
-}
-
-.home-why__item-title {
-  font-size: var(--ic-font-size-lg, 18px);
-  font-weight: var(--ic-font-weight-semibold, 600);
-}
-
 .home-why__item-desc {
-  margin-top: var(--ic-spacing-2, 8px);
   font-size: var(--ic-font-size-sm, 14px);
   color: var(--ic-color-text-secondary, #475569);
 }

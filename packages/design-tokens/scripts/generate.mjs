@@ -4,11 +4,11 @@
  */
 import { writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const srcDir = resolve(here, '../src')
-const { tokens } = await import(resolve(srcDir, 'tokens.ts'))
+const { tokens } = await import(pathToFileURL(resolve(srcDir, 'tokens.ts')).href)
 
 /** 将嵌套对象拍平为 [path[], value][] */
 function flatten(value, path = []) {

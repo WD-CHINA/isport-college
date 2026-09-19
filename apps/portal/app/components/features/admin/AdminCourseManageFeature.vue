@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { CourseListQuery, CoursePayload } from '@isport/api-client'
 import { AdminPageHeader } from '@isport/ui-admin'
-import { UiEmptyState } from '@isport/ui-core'
 import type { Course, CourseDetail } from '@isport/shared'
-import { App, Button as AButton, useBreakpoint } from 'antdv-next'
+import { App, Button as AButton, Empty as AEmpty, useBreakpoint } from 'antdv-next'
 
 const { t } = useI18n()
 const localized = useLocalizedText()
@@ -89,7 +88,7 @@ function onRemove(course: Course) {
       @remove="onRemove"
     />
 
-    <UiEmptyState v-if="!loading && courses.length === 0" :title="t('common.empty')" />
+    <AEmpty v-if="!loading && courses.length === 0" :description="t('common.empty')" />
 
     <CoursePagination
       v-if="!loading && courses.length > 0"

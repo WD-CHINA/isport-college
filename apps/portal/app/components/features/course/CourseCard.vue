@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Course } from '@isport/shared'
+import { Card as ACard, Tag as ATag } from 'antdv-next'
 
 interface Props {
   course: Course
@@ -20,12 +21,14 @@ const startDateText = computed(() => formatDate(props.course.startDate, locale.v
 </script>
 
 <template>
-  <NuxtLink :to="localePath(`/courses/${course.id}`)" class="course-card">
-    <div class="course-card__cover" :style="coverStyle">
-      <span class="course-card__category">{{ t(`course.categories.${course.category}`) }}</span>
-      <span class="course-card__level">{{ t(`course.levels.${course.level}`) }}</span>
-    </div>
-    <div class="course-card__body">
+  <NuxtLink :to="localePath(`/courses/${course.id}`)" class="course-card-link">
+    <ACard hoverable class="course-card">
+      <template #cover>
+        <div class="course-card__cover" :style="coverStyle">
+          <ATag class="course-card__tag">{{ t(`course.categories.${course.category}`) }}</ATag>
+          <ATag class="course-card__tag">{{ t(`course.levels.${course.level}`) }}</ATag>
+        </div>
+      </template>
       <h3 class="course-card__name">{{ localized(course.name) }}</h3>
       <p class="course-card__meta">{{ t('course.coach') }} · {{ course.coach }}</p>
       <p class="course-card__meta">
@@ -39,25 +42,19 @@ const startDateText = computed(() => formatDate(props.course.startDate, locale.v
           {{ priceText ?? t('course.priceFree') }}
         </span>
       </div>
-    </div>
+    </ACard>
   </NuxtLink>
 </template>
 
 <style scoped>
-.course-card {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--ic-color-border-base, #e2e8f0);
-  border-radius: var(--ic-border-radius-lg, 12px);
-  background: var(--ic-color-background-container, #fff);
+.course-card-link {
+  display: block;
+  height: 100%;
   text-decoration: none;
-  transition: box-shadow var(--ic-motion-duration-fast, 150ms)
-    var(--ic-motion-easing-standard, ease);
 }
 
-.course-card:hover {
-  box-shadow: var(--ic-box-shadow-md, 0 4px 12px -2px rgb(15 23 42 / 10%));
+.course-card {
+  height: 100%;
 }
 
 .course-card__cover {
@@ -69,22 +66,12 @@ const startDateText = computed(() => formatDate(props.course.startDate, locale.v
   padding: var(--ic-spacing-3, 12px);
 }
 
-.course-card__category,
-.course-card__level {
-  padding: 2px var(--ic-spacing-2, 8px);
-  border-radius: var(--ic-border-radius-full, 9999px);
+.course-card__tag {
+  margin-inline-end: 0;
+  border-color: transparent;
   background: rgb(255 255 255 / 18%);
   color: var(--ic-color-text-inverse, #fff);
-  font-size: var(--ic-font-size-xs, 12px);
   backdrop-filter: blur(4px);
-}
-
-.course-card__body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--ic-spacing-1, 4px);
-  padding: var(--ic-spacing-4, 16px);
 }
 
 .course-card__name {
@@ -102,7 +89,7 @@ const startDateText = computed(() => formatDate(props.course.startDate, locale.v
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: auto;
+  margin-top: var(--ic-spacing-3, 12px);
   padding-top: var(--ic-spacing-3, 12px);
 }
 
