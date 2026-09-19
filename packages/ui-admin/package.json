@@ -16,10 +16,10 @@
   },
   "devDependencies": {
     "@isport/tsconfig": "workspace:*",
-    "antdv-next": "^1.5.4",
-    "eslint": "^9.35.0",
-    "typescript": "^5.9.2",
-    "vue": "^3.5.18",
-    "vue-tsc": "^3.1.0"
+    "antdv-next": "1.5.4",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3",
+    "vue": "3.5.43",
+    "vue-tsc": "3.3.11"
   }
 }

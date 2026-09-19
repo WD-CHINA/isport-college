@@ -12,7 +12,7 @@
     "test:e2e:built": "E2E_USE_BUILT_OUTPUT=true playwright test"
   },
   "dependencies": {
-    "@antdv-next/icons": "^1.1.2",
+    "@antdv-next/icons": "1.1.2",
     "@isport/api-client": "workspace:*",
     "@isport/design-tokens": "workspace:*",
     "@isport/i18n": "workspace:*",
@@ -20,24 +20,24 @@
     "@isport/ui-admin": "workspace:*",
     "@isport/ui-core": "workspace:*",
     "@isport/unocss-preset": "workspace:*",
-    "@nuxtjs/i18n": "^10.6.0",
-    "@pinia/nuxt": "^0.11.2",
-    "@unocss/nuxt": "^66.10.5",
-    "antdv-next": "^1.5.4",
-    "dayjs": "^1.11.13",
-    "normalize.css": "^8.0.1",
-    "nuxt": "^4.5.2",
-    "pinia": "^3.0.3",
-    "vue": "^3.5.18"
+    "@nuxtjs/i18n": "10.6.0",
+    "@pinia/nuxt": "0.11.3",
+    "@unocss/nuxt": "66.10.5",
+    "antdv-next": "1.5.4",
+    "dayjs": "1.11.23",
+    "normalize.css": "8.0.1",
+    "nuxt": "4.5.2",
+    "pinia": "3.0.4",
+    "vue": "3.5.43"
   },
   "devDependencies": {
-    "@antdv-next/nuxt": "^1.1.0",
+    "@antdv-next/nuxt": "1.1.0",
     "@isport/tsconfig": "workspace:*",
-    "@playwright/test": "^1.55.0",
-    "eslint": "^9.35.0",
-    "sass-embedded": "^1.104.1",
-    "typescript": "^5.9.2",
-    "unocss": "^66.10.5",
-    "vue-tsc": "^3.1.0"
+    "@playwright/test": "1.63.0",
+    "eslint": "9.39.5",
+    "sass-embedded": "1.104.1",
+    "typescript": "5.9.3",
+    "unocss": "66.10.5",
+    "vue-tsc": "3.3.11"
   }
 }
