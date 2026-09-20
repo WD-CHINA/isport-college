@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CoursePayload } from '@isport/api-client'
+import type { CoursePayload } from '~/api/course'
 import { RichTextEditor } from '@isport/rich-text'
 import type { RichTextEditorLabels } from '@isport/rich-text'
 import { COURSE_CATEGORIES, COURSE_LEVELS } from '@isport/shared'

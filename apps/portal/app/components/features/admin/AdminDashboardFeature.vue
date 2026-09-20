@@ -1,22 +1,16 @@
 <script setup lang="ts">
-import { AdminPageHeader, AdminStatCard } from '@isport/ui-admin'
+import { AdminPageHeader } from '@isport/ui-admin'
 import { useAuthStore } from '~/stores/auth'
 
 const { t, locale } = useI18n()
 const localized = useLocalizedText()
-const { $dashboardRepository } = useNuxtApp()
 const auth = useAuthStore()
-
-const { data: stats, status: statsStatus } = useAsyncData('admin-dashboard-stats', () =>
-  $dashboardRepository.getStats(),
-)
 
 const { data: latest, status: latestStatus } = await useCourseList({
   key: 'admin-latest-courses',
   query: { page: 1, pageSize: 5 },
 })
 
-const statsLoading = computed(() => statsStatus.value === 'pending')
 const latestCourses = computed(() => latest.value?.list ?? [])
 const latestLoading = computed(() => latestStatus.value === 'pending')
 </script>
@@ -27,29 +21,6 @@ const latestLoading = computed(() => latestStatus.value === 'pending')
       :title="t('nav.dashboard')"
       :description="t('admin.welcome', { name: auth.user?.name ?? '' })"
     />
-
-    <div class="admin-dashboard__stats">
-      <AdminStatCard
-        :title="t('admin.statsCourses')"
-        :value="stats?.totalCourses ?? 0"
-        :loading="statsLoading"
-      />
-      <AdminStatCard
-        :title="t('admin.statsEnrollments')"
-        :value="stats?.totalEnrollments ?? 0"
-        :loading="statsLoading"
-      />
-      <AdminStatCard
-        :title="t('admin.statsCoaches')"
-        :value="stats?.totalCoaches ?? 0"
-        :loading="statsLoading"
-      />
-      <AdminStatCard
-        :title="t('admin.statsStudents')"
-        :value="stats?.totalStudents ?? 0"
-        :loading="statsLoading"
-      />
-    </div>
 
     <section class="admin-dashboard__latest">
       <h2 class="admin-dashboard__latest-title">{{ t('admin.latestCourses') }}</h2>
@@ -72,24 +43,6 @@ const latestLoading = computed(() => latestStatus.value === 'pending')
 </template>
 
 <style scoped>
-.admin-dashboard__stats {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--ic-spacing-4, 16px);
-}
-
-@media (min-width: 640px) {
-  .admin-dashboard__stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .admin-dashboard__stats {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
 .admin-dashboard__latest {
   margin-top: var(--ic-spacing-6, 24px);
   padding: var(--ic-spacing-5, 20px);

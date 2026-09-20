@@ -1,4 +1,5 @@
-import type { CourseListQuery } from '@isport/api-client'
+import type { CourseListQuery } from '~/api/course'
+import { fetchCourseList } from '~/api/course'
 import type { Course, PageResult } from '@isport/shared'
 
 interface UseCourseListOptions {
@@ -8,13 +9,11 @@ interface UseCourseListOptions {
   query: MaybeRefOrGetter<CourseListQuery>
 }
 
-/** 课程列表：只依赖 CourseRepository 接口，不感知 Mock/HTTP 实现 */
+/** 课程列表：真实平台资源接口，响应经 useAsyncData 缓存供 SSR/CSR 复用 */
 export function useCourseList(options: UseCourseListOptions) {
-  const { $courseRepository } = useNuxtApp()
-
   return useAsyncData<PageResult<Course>>(
     options.key,
-    () => $courseRepository.list(toValue(options.query)),
+    () => fetchCourseList(toValue(options.query)),
     {
       watch: [() => toValue(options.query)],
       deep: true,

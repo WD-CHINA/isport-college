@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CourseListQuery, CoursePayload } from '@isport/api-client'
+import { fetchCourseDetail, type CourseListQuery, type CoursePayload } from '~/api/course'
 import { AdminPageHeader } from '@isport/ui-admin'
 import type { Course, CourseDetail } from '@isport/shared'
 import { App, Button as AButton, Empty as AEmpty, useBreakpoint } from 'antdv-next'
@@ -7,7 +7,6 @@ import { App, Button as AButton, Empty as AEmpty, useBreakpoint } from 'antdv-ne
 const { t } = useI18n()
 const localized = useLocalizedText()
 const { modal } = App.useApp()
-const { $courseRepository } = useNuxtApp()
 
 const screens = useBreakpoint()
 const isDesktop = computed(() => screens.value?.lg ?? false)
@@ -43,7 +42,7 @@ function openCreate() {
 
 async function openEdit(course: Course) {
   // 列表项不含 description/schedule，编辑前取完整详情
-  editing.value = await $courseRepository.getById(course.id)
+  editing.value = await fetchCourseDetail(course.id)
   modalOpen.value = true
 }
 

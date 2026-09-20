@@ -5,23 +5,24 @@ async function loginAdmin(page: Page, path = '/admin') {
   await page.goto(path)
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()
-  await dialog.locator('#login-phone').fill('188 8888 8888')
+  await dialog.locator('#login-username').fill('e2e-admin')
   await dialog.locator('#login-password').fill('123456')
+  await dialog.locator('#login-captcha').fill('1234')
   await dialog.getByRole('button', { name: /登\s*录|Sign In/ }).click()
   await expect(dialog).toBeHidden()
   await expect(page.locator('.admin-header__user')).toBeVisible()
 }
 
-/** 演示账号登录：全局唯一登录弹窗 → 登录成功 → 恢复目标操作 */
+/** 真实登录链路：登录弹窗（用户名+密码+验证码）→ 登录成功 → 恢复目标操作 */
 test('未登录访问 /admin 弹出登录框，登录后进入工作台', async ({ page }) => {
   await loginAdmin(page)
 
   await expect(page).toHaveURL(/\/admin$/)
-  await expect(page.getByText('课程总数')).toBeVisible()
+  await expect(page.getByText('最新开课')).toBeVisible()
 
   // Cookie 会话刷新后仍能在初始导航阶段被门禁读取。
   await page.reload()
-  await expect(page.getByText('课程总数')).toBeVisible()
+  await expect(page.getByText('最新开课')).toBeVisible()
   await expect(page.getByRole('dialog')).toBeHidden()
 })
 

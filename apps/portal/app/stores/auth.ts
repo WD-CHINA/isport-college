@@ -1,4 +1,4 @@
-import type { LoginPayload } from '@isport/api-client'
+import { login as loginApi, logout as logoutApi, type LoginPayload } from '~/api/auth'
 import { AUTH_COOKIE_NAME, AUTH_SESSION_TTL } from '@isport/shared'
 import type { AuthSession } from '@isport/shared'
 
@@ -13,9 +13,8 @@ export interface LoginIntent {
 
 export const useAuthStore = defineStore('auth', () => {
   /**
-   * Mock 登录会话保存在可由 SSR 读取的 Cookie 中，默认有效期 7 天。
-   * 当前由浏览器端 Mock 登录写入，因此不是 HttpOnly；接入真实后端后应改由服务端
-   * 签发 HttpOnly、Secure Cookie，Pinia 只保留服务端解析后的会话视图。
+   * 真实登录会话保存在可由 SSR 读取的 Cookie 中，默认有效期 7 天。
+   * token 由后端 `/rsp/user/login` 签发，按后端约定直接作为 Authorization 头值使用。
    */
   const sessionCookie = useCookie<AuthSession | null>(AUTH_COOKIE_NAME, {
     maxAge: AUTH_SESSION_TTL,
@@ -44,8 +43,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function login(payload: LoginPayload) {
-    const { $authRepository } = useNuxtApp()
-    const next = await $authRepository.login(payload)
+    const next = await loginApi(payload)
     session.value = next
     sessionCookie.value = next
     return next
@@ -61,12 +59,19 @@ export const useAuthStore = defineStore('auth', () => {
     await intent?.onSuccess?.()
   }
 
-  /** 显式退出登录：清理 Cookie 与内存状态 */
-  async function logout() {
-    const { $authRepository } = useNuxtApp()
-    await $authRepository.logout()
+  /** 仅清理本地会话（401 响应时由 HTTP 层调用，不再发起 logout 请求） */
+  function clearSession() {
     session.value = null
     sessionCookie.value = null
+  }
+
+  /** 显式退出登录：后端失效 token 无论如何都清理本地会话 */
+  async function logout() {
+    try {
+      await logoutApi()
+    } finally {
+      clearSession()
+    }
   }
 
   return {
@@ -79,7 +84,8 @@ export const useAuthStore = defineStore('auth', () => {
     openLoginModal,
     closeLoginModal,
     login,
-    resolveLoginSuccess,
     logout,
+    clearSession,
+    resolveLoginSuccess,
   }
 })

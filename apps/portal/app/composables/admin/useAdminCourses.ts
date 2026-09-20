@@ -1,9 +1,14 @@
-import type { CoursePayload } from '@isport/api-client'
 import { App } from 'antdv-next'
+
+import {
+  createCourse as createCourseApi,
+  deleteCourse,
+  updateCourse as updateCourseApi,
+  type CoursePayload,
+} from '~/api/course'
 
 /** 管理端课程增删改：统一消息反馈与列表刷新 */
 export function useAdminCourses(refresh: () => Promise<void>) {
-  const { $courseRepository } = useNuxtApp()
   const { message } = App.useApp()
   const { t } = useI18n()
 
@@ -12,7 +17,7 @@ export function useAdminCourses(refresh: () => Promise<void>) {
   async function createCourse(payload: CoursePayload): Promise<boolean> {
     saving.value = true
     try {
-      await $courseRepository.create(payload)
+      await createCourseApi(payload)
       message.success(t('admin.createSuccess'))
       await refresh()
       return true
@@ -27,7 +32,7 @@ export function useAdminCourses(refresh: () => Promise<void>) {
   async function updateCourse(id: string, payload: CoursePayload): Promise<boolean> {
     saving.value = true
     try {
-      await $courseRepository.update(id, payload)
+      await updateCourseApi(id, payload)
       message.success(t('admin.updateSuccess'))
       await refresh()
       return true
@@ -41,7 +46,7 @@ export function useAdminCourses(refresh: () => Promise<void>) {
 
   async function removeCourse(id: string): Promise<void> {
     try {
-      await $courseRepository.remove(id)
+      await deleteCourse(id)
       message.success(t('admin.deleteSuccess'))
       await refresh()
     } catch {

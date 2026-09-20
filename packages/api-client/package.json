@@ -13,8 +13,8 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@isport/mock-data": "workspace:*",
-    "@isport/shared": "workspace:*"
+    "@isport/shared": "workspace:*",
+    "ofetch": "1.5.1"
   },
   "devDependencies": {
     "@isport/tsconfig": "workspace:*",

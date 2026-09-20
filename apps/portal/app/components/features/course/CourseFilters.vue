@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CourseListQuery } from '@isport/api-client'
+import type { CourseListQuery } from '~/api/course'
 import { COURSE_CATEGORIES, COURSE_LEVELS } from '@isport/shared'
 import type { CourseCategory, CourseLevel } from '@isport/shared'
 import { InputSearch as AInputSearch, Select as ASelect } from 'antdv-next'

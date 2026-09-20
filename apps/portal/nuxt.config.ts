@@ -1,5 +1,9 @@
 import { LOCALE_COOKIE_NAME } from '@isport/shared'
 
+/** dev 直连的测试后端；生产由 NUXT_API_BASE / NUXT_PUBLIC_API_BASE 注入 */
+const devApiHost = 'https://library-test.dream-sports.cn'
+const isProd = process.env.NODE_ENV === 'production'
+
 const adminNoIndex = {
   ssr: false,
   headers: {
@@ -10,16 +14,18 @@ const adminNoIndex = {
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-18',
-  devtools: { enabled: false },
+  devtools: { enabled: true },
   components: [{ path: '~/components', pathPrefix: false }],
   modules: ['@pinia/nuxt', '@unocss/nuxt', '@nuxtjs/i18n', '@antdv-next/nuxt'],
   css: ['normalize.css', '@isport/design-tokens/css-vars', '~/assets/css/main.scss'],
   runtimeConfig: {
+    /** SSR 直连的后端地址：dev 默认测试后端（Node 无跨域），生产由 NUXT_API_BASE 注入 */
+    apiBase: isProd ? '' : devApiHost,
     public: {
       /** 部署环境：非 production 环境全站禁止收录 */
       siteEnv: 'development',
-      /** 未来真实 API Base URL，通过环境变量注入，不写死在源码中 */
-      apiBase: '',
+      /** 浏览器侧 API 地址：dev 默认 '/rsp' 走 routeRules 代理规避跨域，生产由 NUXT_PUBLIC_API_BASE 注入 */
+      apiBase: isProd ? '' : '/rsp',
     },
   },
   app: {
@@ -31,6 +37,8 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
+    /** 开发代理：浏览器 '/rsp/**' 转发到测试后端，规避跨域（GET/POST 均由 nitro 路由层处理） */
+    ...(isProd ? {} : { '/rsp/**': { proxy: `${devApiHost}/rsp/**` } }),
     '/admin': adminNoIndex,
     '/admin/**': adminNoIndex,
     '/en/admin': adminNoIndex,

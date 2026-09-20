@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { fetchCourseDetail } from '~/api/course'
 import { RichTextContent } from '@isport/rich-text'
 import {
   Button as AButton,
@@ -16,16 +17,13 @@ interface Props {
 const props = defineProps<Props>()
 
 const { t, locale } = useI18n()
-const { $courseRepository } = useNuxtApp()
 const localized = useLocalizedText()
 
 const {
   data: course,
   status,
   error,
-} = await useAsyncData(`course-detail-${props.courseId}`, () =>
-  $courseRepository.getById(props.courseId),
-)
+} = await useAsyncData(`course-detail-${props.courseId}`, () => fetchCourseDetail(props.courseId))
 
 const loading = computed(() => status.value === 'pending')
 const priceText = computed(() => (course.value ? formatPrice(course.value.price) : null))

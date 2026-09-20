@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CourseListQuery } from '@isport/api-client'
+import type { CourseListQuery } from '~/api/course'
 
 const { t } = useI18n()
 

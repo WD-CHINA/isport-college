@@ -14,7 +14,7 @@ test('/en/admin 返回 noindex 响应头', async ({ request }) => {
 test('/admin SSR HTML 不含业务数据（CSR 占位）', async ({ request }) => {
   const response = await request.get('/admin')
   const html = await response.text()
-  expect(html).not.toContain('课程总数')
+  expect(html).not.toContain('最新开课')
 })
 
 test('非生产环境 robots.txt 禁止抓取全站', async ({ request }) => {

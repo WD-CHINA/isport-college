@@ -1,9 +1,9 @@
 import { isApiError } from '@isport/api-client'
+import { enrollCourse } from '~/api/course'
 import { App } from 'antdv-next'
 
-/** 课程报名：操作门禁 + Repository 调用 + 反馈消息 */
+/** 课程报名：操作门禁 + 接口调用 + 反馈消息 */
 export function useCourseEnrollment(courseId: MaybeRefOrGetter<string>) {
-  const { $courseRepository } = useNuxtApp()
   const { requireAuth } = useAuthGate()
   const { message } = App.useApp()
   const { t } = useI18n()
@@ -17,7 +17,7 @@ export function useCourseEnrollment(courseId: MaybeRefOrGetter<string>) {
       onSuccess: async () => {
         enrolling.value = true
         try {
-          await $courseRepository.enroll(toValue(courseId))
+          await enrollCourse(toValue(courseId))
           enrolled.value = true
           message.success(t('course.enrollSuccess'))
         } catch (error) {

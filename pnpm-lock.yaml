@@ -89,6 +89,9 @@ importers:
       antdv-next:
         specifier: 1.5.4
         version: 1.5.4(vue@3.5.43(typescript@5.9.3))
+      crypto-js:
+        specifier: 4.2.0
+        version: 4.2.0
       dayjs:
         specifier: 1.11.23
         version: 1.11.23
@@ -114,6 +117,9 @@ importers:
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
+      '@types/crypto-js':
+        specifier: 4.2.2
+        version: 4.2.2
       eslint:
         specifier: 9.39.5
         version: 9.39.5(jiti@2.7.0)
@@ -132,12 +138,12 @@ importers:
 
   packages/api-client:
     dependencies:
-      '@isport/mock-data':
-        specifier: workspace:*
-        version: link:../mock-data
       '@isport/shared':
         specifier: workspace:*
         version: link:../shared
+      ofetch:
+        specifier: 1.5.1
+        version: 1.5.1
     devDependencies:
       '@isport/tsconfig':
         specifier: workspace:*
@@ -189,22 +195,6 @@ importers:
         version: 8.70.0(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
 
   packages/i18n:
-    dependencies:
-      '@isport/shared':
-        specifier: workspace:*
-        version: link:../shared
-    devDependencies:
-      '@isport/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
-      eslint:
-        specifier: 9.39.5
-        version: 9.39.5(jiti@2.7.0)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
-
-  packages/mock-data:
     dependencies:
       '@isport/shared':
         specifier: workspace:*
@@ -2350,6 +2340,9 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
+  '@types/crypto-js@4.2.2':
+    resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==}
+
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
@@ -3405,6 +3398,9 @@ packages:
     peerDependenciesMeta:
       srvx:
         optional: true
+
+  crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
 
   css-functions-list@3.3.3:
     resolution: {integrity: sha512-8HFEBPKhOpJPEPu70wJJetjKta86Gw9+CCyCnB3sui2qQfOvRyqBy4IKLKKAwdMpWb2lHXWk9Wb4Z6AmaUT1Pg==}
@@ -8332,6 +8328,8 @@ snapshots:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
 
+  '@types/crypto-js@4.2.2': {}
+
   '@types/deep-eql@4.0.2': {}
 
   '@types/esrecurse@4.3.1': {}
@@ -9787,6 +9785,8 @@ snapshots:
   crossws@0.4.12(srvx@1.0.5):
     optionalDependencies:
       srvx: 1.0.5
+
+  crypto-js@4.2.0: {}
 
   css-functions-list@3.3.3: {}
 
