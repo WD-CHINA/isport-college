@@ -256,7 +256,7 @@ async function submit() {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
 }
 
 .login-modal__captcha-placeholder {
