@@ -1,51 +1,10 @@
 <script lang="ts">
-import { ElementType, parseDocument } from 'htmlparser2'
-import { computed, defineComponent, h } from 'vue'
+import { computed, defineComponent, h, useId } from 'vue'
+import { parseSafeContent, type SafeContentNode } from '../safe-content'
 import type { PropType, VNodeChild } from 'vue'
 
-type RichTextNode = ReturnType<typeof parseDocument>['children'][number]
-
-const allowedTags = new Set([
-  'a',
-  'blockquote',
-  'br',
-  'code',
-  'em',
-  'h2',
-  'h3',
-  'hr',
-  'li',
-  'ol',
-  'p',
-  'pre',
-  's',
-  'strong',
-  'ul',
-])
-
-function safeHref(href: string | undefined): string | undefined {
-  if (!href) return undefined
-  return /^(https?:|mailto:|\/|#)/i.test(href.trim()) ? href : undefined
-}
-
-function renderChildren(children: RichTextNode[]): VNodeChild[] {
-  return children.map(renderNode).filter((node): node is Exclude<VNodeChild, null> => node !== null)
-}
-
-function renderNode(node: RichTextNode): VNodeChild | null {
-  if (node.type === ElementType.Text) return node.data
-  if (node.type === ElementType.Script || node.type === ElementType.Style) return null
-  if (node.type !== ElementType.Tag) return null
-
-  const children = renderChildren(node.children)
-  if (!allowedTags.has(node.name)) return children
-
-  if (node.name === 'a') {
-    const href = safeHref(node.attribs.href)
-    return href ? h('a', { href, rel: 'noopener noreferrer' }, children) : children
-  }
-
-  return h(node.name, null, children)
+function renderNode(node: SafeContentNode): VNodeChild {
+  return typeof node === 'string' ? node : h(node.tag, node.attrs, node.children.map(renderNode))
 }
 
 export default defineComponent({
@@ -55,10 +14,27 @@ export default defineComponent({
       type: String as PropType<string>,
       default: '',
     },
+    showToc: Boolean,
+    tocLabel: { type: String, default: '目录' },
   },
   setup(props) {
-    const nodes = computed(() => renderChildren(parseDocument(props.content).children))
-    return () => h('div', { class: 'rich-text-content' }, nodes.value)
+    const prefix = useId()
+    const parsed = computed(() => parseSafeContent(props.content, prefix))
+    return () =>
+      h('div', { class: 'rich-text-content' }, [
+        props.showToc && parsed.value.headings.length
+          ? h('nav', { class: 'rich-text-content__toc', 'aria-label': props.tocLabel }, [
+              h('strong', props.tocLabel),
+              h(
+                'ol',
+                parsed.value.headings.map(heading =>
+                  h('li', { key: heading.id }, h('a', { href: `#${heading.id}` }, heading.text)),
+                ),
+              ),
+            ])
+          : null,
+        ...parsed.value.nodes.map(renderNode),
+      ])
   },
 })
 </script>
@@ -67,6 +43,23 @@ export default defineComponent({
 .rich-text-content {
   color: var(--ic-color-text-primary, #0f172a);
   line-height: var(--ic-line-height-relaxed, 1.75);
+}
+
+.rich-text-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.rich-text-content h2,
+.rich-text-content h3 {
+  scroll-margin-top: 90px;
+}
+
+.rich-text-content__toc {
+  padding: 20px;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  background: #eff6ff;
 }
 
 .rich-text-content > :first-child {

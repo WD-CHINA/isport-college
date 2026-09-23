@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { UiBrandLogo, UiLocaleSelect } from '@isport/ui-core'
 import { Button as AButton } from 'antdv-next'
+import AccountAvatar from '~/components/auth/AccountAvatar.vue'
 
 const auth = useAuthStore()
+const settings = useAcademySettings()
 const route = useRoute()
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -19,8 +21,20 @@ watch(
 
 const navItems = computed(() => [
   { to: localePath('/'), label: t('nav.home'), exact: true },
-  { to: localePath('/courses'), label: t('nav.courses'), exact: false },
-  { to: localePath('/admin'), label: t('nav.adminEntry'), exact: false },
+  { to: localePath('/resources'), label: t('academy.resources'), exact: false },
+  { to: localePath('/research'), label: t('academy.research'), exact: false },
+  { to: localePath('/schools'), label: t('academy.schools'), exact: false },
+  { to: localePath('/admin/creation'), label: t('academy.creation'), exact: false },
+  { to: localePath('/account'), label: t('academy.account'), exact: false },
+  ...(settings.value?.productPhase === 'p1' && (auth.canReview || auth.canOperate)
+    ? [
+        {
+          to: localePath(auth.canReview ? '/admin/reviews' : '/admin/content'),
+          label: t('nav.adminEntry'),
+          exact: false,
+        },
+      ]
+    : []),
 ])
 
 function isActive(to: string, exact: boolean): boolean {
@@ -31,8 +45,8 @@ function openLogin() {
   auth.openLoginModal({ reason: 'default' })
 }
 
-async function handleLogout() {
-  await auth.logout()
+function handleLogout() {
+  auth.logoutConfirmVisible = true
 }
 </script>
 
@@ -64,7 +78,10 @@ async function handleLogout() {
         />
         <!-- Cookie 会话可由 SSR 读取，首屏与客户端使用同一登录态 -->
         <template v-if="auth.isLoggedIn">
-          <span class="app-header__user">{{ auth.user?.name }}</span>
+          <NuxtLink :to="localePath('/account')" class="app-header__user">
+            <AccountAvatar v-if="auth.user?.avatar" :avatar="auth.user.avatar" />
+            <span>{{ auth.user?.name || t('academy.account') }}</span>
+          </NuxtLink>
           <AButton type="text" @click="handleLogout">
             {{ t('common.logout') }}
           </AButton>
@@ -233,7 +250,7 @@ async function handleLogout() {
   text-align: left;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1280px) {
   .app-header__brand :deep(.ui-brand-logo__name) {
     display: inline;
   }

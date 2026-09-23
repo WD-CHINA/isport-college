@@ -24,3 +24,6 @@ pnpm-debug.log*
 .env.*
 !.env.example
 .DS_Store
+
+# 本地 Mock 数据与上传文件
+.data/

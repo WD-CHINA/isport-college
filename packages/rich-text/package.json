@@ -8,9 +8,13 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@isport/shared": "workspace:*",
+    "@tiptap/extension-image": "3.31.3",
     "@tiptap/extension-placeholder": "3.31.3",
     "@tiptap/pm": "3.31.3",
     "@tiptap/starter-kit": "3.31.3",
@@ -22,8 +26,10 @@
   },
   "devDependencies": {
     "@isport/tsconfig": "workspace:*",
+    "@vitest/coverage-v8": "4.1.11",
     "eslint": "9.39.5",
     "typescript": "5.9.3",
+    "vitest": "4.1.11",
     "vue": "3.5.43",
     "vue-tsc": "3.3.11"
   }

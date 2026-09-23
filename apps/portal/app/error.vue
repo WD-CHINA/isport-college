@@ -10,6 +10,7 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 
 const isNotFound = computed(() => props.error.statusCode === 404)
+const forbidden = computed(() => props.error.statusCode === 403)
 
 useSeoMeta({ robots: 'noindex, nofollow' })
 
@@ -21,9 +22,15 @@ function goHome() {
 <template>
   <AResult
     class="error-page"
-    :status="isNotFound ? '404' : '500'"
+    :status="isNotFound ? '404' : forbidden ? '403' : '500'"
     :title="String(error.statusCode)"
-    :sub-title="isNotFound ? t('error.notFoundDesc') : t('error.serverTitle')"
+    :sub-title="
+      isNotFound
+        ? t('error.notFoundDesc')
+        : forbidden
+          ? t('academy.forbidden')
+          : t('error.serverTitle')
+    "
   >
     <template #extra>
       <AButton type="primary" @click="goHome">{{ t('error.backHome') }}</AButton>

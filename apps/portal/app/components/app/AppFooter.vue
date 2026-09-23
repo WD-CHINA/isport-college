@@ -8,8 +8,12 @@ const year = new Date().getFullYear()
 
 const links = computed(() => [
   { to: localePath('/'), label: t('nav.home') },
-  { to: localePath('/courses'), label: t('nav.courses') },
-  { to: localePath('/admin'), label: t('nav.adminEntry') },
+  { to: localePath('/resources'), label: t('academy.resources') },
+  { to: localePath('/research'), label: t('academy.research') },
+  { to: localePath('/schools'), label: t('academy.schools') },
+  { to: localePath('/admin/creation'), label: t('academy.creation') },
+  { to: localePath('/legal/terms'), label: t('academy.terms') },
+  { to: localePath('/legal/privacy'), label: t('academy.privacy') },
 ])
 </script>
 

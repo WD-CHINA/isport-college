@@ -1,15 +1,12 @@
 <script setup lang="ts">
-const { t } = useI18n()
-
-useSeoMeta({
-  title: () => t('seo.coursesTitle'),
-  description: () => t('seo.coursesDesc'),
-  ogTitle: () => t('seo.coursesTitle'),
-  ogDescription: () => t('seo.coursesDesc'),
-  ogType: 'website',
+const route = useRoute()
+const localePath = useLocalePath()
+await navigateTo(localePath({ path: '/resources', query: route.query }), {
+  redirectCode: 301,
+  replace: true,
 })
 </script>
 
 <template>
-  <CourseFeature />
+  <div />
 </template>

@@ -1,8 +1,9 @@
-import { login as loginApi, logout as logoutApi, type LoginPayload } from '~/api/auth'
+import type { LoginPayload } from '~/api/auth'
+import type { AcademySession } from '@isport/api-client'
 import { AUTH_COOKIE_NAME, AUTH_SESSION_TTL } from '@isport/shared'
-import type { AuthSession } from '@isport/shared'
+import type { AcademyUser, Role } from '@isport/shared'
 
-export type AuthGateReason = 'enroll' | 'admin' | 'default'
+export type AuthGateReason = 'enroll' | 'admin' | 'default' | 'interaction' | 'lingyue' | 'account'
 
 /** 登录意图：登录成功后恢复的目标路由或操作 */
 export interface LoginIntent {
@@ -12,20 +13,43 @@ export interface LoginIntent {
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  /**
-   * 真实登录会话保存在可由 SSR 读取的 Cookie 中，默认有效期 7 天。
-   * token 由后端 `/rsp/user/login` 签发，按后端约定直接作为 Authorization 头值使用。
-   */
-  const sessionCookie = useCookie<AuthSession | null>(AUTH_COOKIE_NAME, {
+  const nuxt = useNuxtApp()
+  let epoch = 0
+  /** Cookie 仅携带演示会话；用户与权限由服务端 token 记录再次校验。 */
+  const sessionCookie = useCookie<AcademySession | null>(AUTH_COOKIE_NAME, {
     maxAge: AUTH_SESSION_TTL,
     path: '/',
     sameSite: 'lax',
   })
-  const session = shallowRef<AuthSession | null>(sessionCookie.value ?? null)
+  const candidate = sessionCookie.value
+  const validShape =
+    candidate &&
+    typeof candidate.token === 'string' &&
+    candidate.token.length > 0 &&
+    candidate.token.length <= 256 &&
+    candidate.user &&
+    typeof candidate.user.id === 'string' &&
+    typeof candidate.user.name === 'string' &&
+    typeof candidate.user.phone === 'string' &&
+    typeof candidate.user.avatar === 'string' &&
+    Array.isArray(candidate.user.roles) &&
+    candidate.user.roles.every(role => typeof role === 'string')
+  const session = shallowRef<AcademySession | null>(validShape ? candidate : null)
+  if (candidate && !validShape) sessionCookie.value = null
+  const nicknameGuideVisible = shallowRef(false)
+  const logoutConfirmVisible = shallowRef(false)
 
   const user = computed(() => session.value?.user ?? null)
   const isLoggedIn = computed(() => session.value !== null)
   const isAdmin = computed(() => user.value?.roles.includes('admin') ?? false)
+  const canReview = computed(() => hasRole('reviewer'))
+  const canOperate = computed(() => hasRole('operator'))
+  function hasRole(role: Role) {
+    return isAdmin.value || (user.value?.roles.includes(role) ?? false)
+  }
+  function invalidatePrivateData() {
+    nuxt.runWithContext(() => clearNuxtData(key => key.startsWith('academy:')))
+  }
 
   /** 全局唯一登录弹窗状态（仅客户端使用，SSR 初始输出不受影响） */
   const loginModalVisible = shallowRef(false)
@@ -38,23 +62,34 @@ export const useAuthStore = defineStore('auth', () => {
 
   /** 关闭弹窗表示取消当前受保护操作 */
   function closeLoginModal() {
+    epoch++
     loginModalVisible.value = false
     loginIntent.value = null
   }
 
   async function login(payload: LoginPayload) {
-    const next = await loginApi(payload)
+    const attempt = epoch
+    const next = await nuxt.$academy.call('auth/login', payload)
+    if (attempt !== epoch) return null
+    invalidatePrivateData()
     session.value = next
     sessionCookie.value = next
+    nicknameGuideVisible.value = next.promptNickname
     return next
+  }
+
+  function updateUser(next: AcademyUser, expectedToken = session.value?.token) {
+    if (!session.value || session.value.token !== expectedToken) return
+    session.value = { ...session.value, user: next }
+    sessionCookie.value = session.value
   }
 
   /** 登录成功：恢复路由或受保护操作 */
   async function resolveLoginSuccess() {
     const intent = loginIntent.value
     closeLoginModal()
-    if (intent?.redirect) {
-      await navigateTo(intent.redirect)
+    if (intent?.redirect?.startsWith('/') && !intent.redirect.startsWith('//')) {
+      await nuxt.runWithContext(() => navigateTo(intent.redirect!))
     }
     await intent?.onSuccess?.()
   }
@@ -63,12 +98,16 @@ export const useAuthStore = defineStore('auth', () => {
   function clearSession() {
     session.value = null
     sessionCookie.value = null
+    closeLoginModal()
+    nicknameGuideVisible.value = false
+    logoutConfirmVisible.value = false
+    invalidatePrivateData()
   }
 
   /** 显式退出登录：后端失效 token 无论如何都清理本地会话 */
   async function logout() {
     try {
-      await logoutApi()
+      await nuxt.$academy.call('auth/logout', {})
     } finally {
       clearSession()
     }
@@ -79,6 +118,12 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     isLoggedIn,
     isAdmin,
+    canReview,
+    canOperate,
+    hasRole,
+    updateUser,
+    nicknameGuideVisible,
+    logoutConfirmVisible,
     loginModalVisible,
     loginIntent,
     openLoginModal,

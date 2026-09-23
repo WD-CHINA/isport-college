@@ -1,8 +1,43 @@
-# isport-college 前端架构设计
+# isport-academy 前端架构设计
 
-> 状态：当前实现基线  
-> 更新日期：2026-09-19  
+> 状态：学苑 Mock 迁移进行中；本轮实现以第 0 节为准，后文课程模型保留为历史基线  
+> 更新日期：2026-09-22  
 > 适用范围：C 端门户与管理端前端
+
+## 0. 学苑 P0／P1 Mock 架构
+
+本轮按 `docs/product.md` 开发可交互的本地 Mock 版本，不代表生产身份、短信、文件云存储或灵跃对接已经完成。旧课程模型正在迁移为资源／教研／学校内容，旧 `/rsp` 请求返回 503，禁止连接或回退真实测试后台。
+
+```text
+Feature → Composable → AcademyRepository → HTTP 客户端
+→ 同源 POST /api/academy/v1/{operation} → Nitro 权限校验与 Mock 事务
+```
+
+- `packages/shared/src/academy.ts`：独立栏目、媒体、投稿类型及账号、互动、审核、积分实体。
+- `packages/api-client/src/academy.ts`：类型化业务输入／输出；`@isport/api-client/mock` 为服务端入口，浏览器导入会拒绝执行。
+- `packages/mock-data`：确定性种子与集中演示规则；不包含持久化或 UI。
+- `apps/portal/server/utils/mock`：单实例文件快照与请求上下文；命名空间串行事务在副本上变更，落盘成功后提交，失败回滚。
+- `apps/portal/app/plugins/academy.ts`：每个 Nuxt 实例创建客户端。SSR 使用请求内的 Nitro fetch 转发 Cookie；不使用跨用户的客户端单例。会话中的用户、角色以服务端 token 记录为准。
+- 全部学苑接口为 `private, no-store`；公开查询只返回已发布记录。P1 写接口由服务端阶段与角色双重控制。
+
+### 0.1 运行开关
+
+| 环境变量                     | 默认值／用途                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| `NUXT_DATA_SOURCE`           | `mock`；`http` 适配器未实现时明确返回 503                                       |
+| `NUXT_PRODUCT_PHASE`         | `p0`；设为 `p1` 后开放 P1 业务契约                                              |
+| `NUXT_PUBLIC_SITE_ENV`       | `development`；`production` 与 Mock 同时启用会启动失败                          |
+| `NUXT_MOCK_STORAGE_DIR`      | 空值时使用启动工作目录下 `.data/mock`，建议通过 portal 包脚本启动或指定绝对目录 |
+| `NUXT_MOCK_CONTROLS_ENABLED` | `false`；显式开启才能访问控制端点                                               |
+| `NUXT_MOCK_CONTROL_KEY`      | 无默认凭据，开启控制时必须由环境提供                                            |
+
+控制端点 `POST /api/academy/mock/control` 校验 `x-mock-control-key`，只在非生产 Mock 模式存在。控制模式允许 `academy_mock_namespace` Cookie 选择独立测试空间；普通开发固定 `default`。支持重置、固定时钟、单次故障、兑换结果及预检结果。重置替换完整快照，包括时钟和会话；结构版本不兼容时要求显式重置。数据目录已忽略 Git，仅用于本机／单实例演示。
+
+### 0.2 测试与迁移状态
+
+协议客户端单测保留；新增种子、事务、会话、权限、浏览／互动幂等、审核与兑换测试。页面、附件和 E2E 随对应里程碑迁移，不能因为服务端已有操作处理器就认定对应页面已交付。生产构建测试使用 `siteEnv=test`，不等同于生产站点环境。
+
+下文的 `Mock Repository`、固定密码登录和课程报名描述属于原始工程设计；新的业务契约、短信挑战与服务器持久化以本节及实际代码为准。
 
 ## 1. 背景与目标
 

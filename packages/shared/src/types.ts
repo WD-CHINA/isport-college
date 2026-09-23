@@ -15,4 +15,4 @@ export interface PageResult<T> {
 }
 
 /** 演示角色：Mock 用户默认同时拥有 C 端用户与管理员角色 */
-export type Role = 'user' | 'admin'
+export type Role = 'user' | 'admin' | 'reviewer' | 'operator'

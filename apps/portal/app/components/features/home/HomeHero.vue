@@ -4,8 +4,8 @@ import { Button as AButton } from 'antdv-next'
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-function viewCourses() {
-  void navigateTo(localePath('/courses'))
+function viewResources() {
+  void navigateTo(localePath('/resources'))
 }
 </script>
 
@@ -14,7 +14,7 @@ function viewCourses() {
     <div class="container-page home-hero__inner">
       <h1 class="home-hero__title">{{ t('home.heroTitle') }}</h1>
       <p class="home-hero__subtitle">{{ t('home.heroSubtitle') }}</p>
-      <AButton size="large" class="home-hero__cta" @click="viewCourses">
+      <AButton size="large" class="home-hero__cta" @click="viewResources">
         {{ t('home.heroPrimary') }}
       </AButton>
     </div>

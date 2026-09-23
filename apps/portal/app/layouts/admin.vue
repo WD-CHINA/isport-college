@@ -19,7 +19,7 @@ const localePath = useLocalePath()
 const { localeModel, localeOptions } = useLocaleSwitch()
 const screens = useBreakpoint()
 
-// 第二层禁止收录措施：管理端布局输出等价 robots Meta（第一层为 Route Rules Header）
+// 第二层禁止收录措施：后台式布局输出等价 robots Meta（第一层为 Route Rules Header）
 useSeoMeta({
   title: () => t('seo.adminTitle'),
   robots: 'noindex, nofollow, noarchive',
@@ -35,17 +35,57 @@ watch(
   },
 )
 
+// 创作中心（概览 / 我的创作 / 我的积分）归入管理后台，作为可展开子菜单。
+const creationGroupKey = 'creation-center'
+const creationSections = ['/admin/creation', '/admin/works', '/admin/points']
+
+const isCreationSection = computed(() =>
+  creationSections.some(section => route.path.startsWith(localePath(section))),
+)
+
+// 叶子菜单（用于选中匹配）：后台项 + 归入后台的创作中心子项。
+const leafItems = computed(() => [
+  { key: localePath('/admin'), label: t('nav.dashboard') },
+  { key: localePath('/admin/courses'), label: t('nav.courseManage') },
+  { key: localePath('/admin/creation'), label: t('creation.nav.overview') },
+  { key: localePath('/admin/works'), label: t('creation.nav.works') },
+  { key: localePath('/admin/points'), label: t('creation.nav.points') },
+])
+
 const menuItems = computed(() => [
   { key: localePath('/admin'), label: t('nav.dashboard') },
   { key: localePath('/admin/courses'), label: t('nav.courseManage') },
+  {
+    key: creationGroupKey,
+    label: t('academy.creation'),
+    children: [
+      { key: localePath('/admin/creation'), label: t('creation.nav.overview') },
+      { key: localePath('/admin/works'), label: t('creation.nav.works') },
+      { key: localePath('/admin/points'), label: t('creation.nav.points') },
+    ],
+  },
 ])
 
 const selectedKeys = computed(() => {
-  const matched = [...menuItems.value]
+  const matched = [...leafItems.value]
     .sort((a, b) => b.key.length - a.key.length)
     .find(item => route.path === item.key || route.path.startsWith(`${item.key}/`))
   return matched ? [matched.key] : []
 })
+
+// 创作中心子菜单展开态：进入创作相关路由时自动展开。
+const openKeys = ref<string[]>([])
+watch(
+  () => route.path,
+  () => {
+    if (isCreationSection.value) openKeys.value = [creationGroupKey]
+  },
+  { immediate: true },
+)
+
+function handleOpenChange(keys: (string | number)[]) {
+  openKeys.value = keys.map(String)
+}
 
 const userMenuItems = computed(() => [
   { key: 'portal', label: t('common.backHome') },
@@ -53,14 +93,15 @@ const userMenuItems = computed(() => [
 ])
 
 function handleMenuClick({ key }: { key: string | number }) {
-  void navigateTo(String(key))
+  const path = String(key)
+  // 子菜单父项（创作中心）不是路由，仅用于展开，忽略其点击。
+  if (!path.startsWith('/')) return
+  void navigateTo(path)
 }
 
 function handleUserMenuClick({ key }: { key: string | number }) {
   if (key === 'logout') {
-    void auth.logout().then(async () => {
-      await navigateTo(localePath('/'))
-    })
+    auth.logoutConfirmVisible = true
     return
   }
   void navigateTo(localePath('/'))
@@ -72,7 +113,7 @@ function goHome() {
 </script>
 
 <template>
-  <!-- 未登录门禁空态：登录弹窗已由路由门禁打开 -->
+  <!-- 管理端未登录门禁空态：登录弹窗已由路由门禁打开 -->
   <div v-if="!auth.isLoggedIn" class="admin-gate">
     <p class="admin-gate__text">{{ t('auth.gateAdmin') }}</p>
     <AButton @click="goHome">{{ t('common.backHome') }}</AButton>
@@ -81,15 +122,14 @@ function goHome() {
   <ALayout v-else class="admin-layout">
     <!-- 桌面侧边导航 -->
     <ALayoutSider v-if="isDesktop" :width="232" theme="light" class="admin-sider">
-      <NuxtLink :to="localePath('/')" class="admin-sider__logo">
-        <UiBrandLogo :name="t('seo.siteName')" />
-      </NuxtLink>
       <AMenu
         :items="menuItems"
         :selected-keys="selectedKeys"
+        :open-keys="openKeys"
         mode="inline"
         class="admin-sider__menu"
         @click="handleMenuClick"
+        @open-change="handleOpenChange"
       />
     </ALayoutSider>
 
@@ -116,6 +156,10 @@ function goHome() {
             />
           </svg>
         </AButton>
+        <NuxtLink :to="localePath('/')" class="admin-header__brand">
+          <UiBrandLogo :name="t('seo.siteName')" />
+        </NuxtLink>
+        <span class="admin-header__divider" aria-hidden="true"></span>
         <span class="admin-header__title">{{ t('seo.adminTitle') }}</span>
         <div class="admin-header__right">
           <UiLocaleSelect
@@ -124,6 +168,7 @@ function goHome() {
             :label="t('common.language')"
           />
           <ADropdown
+            v-if="auth.isLoggedIn"
             :trigger="['click']"
             :menu="{ items: userMenuItems }"
             @menu-click="handleUserMenuClick"
@@ -151,8 +196,10 @@ function goHome() {
       <AMenu
         :items="menuItems"
         :selected-keys="selectedKeys"
+        :open-keys="openKeys"
         mode="inline"
         @click="handleMenuClick"
+        @open-change="handleOpenChange"
       />
     </ADrawer>
   </ALayout>
@@ -178,15 +225,8 @@ function goHome() {
 }
 
 .admin-sider {
+  padding-top: var(--ic-spacing-4, 16px);
   border-right: 1px solid var(--ic-color-border-base, #e2e8f0);
-}
-
-.admin-sider__logo {
-  display: flex;
-  align-items: center;
-  height: 60px;
-  padding: 0 var(--ic-spacing-4, 16px);
-  border-bottom: 1px solid var(--ic-color-border-base, #e2e8f0);
 }
 
 .admin-sider__menu {
@@ -204,9 +244,22 @@ function goHome() {
   line-height: 1.5;
 }
 
+.admin-header__brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.admin-header__divider {
+  width: 1px;
+  height: 22px;
+  background-color: var(--ic-color-border-base, #e2e8f0);
+}
+
 .admin-header__title {
   font-size: var(--ic-font-size-base, 16px);
   font-weight: var(--ic-font-weight-semibold, 600);
+  white-space: nowrap;
 }
 
 .admin-header__right {
@@ -237,6 +290,12 @@ function goHome() {
 
 .admin-content {
   padding: var(--ic-spacing-4, 16px);
+}
+
+@media (max-width: 767px) {
+  .admin-header__divider {
+    display: none;
+  }
 }
 
 @media (min-width: 1024px) {

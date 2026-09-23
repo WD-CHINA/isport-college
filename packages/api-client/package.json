@@ -4,7 +4,11 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./mock": {
+      "browser": "./src/mock/forbidden.ts",
+      "default": "./src/mock/index.ts"
+    }
   },
   "scripts": {
     "lint": "eslint .",
@@ -14,6 +18,7 @@
   },
   "dependencies": {
     "@isport/shared": "workspace:*",
+    "@isport/mock-data": "workspace:*",
     "ofetch": "1.5.1"
   },
   "devDependencies": {
