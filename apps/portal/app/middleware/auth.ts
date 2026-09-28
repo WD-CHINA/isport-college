@@ -9,7 +9,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const creation = /^\/admin\/(creation|works|points)(?:\/|$)/.test(path)
   const admin = !creation && (path === '/admin' || path.startsWith('/admin/'))
   if (auth.isLoggedIn) {
-    if (admin && !(path.startsWith('/admin/reviews') ? auth.canReview : auth.canOperate)) {
+    const permission = path.startsWith('/admin/reviews') ? 'work:review' : 'admin:view'
+    if (admin && !auth.can(permission)) {
       throw createError({ statusCode: 403, message: 'FORBIDDEN' })
     }
     return

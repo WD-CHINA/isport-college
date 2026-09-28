@@ -43,27 +43,37 @@ const isCreationSection = computed(() =>
   creationSections.some(section => route.path.startsWith(localePath(section))),
 )
 
-// 叶子菜单（用于选中匹配）：后台项 + 归入后台的创作中心子项。
-const leafItems = computed(() => [
-  { key: localePath('/admin'), label: t('nav.dashboard') },
-  { key: localePath('/admin/courses'), label: t('nav.courseManage') },
-  { key: localePath('/admin/creation'), label: t('creation.nav.overview') },
-  { key: localePath('/admin/works'), label: t('creation.nav.works') },
-  { key: localePath('/admin/points'), label: t('creation.nav.points') },
+const operationItems = computed(() => [
+  ...(auth.can('admin:view') ? [{ key: localePath('/admin'), label: t('nav.dashboard') }] : []),
+  ...(auth.can('course:manage')
+    ? [{ key: localePath('/admin/courses'), label: t('nav.courseManage') }]
+    : []),
 ])
 
+const creationItems = computed(() =>
+  auth.can('creation:use')
+    ? [
+        { key: localePath('/admin/creation'), label: t('creation.nav.overview') },
+        { key: localePath('/admin/works'), label: t('creation.nav.works') },
+        { key: localePath('/admin/points'), label: t('creation.nav.points') },
+      ]
+    : [],
+)
+
+// 叶子菜单和展示菜单都由同一权限结果派生，避免菜单可见但路由被拒绝。
+const leafItems = computed(() => [...operationItems.value, ...creationItems.value])
+
 const menuItems = computed(() => [
-  { key: localePath('/admin'), label: t('nav.dashboard') },
-  { key: localePath('/admin/courses'), label: t('nav.courseManage') },
-  {
-    key: creationGroupKey,
-    label: t('academy.creation'),
-    children: [
-      { key: localePath('/admin/creation'), label: t('creation.nav.overview') },
-      { key: localePath('/admin/works'), label: t('creation.nav.works') },
-      { key: localePath('/admin/points'), label: t('creation.nav.points') },
-    ],
-  },
+  ...operationItems.value,
+  ...(creationItems.value.length > 0
+    ? [
+        {
+          key: creationGroupKey,
+          label: t('academy.creation'),
+          children: creationItems.value,
+        },
+      ]
+    : []),
 ])
 
 const selectedKeys = computed(() => {
@@ -119,7 +129,12 @@ function goHome() {
     <AButton @click="goHome">{{ t('common.backHome') }}</AButton>
   </div>
 
-  <ALayout v-else class="admin-layout">
+  <ALayout
+    v-else
+    :has-sider="isDesktop"
+    class="admin-layout"
+    :class="{ 'admin-layout--desktop': isDesktop }"
+  >
     <!-- 桌面侧边导航 -->
     <ALayoutSider v-if="isDesktop" :width="232" theme="light" class="admin-sider">
       <AMenu
@@ -133,7 +148,7 @@ function goHome() {
       />
     </ALayoutSider>
 
-    <ALayout>
+    <ALayout class="admin-main">
       <ALayoutHeader class="admin-header">
         <AButton
           v-if="!isDesktop"
@@ -221,12 +236,42 @@ function goHome() {
 }
 
 .admin-layout {
-  min-height: 100vh;
+  --admin-header-height: 60px;
+  --admin-sider-width: 232px;
+
+  position: fixed;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
+  background-color: var(--ic-color-background-page, #f8fafc);
+}
+
+.admin-layout--desktop {
+  padding-inline-start: var(--admin-sider-width);
+}
+
+.admin-main {
+  box-sizing: border-box;
+  min-width: 0;
+  height: 100%;
+  padding-block-start: var(--admin-header-height);
+  overflow: hidden;
+  background-color: var(--ic-color-background-page, #f8fafc);
 }
 
 .admin-sider {
+  position: fixed;
+  z-index: calc(var(--ic-z-index-sticky, 100) + 1);
+  inset-block: 0;
+  inset-inline-start: 0;
+  height: 100vh;
+  height: 100dvh;
   padding-top: var(--ic-spacing-4, 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border-right: 1px solid var(--ic-color-border-base, #e2e8f0);
+  scrollbar-gutter: stable;
 }
 
 .admin-sider__menu {
@@ -234,14 +279,23 @@ function goHome() {
 }
 
 .admin-header {
+  position: fixed;
+  z-index: var(--ic-z-index-sticky, 100);
+  inset-block-start: 0;
+  inset-inline: 0;
   display: flex;
   align-items: center;
   gap: var(--ic-spacing-3, 12px);
-  height: 60px;
+  box-sizing: border-box;
+  height: var(--admin-header-height);
   padding: 0 var(--ic-spacing-4, 16px);
   background-color: var(--ic-color-background-container, #fff);
   border-bottom: 1px solid var(--ic-color-border-base, #e2e8f0);
   line-height: 1.5;
+}
+
+.admin-layout--desktop .admin-header {
+  inset-inline-start: var(--admin-sider-width);
 }
 
 .admin-header__brand {
@@ -289,7 +343,10 @@ function goHome() {
 }
 
 .admin-content {
+  min-height: 0;
   padding: var(--ic-spacing-4, 16px);
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 @media (max-width: 767px) {

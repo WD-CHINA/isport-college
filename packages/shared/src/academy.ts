@@ -11,6 +11,9 @@ export type SubmissionKind = 'demonstration' | 'courseware' | 'micro' | 'lesson'
 export type WorkStatus = 'draft' | 'pending' | 'published' | 'rejected'
 export type ReviewResult = 'approved' | 'rejected'
 
+/** 当前产品约定的积分兑换档位；真实接口接入后可改由配置接口返回。 */
+export const POINT_EXCHANGE_TIERS = [100, 500] as const
+
 export interface TeacherProfile {
   realName: string
   province: string

@@ -74,6 +74,12 @@ export function useSubmission(existingId?: string) {
     markDirty()
   }
 
+  function removeCover() {
+    removeFile(coverSlot)
+    fields.cover = ''
+    markDirty()
+  }
+
   async function uploadContentFile(file: File) {
     await uploadFile(fileSlot, uploadPurpose.value, file)
     if (fileSlot.record) fields.fileId = fileSlot.record.id
@@ -230,6 +236,7 @@ export function useSubmission(existingId?: string) {
     setKind,
     markDirty,
     uploadCover,
+    removeCover,
     uploadContentFile,
     removeContentFile,
     saveDraft,

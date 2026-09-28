@@ -1,7 +1,7 @@
 import type { LoginPayload } from '~/api/auth'
 import type { AcademySession } from '@isport/api-client'
-import { AUTH_COOKIE_NAME, AUTH_SESSION_TTL } from '@isport/shared'
-import type { AcademyUser, Role } from '@isport/shared'
+import { AUTH_COOKIE_NAME, AUTH_SESSION_TTL, hasPermission } from '@isport/shared'
+import type { AcademyUser, Permission } from '@isport/shared'
 
 export type AuthGateReason = 'enroll' | 'admin' | 'default' | 'interaction' | 'lingyue' | 'account'
 
@@ -42,10 +42,10 @@ export const useAuthStore = defineStore('auth', () => {
   const user = computed(() => session.value?.user ?? null)
   const isLoggedIn = computed(() => session.value !== null)
   const isAdmin = computed(() => user.value?.roles.includes('admin') ?? false)
-  const canReview = computed(() => hasRole('reviewer'))
-  const canOperate = computed(() => hasRole('operator'))
-  function hasRole(role: Role) {
-    return isAdmin.value || (user.value?.roles.includes(role) ?? false)
+
+  /** UI 与路由统一通过权限判断；admin 的超级角色能力由共享权限表提供。 */
+  function can(permission: Permission) {
+    return hasPermission(user.value?.roles, permission)
   }
   function invalidatePrivateData() {
     nuxt.runWithContext(() => clearNuxtData(key => key.startsWith('academy:')))
@@ -118,9 +118,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     isLoggedIn,
     isAdmin,
-    canReview,
-    canOperate,
-    hasRole,
+    can,
     updateUser,
     nicknameGuideVisible,
     logoutConfirmVisible,

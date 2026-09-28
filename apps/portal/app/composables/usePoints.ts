@@ -1,4 +1,4 @@
-import { MOCK_RULES } from '@isport/api-client/mock'
+import { POINT_EXCHANGE_TIERS } from '@isport/shared'
 import type { ExchangeOrder, PointAccount } from '@isport/shared'
 
 /** 我的积分：读取积分账户、执行兑换并在 Mock 结算后刷新。 */
@@ -15,7 +15,7 @@ export function usePoints() {
   )
 
   const account = computed<PointAccount | undefined>(() => request.data.value)
-  const exchangeTiers = MOCK_RULES.exchangeTiers
+  const exchangeTiers = POINT_EXCHANGE_TIERS
   const exchanging = shallowRef(false)
 
   function refresh() {

@@ -158,19 +158,21 @@ flowchart TD
 └── turbo.json
 ```
 
-### 4.1 包职责
+### 4.1 分层与包职责
 
-| 包              | 职责                                                 | 不应包含                 |
-| --------------- | ---------------------------------------------------- | ------------------------ |
-| `design-tokens` | 颜色、字号、间距、圆角、阴影、断点及主题映射         | 页面业务逻辑             |
-| `unocss-preset` | 将设计令牌映射为 UnoCSS theme、shortcuts 和 rules    | antdv-next 业务封装      |
-| `ui-core`       | 两端共享的品牌基础组件和无业务展示组件               | 路由、页面请求和全局状态 |
-| `ui-admin`      | antdv-next 二次封装和管理端组合组件                  | C 端页面逻辑             |
-| `api-client`    | DTO、Repository 接口、Mock/HTTP 适配器和统一错误模型 | 具体页面状态             |
-| `mock-data`     | Fixtures、数据工厂和演示数据                         | Vue 组件                 |
-| `i18n`          | 中英文公共语言包、locale 类型和格式化约定            | 组件实现                 |
-| `rich-text`     | Tiptap 编辑器、只读内容渲染与基础工具栏              | 页面业务逻辑和数据持久化 |
-| `shared`        | 纯 TypeScript 类型、常量和工具函数                   | Vue/Nuxt 生命周期依赖    |
+| 层级     | 包／目录                                | 唯一职责                                         | 禁止事项                          |
+| -------- | --------------------------------------- | ------------------------------------------------ | --------------------------------- |
+| 应用层   | `apps/portal`                           | Nuxt 路由、页面编排、状态、服务端接口与部署入口  | 被工作区包反向依赖                |
+| 展示层   | `ui-core`、`ui-admin`、`rich-text`      | 通用组件、管理端组件、富文本编辑与安全渲染       | 路由、业务请求、应用全局状态      |
+| 接入层   | `api-client`                            | DTO、Repository、HTTP 客户端、服务端 Mock 执行器 | 页面状态和 Vue 组件               |
+| 数据层   | `mock-data`                             | 确定性 Fixtures、数据工厂和演示规则              | IO、持久化、Vue 组件              |
+| 领域基础 | `shared`、`i18n`                        | 平台无关类型、常量、纯函数、公共语言资源         | Vue/Nuxt 生命周期和浏览器专属 API |
+| 样式基础 | `design-tokens`、`unocss-preset`        | 令牌单一来源及其 UnoCSS 映射                     | 页面逻辑和业务组件                |
+| 工程工具 | `eslint-config`、`tsconfig`、根目录配置 | 编译、检查、任务编排和仓库级约束                 | 运行时业务代码                    |
+
+依赖由真正使用它的 workspace 声明；根 `package.json` 只保留仓库工具，不能作为业务依赖兜底。包只通过 `exports` 暴露公共 API，禁止跨包读取 `src` 私有文件。
+
+Portal 内部也按职责组织：`pages` 仅负责路由入口，`layouts` 负责壳层，`components/features` 负责业务展示与交互，`composables` 负责可复用业务状态，`stores` 负责跨路由客户端状态，`app/api` 负责客户端协议封装，`server` 负责可信边界、权限和持久化适配。
 
 ### 4.2 依赖方向
 
@@ -178,15 +180,14 @@ flowchart TD
 
 ```text
 portal
-├── ui-core ────────┐
-├── ui-admin ───────┼──> design-tokens / shared
-├── api-client ─────┤
-└── i18n ───────────┘
-
-api-client --> mock-data
+├── ui-admin ───────> ui-core ───────> design-tokens / shared
+├── rich-text ───────────────────────> design-tokens / shared
+├── api-client ─────> mock-data ─────> shared
+├── i18n ────────────────────────────> shared
+└── unocss-preset ───────────────────> design-tokens
 ```
 
-底层包不得反向依赖 `apps/portal`。`shared` 不得引入 Vue、Nuxt、Pinia 或浏览器专属 API。
+箭头表示允许的依赖方向，不要求必须依赖。根 `eslint.config.mjs` 对工作区包和 Portal 客户端的禁止导入执行检查；`pnpm lint` 是架构边界门禁。`shared` 额外禁止 Vue、Nuxt、Pinia、antdv-next 和浏览器全局，Portal 客户端禁止导入 `@isport/api-client/mock` 与 `mock-data`。
 
 ## 5. 渲染与路由策略
 

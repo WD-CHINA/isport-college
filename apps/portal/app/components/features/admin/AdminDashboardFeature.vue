@@ -6,7 +6,7 @@ const { t, locale } = useI18n()
 const localized = useLocalizedText()
 const auth = useAuthStore()
 
-const { data: latest, status: latestStatus } = await useCourseList({
+const { data: latest, status: latestStatus } = useCourseList({
   key: 'admin-latest-courses',
   query: { page: 1, pageSize: 5 },
 })

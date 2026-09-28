@@ -13,7 +13,7 @@ const isDesktop = computed(() => screens.value?.lg ?? false)
 
 const query = shallowRef<CourseListQuery>({ page: 1, pageSize: 10 })
 
-const { data, status, refresh } = await useCourseList({
+const { data, status, refresh } = useCourseList({
   key: 'admin-course-list',
   query: () => query.value,
 })

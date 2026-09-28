@@ -19,23 +19,23 @@ watch(
   },
 )
 
-const navItems = computed(() => [
-  { to: localePath('/'), label: t('nav.home'), exact: true },
-  { to: localePath('/resources'), label: t('academy.resources'), exact: false },
-  { to: localePath('/research'), label: t('academy.research'), exact: false },
-  { to: localePath('/schools'), label: t('academy.schools'), exact: false },
-  { to: localePath('/admin/creation'), label: t('academy.creation'), exact: false },
-  { to: localePath('/account'), label: t('academy.account'), exact: false },
-  ...(settings.value?.productPhase === 'p1' && (auth.canReview || auth.canOperate)
-    ? [
-        {
-          to: localePath(auth.canReview ? '/admin/reviews' : '/admin/content'),
-          label: t('nav.adminEntry'),
-          exact: false,
-        },
-      ]
-    : []),
-])
+const navItems = computed(() => {
+  const p1Enabled = settings.value?.productPhase === 'p1'
+  return [
+    { to: localePath('/'), label: t('nav.home'), exact: true },
+    { to: localePath('/resources'), label: t('academy.resources'), exact: false },
+    { to: localePath('/research'), label: t('academy.research'), exact: false },
+    { to: localePath('/schools'), label: t('academy.schools'), exact: false },
+    ...(p1Enabled && auth.can('creation:use')
+      ? [{ to: localePath('/admin/creation'), label: t('academy.creation'), exact: false }]
+      : []),
+    { to: localePath('/account'), label: t('academy.account'), exact: false },
+    // 审核与内容管理页面尚未实现；仅向运营/管理员暴露当前真实存在的后台首页。
+    ...(p1Enabled && auth.can('admin:view')
+      ? [{ to: localePath('/admin'), label: t('nav.adminEntry'), exact: false }]
+      : []),
+  ]
+})
 
 function isActive(to: string, exact: boolean): boolean {
   return exact ? route.path === to : route.path.startsWith(to)

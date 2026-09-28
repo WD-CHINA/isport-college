@@ -29,6 +29,7 @@ const {
   setKind,
   markDirty,
   uploadCover,
+  removeCover,
   uploadContentFile,
   removeContentFile,
   saveDraft,
@@ -141,13 +142,7 @@ const practiceModeOptions = [
           <AAlert v-else-if="coverSlot.error" type="error" :title="coverSlot.error" show-icon />
           <div v-else-if="coverSlot.record" class="submission__file-info">
             <span>{{ coverSlot.record.name }}</span>
-            <AButton
-              size="small"
-              @click="
-                coverSlot.record = null
-                fields.cover = ''
-              "
-            >
+            <AButton size="small" @click="removeCover">
               {{ t('creation.file.replaceFile') }}
             </AButton>
           </div>

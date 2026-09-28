@@ -1,6 +1,7 @@
 export * from './types'
 export * from './constants'
 export * from './entities'
+export * from './access-control'
 export * from './academy'
 export * from './content-query'
 export * from './media-url'

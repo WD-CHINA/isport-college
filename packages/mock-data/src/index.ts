@@ -16,7 +16,7 @@ import type {
   UploadedFile,
   Work,
 } from '@isport/shared'
-import { BODY_PARTS, FITNESS_CATEGORIES } from '@isport/shared'
+import { BODY_PARTS, FITNESS_CATEGORIES, POINT_EXCHANGE_TIERS } from '@isport/shared'
 
 export const MOCK_RULES = {
   pageSize: 12,
@@ -32,7 +32,7 @@ export const MOCK_RULES = {
     lesson: 30,
     practice: 20,
   } satisfies Record<SubmissionKind, number>,
-  exchangeTiers: [100, 500],
+  exchangeTiers: POINT_EXCHANGE_TIERS,
   pointTtlDays: 365,
   uploadLimits: { video: 100 * 1024 ** 2, courseware: 30 * 1024 ** 2, image: 10 * 1024 ** 2 },
 } as const
