@@ -32,3 +32,59 @@ describe('展示层整理学苑响应', () => {
     expect(toWebProfile({ id: '8' })).toBeNull()
   })
 })
+
+import {
+  parseContentCard,
+  parseContentDetail,
+  parseHome,
+  parsePage,
+  parseAction,
+  parseFilters,
+} from '../app/utils/web-response'
+import { ApiError, apiErrorCode } from '../app/api/errors'
+
+const card = {
+  channel: 'RESOURCE',
+  origin: 'PLATFORM',
+  originId: 1,
+  contentKey: 'resource-1',
+  title: '资源',
+  detailType: 'ARTICLE',
+  viewCount: 0,
+  likeCount: 0,
+  favoriteCount: 0,
+}
+
+describe('调用侧协议验证', () => {
+  it('拒绝畸形首页、列表、枚举和计数，不让模板解引用异常', () => {
+    for (const value of [null, {}, { featuredList: [] }])
+      expect(() => parseHome(value)).toThrow(ApiError)
+    expect(() =>
+      parsePage({ total: 1, pageNum: 1, pageSize: 12, list: null }, parseContentCard),
+    ).toThrow(ApiError)
+    expect(() => parseContentCard({ ...card, detailType: 'UNKNOWN' })).toThrow(ApiError)
+    expect(() => parseContentCard({ ...card, likeCount: -1 })).toThrow(ApiError)
+    expect(() => parseAction({ active: 'yes', count: 1 })).toThrow(ApiError)
+    expect(() => parseFilters({ categoryList: {} })).toThrow(ApiError)
+  })
+  it('可选展示字段归一化，不同媒体仍保留协议信息', () => {
+    expect(parseContentCard(card)).toMatchObject({
+      summary: '',
+      publishedAt: null,
+      interactive: true,
+    })
+    expect(
+      parseContentDetail({ ...card, mediaList: [{ mediaType: 'DOCUMENT', fileUrl: '/a.pdf' }] })
+        .mediaList[0],
+    ).toMatchObject({ mediaType: 'DOCUMENT', fileUrl: '/a.pdf', pageCount: null })
+  })
+  it('错误经过 Nuxt JSON 序列化仍可识别业务码', () => {
+    const error = ApiError.notFound('已下架')
+    const restored = JSON.parse(
+      JSON.stringify({ message: error.message, statusCode: error.statusCode, data: error.data }),
+    )
+    expect(apiErrorCode(restored)).toBe('NOT_FOUND')
+    expect(restored.statusCode).toBe(404)
+    expect(apiErrorCode({ data: { code: 'unexpected' } })).toBeUndefined()
+  })
+})

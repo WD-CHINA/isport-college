@@ -1,6 +1,9 @@
 import { createAcademyClient, type AcademyClient } from '~/api/academy'
 import { createRequest } from '~/api/request'
 import { toWebProfile } from '~/utils/profile'
+import { useAuthStore } from '~/stores/auth'
+import { LOCALE_URL_CODES } from '@isport/shared'
+import { createAcademyDataClient } from '~/utils/academy-data'
 declare module '#app' {
   interface NuxtApp {
     $academy?: AcademyClient
@@ -9,7 +12,10 @@ declare module '#app' {
 
 /** 界面语言以路由为准：`/en` 为英文，其余路径为中文。不读取语言 cookie。 */
 function localeFromPath(path: string) {
-  return path === '/en' || path.startsWith('/en/') ? 'en-US' : 'zh-CN'
+  return (
+    LOCALE_URL_CODES[path.split('/')[1]?.toLowerCase() as keyof typeof LOCALE_URL_CODES] ??
+    LOCALE_URL_CODES.zh
+  )
 }
 
 /**
@@ -20,22 +26,34 @@ function localeFromPath(path: string) {
 export function useAcademy() {
   const nuxtApp = useNuxtApp()
   if (nuxtApp.$academy) return nuxtApp.$academy
+  const auth = useAuthStore(nuxtApp.$pinia)
+  const route = nuxtApp.$router.currentRoute
 
   const requestPath = import.meta.server ? useRequestURL().pathname : ''
   const requestFetch = import.meta.server ? useRequestEvent()?.fetch : undefined
   const fetchImpl = requestFetch
     ? (input: RequestInfo | URL, init?: RequestInit) =>
-        requestFetch(input instanceof URL ? input.href : String(input), init)
+        requestFetch(input instanceof URL ? input.href : String(input), {
+          ...init,
+          // 外部接口仅使用当前会话的 Bearer，不能继承入站 Cookie/Authorization。
+          headers: {
+            cookie: '',
+            authorization: '',
+            ...Object.fromEntries(new Headers(init?.headers)),
+          },
+        })
     : undefined
 
-  const academy = createAcademyClient(
-    createRequest({
-      baseURL: useRuntimeConfig().public.apiBase,
-      getToken: () => useAuthStore().session?.token,
-      getLocale: () => localeFromPath(import.meta.client ? window.location.pathname : requestPath),
-      fetch: fetchImpl,
-      onUnauthorized: () => useAuthStore().clearSession(),
-    }),
+  const academy = createAcademyDataClient(
+    createAcademyClient(
+      createRequest({
+        baseURL: useRuntimeConfig().public.apiBase,
+        getToken: () => auth.session?.token,
+        getLocale: () => localeFromPath(import.meta.client ? route.value.path : requestPath),
+        fetch: fetchImpl,
+        onUnauthorized: token => auth.clearSession(token),
+      }),
+    ),
   )
   nuxtApp.provide('academy', academy)
   return academy
@@ -45,10 +63,12 @@ export function useAcademy() {
 export async function ensureAcademySession() {
   const academy = useAcademy()
   const auth = useAuthStore()
-  if (!auth.session?.token) return
+  const token = auth.session?.token
+  if (!token) return
   try {
-    const profile = toWebProfile(await academy.me())
-    if (profile) auth.updateUser(profile)
+    const signal = AbortSignal.timeout(2_000)
+    const profile = toWebProfile(await academy.me(undefined, signal))
+    if (profile) auth.updateUser(profile, token)
   } catch {
     // 401 已由请求层清会话。其余失败保留 cookie 中的资料。
   }

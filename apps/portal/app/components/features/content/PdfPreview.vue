@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePdfPreview } from '~/composables/media/usePdfPreview'
 import { Alert as AAlert, Button as AButton } from 'antdv-next'
 import PreviewFrame from './PreviewFrame.vue'
 

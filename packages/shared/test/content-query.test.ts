@@ -1,115 +1,87 @@
 import { describe, expect, it } from 'vitest'
-import type { Taxonomy } from '../src/academy'
-import { contentQueryToUrl, normalizeContentQuery } from '../src/content-query'
+import type { WebResourceFilters } from '../src/web-api'
+import { contentQueryToUrl, normalizeContentQuery, parseListPage } from '../src/content-query'
 
-const taxonomies: Taxonomy[] = [
-  {
-    id: 'fitness',
-    channel: 'resource',
-    enabled: true,
-    order: 0,
-    label: { 'zh-CN': '体能', 'en-US': 'Fitness' },
-  },
-  {
-    id: 'sport',
-    channel: 'resource',
-    enabled: true,
-    order: 1,
-    label: { 'zh-CN': '专项技能', 'en-US': 'Sports' },
-  },
-  {
-    id: 'old',
-    channel: 'resource',
-    enabled: false,
-    order: 2,
-    label: { 'zh-CN': '停用', 'en-US': 'Disabled' },
-  },
-  {
-    id: 'practice',
-    channel: 'research',
-    enabled: true,
-    order: 3,
-    label: { 'zh-CN': '实践', 'en-US': 'Practice' },
-  },
-]
+const filters: WebResourceFilters = {
+  categoryList: [
+    { id: '1', name: '体能', parentId: null },
+    { id: '2', name: '专项', parentId: null },
+  ],
+  secondCategoryList: [{ id: '10', name: '力量', parentId: '1' }],
+  levelList: [{ id: '3', name: '三级', parentId: null }],
+  bodyPartList: [{ id: '4', name: '上肢', parentId: null }],
+  typeList: [{ id: '2', name: '文档', parentId: null }],
+}
 
-describe('公开内容 URL 查询', () => {
-  it('资源默认体能且使用固定分页，其他栏目默认全部', () => {
-    expect(normalizeContentQuery({}, 'resource', taxonomies)).toEqual({
-      channel: 'resource',
-      category: 'fitness',
-      page: 1,
-      pageSize: 12,
-    })
-    expect(normalizeContentQuery({}, 'research', taxonomies)).toEqual({
-      channel: 'research',
-      page: 1,
-      pageSize: 12,
-    })
-  })
-  it('拒绝重复、越界、跨栏目、停用分类和不支持的媒体参数', () => {
-    for (const category of ['practice', 'old', ['fitness', 'sport']]) {
-      const result = normalizeContentQuery(
-        { category, page: '0', level: '6', kind: 'link', keyword: ['a'], pageSize: 100 },
+describe('学苑 URL 查询的唯一规则', () => {
+  it('只保留当前协议支持的字段，并支持旧 level 链接', () => {
+    expect(
+      normalizeContentQuery(
+        {
+          category: '1',
+          secondCategoryId: '10',
+          level: '3',
+          bodyPartTagId: '4',
+          resourceType: '2',
+          keyword: ' 合作 ',
+          page: '2',
+          pageSize: '999',
+          fitness: 'legacy',
+        },
         'resource',
-        taxonomies,
-      )
-      expect(result).toEqual({ channel: 'resource', category: 'fitness', page: 1, pageSize: 12 })
-    }
-    for (const page of ['-1', 'NaN', '1.2', '1e2', '99999']) {
-      expect(normalizeContentQuery({ page }, 'resource', taxonomies).page).toBe(1)
-    }
-  })
-  it('分类切换清理专属条件，教研不会继承资源筛选', () => {
-    const raw = {
-      category: 'sport',
-      fitness: 'strength',
-      bodyPart: 'whole',
-      level: '3',
-      kind: 'courseware',
-    }
-    expect(normalizeContentQuery(raw, 'resource', taxonomies)).toEqual({
-      channel: 'resource',
-      category: 'sport',
-      page: 1,
-      pageSize: 12,
-      level: 3,
-      kind: 'courseware',
-    })
-    expect(normalizeContentQuery(raw, 'research', taxonomies)).toEqual({
-      channel: 'research',
-      page: 1,
-      pageSize: 12,
-    })
-  })
-  it('组合条件可往返序列化，trim 关键词并移除默认页码', () => {
-    const raw = {
-      category: 'fitness',
-      fitness: 'strength',
-      bodyPart: 'whole',
-      level: '3',
-      page: '2',
-      kind: 'courseware',
-      keyword: '  合作  ',
-    }
-    const normalized = normalizeContentQuery(raw, 'resource', taxonomies)
-    const url = contentQueryToUrl(normalized)
-    expect(url.keyword).toBe('合作')
-    expect(normalizeContentQuery(url, 'resource', taxonomies)).toEqual(normalized)
-    expect(contentQueryToUrl({ ...normalized, page: 1 })).not.toHaveProperty('page')
-  })
-  it('保留接口返回的资源筛选项 id，并丢弃写死范围外的旧水平值', () => {
-    const normalized = normalizeContentQuery(
-      { category: 'fitness', recommendedLevel: '10', level: '99', resourceType: '2' },
-      'resource',
-      taxonomies,
-    )
-    expect(normalized.recommendedLevel).toBe('10')
-    expect(normalized.resourceType).toBe('2')
-    expect(normalized.level).toBeUndefined()
-    expect(contentQueryToUrl(normalized)).toMatchObject({
-      recommendedLevel: '10',
+        filters,
+      ),
+    ).toEqual({
+      category: '1',
+      secondCategoryId: '10',
+      recommendedLevel: '3',
+      bodyPartTagId: '4',
       resourceType: '2',
+      keyword: '合作',
+      page: 2,
     })
+  })
+  it('拒绝重复参数、未知筛选项与不匹配的二级分类', () => {
+    expect(
+      normalizeContentQuery(
+        { category: ['1', '2'], recommendedLevel: '99', resourceType: '9', keyword: ['a'] },
+        'resource',
+        filters,
+      ),
+    ).toEqual({ page: 1 })
+    expect(
+      normalizeContentQuery({ category: '2', secondCategoryId: '10' }, 'resource', filters),
+    ).toEqual({ page: 1, category: '2' })
+  })
+  it('教研与校本仅接受对应分类，清理资源参数', () => {
+    expect(
+      normalizeContentQuery(
+        { category: 'SERIES', recommendedLevel: '3', resourceType: '2' },
+        'research',
+        filters,
+      ),
+    ).toEqual({ page: 1, category: 'SERIES' })
+    expect(normalizeContentQuery({ category: 'SERIES' }, 'school')).toEqual({ page: 1 })
+    expect(normalizeContentQuery({ category: 'DIGITAL' }, 'school')).toEqual({
+      page: 1,
+      category: 'DIGITAL',
+    })
+  })
+  it('页码严格为 1..9999，不能用科学计数法、小数或重复参数', () => {
+    for (const raw of ['0', '-1', '1.2', '1e2', '99999', '01', ['2'], undefined])
+      expect(parseListPage(raw)).toBe(1)
+    expect(parseListPage('9999')).toBe(9999)
+  })
+  it('序列化可往返，省略默认页码，关键词长度受限', () => {
+    const query = normalizeContentQuery(
+      { category: '1', level: '3', page: '2', keyword: ' 合作 ' },
+      'resource',
+      filters,
+    )
+    expect(normalizeContentQuery(contentQueryToUrl(query), 'resource', filters)).toEqual(query)
+    expect(contentQueryToUrl({ ...query, page: 1 })).not.toHaveProperty('page')
+    expect(normalizeContentQuery({ keyword: 'a'.repeat(120) }, 'resource').keyword).toHaveLength(
+      100,
+    )
   })
 })

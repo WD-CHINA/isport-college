@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import SubmissionFeature from '~/components/features/creation/SubmissionFeature.vue'
+import UnavailableFeature from '~/components/features/UnavailableFeature.vue'
 
 definePageMeta({ layout: 'admin', academyGate: { permission: 'creation:use' } })
-const route = useRoute()
-const editId = typeof route.query.id === 'string' ? route.query.id : undefined
+const { t } = useI18n()
+useSeoMeta({ title: () => t('seo.adminTitle'), robots: 'noindex, nofollow, noarchive' })
 </script>
 
 <template>
-  <SubmissionFeature :key="editId ?? 'new'" :edit-id="editId" />
+  <UnavailableFeature capability="creation" />
 </template>

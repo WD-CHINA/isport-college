@@ -1,19 +1,24 @@
 <script setup lang="ts">
+import ProfileForm from '~/components/auth/ProfileForm.vue'
+import { useProfile } from '~/composables/account/useProfile'
+import { useLoginUiStore } from '~/stores/login-ui'
+import { useAuthStore } from '~/stores/auth'
 import { Button as AButton, Modal as AModal } from 'antdv-next'
 const auth = useAuthStore()
+const loginUi = useLoginUiStore()
 const { t } = useI18n()
 const { pending, error, save, skipNickname } = useProfile()
 async function submit(value: { nickname: string; avatarCode: number }) {
-  if (await save(value)) auth.nicknameGuideVisible = false
+  if (await save(value)) loginUi.nicknameGuideVisible = false
 }
 async function skip() {
-  if (await skipNickname()) auth.nicknameGuideVisible = false
+  if (await skipNickname()) loginUi.nicknameGuideVisible = false
 }
 </script>
 
 <template>
   <AModal
-    v-model:open="auth.nicknameGuideVisible"
+    v-model:open="loginUi.nicknameGuideVisible"
     :title="t('academy.nicknameGuide')"
     :footer="null"
     :width="440"

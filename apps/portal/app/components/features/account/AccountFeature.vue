@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { useAccountActivity } from '~/composables/account/useAccountActivity'
 import { Alert as AAlert, Button as AButton } from 'antdv-next'
 import AccountProfile from './AccountProfile.vue'
 import ActivityFilters from './ActivityFilters.vue'
 import ActivityList from './ActivityList.vue'
-import ContentPagination from '../content/ContentPagination.vue'
+import AppPagination from '~/components/app/AppPagination.vue'
 
 const { t } = useI18n()
 const { kind, channel, page, removing, failed, totals, request, filter, remove } =
@@ -40,7 +41,7 @@ await request
           :removing="removing"
           @remove="remove"
         />
-        <ContentPagination
+        <AppPagination
           :total="data?.total ?? 0"
           :page="page"
           :page-size="12"

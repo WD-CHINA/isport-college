@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useContentDetail } from '~/composables/content/useContentDetail'
 import { isPublicHttpUrl, type MediaAsset, type WebMediaItem } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import { RichTextContent } from '@isport/rich-text'
@@ -14,6 +15,7 @@ const localePath = useLocalePath()
 const apiUrl = useApiUrl()
 const {
   request,
+  recommendations: recommendationsRequest,
   stats,
   notFound,
   pending,
@@ -24,6 +26,7 @@ const {
   refresh,
 } = useContentDetail(props.id, props.channel)
 const { data, error, status } = request
+const { data: recommendations } = recommendationsRequest
 function toAsset(item: WebMediaItem): MediaAsset {
   const documentKind = /\.pptx?($|\?)/i.test(item.fileUrl) ? 'ppt' : 'pdf'
   const kinds = { VIDEO: 'video', AUDIO: 'audio', IMAGE: 'image', DOCUMENT: documentKind } as const
@@ -106,9 +109,9 @@ if (import.meta.server && notFound.value) {
           </AAlert>
         </template>
       </ContentDetailShell>
-      <section v-if="data.recommendations.length" class="content-detail__recommendations">
+      <section v-if="recommendations.length" class="content-detail__recommendations">
         <h2>{{ t('detail.recommendations') }}</h2>
-        <ContentGrid :items="data.recommendations" />
+        <ContentGrid :items="recommendations" />
       </section>
     </template>
     <ASkeleton v-else active />

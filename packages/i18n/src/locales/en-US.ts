@@ -116,6 +116,7 @@ const messages: MessageSchema = {
     gateDefault: 'Sign in to continue',
   },
   academy: {
+    unavailable: 'This feature is not connected yet and is currently unavailable.',
     requestFailed: 'Request failed. Please try again.',
     phone: 'Mobile number',
     phoneInvalid: 'Enter an 11-digit mainland China mobile number',

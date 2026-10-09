@@ -18,7 +18,7 @@ const adminRouteRules = Object.fromEntries(
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-18',
   devtools: { enabled: true },
-  components: [{ path: '~/components', pathPrefix: false }],
+  components: false,
   modules: ['@pinia/nuxt', '@unocss/nuxt', '@nuxtjs/i18n', '@antdv-next/nuxt'],
   css: ['normalize.css', '@isport/design-tokens/css-vars', '~/assets/css/main.scss'],
   runtimeConfig: {
@@ -66,8 +66,8 @@ export default defineNuxtConfig({
     icon: false,
   },
   imports: {
-    // 递归扫描 composables 子目录（course/admin 等）
-    dirs: ['composables/**'],
+    // 业务 composable/store 使用显式导入；保留 Nuxt/Vue 内置自动导入。
+    scan: false,
   },
   typescript: {
     // 类型检查由 pnpm typecheck（vue-tsc）独立执行，不阻塞开发构建

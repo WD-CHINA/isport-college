@@ -76,3 +76,96 @@ describe('createRequest', () => {
     await assertion
   })
 })
+
+describe('请求边界回归', () => {
+  it.each([
+    [404, 'Not found', 'NOT_FOUND', 404],
+    [503, 'Service unavailable', 'SERVICE_UNAVAILABLE', 503],
+    [403, 'Forbidden', 'FORBIDDEN', 403],
+  ])('纯文本 HTTP %s 保留状态，不能被文案误分类', async (status, body, code, statusCode) => {
+    const request = createRequest({
+      baseURL: 'http://localhost',
+      fetch: async () => new Response(body, { status }),
+    })
+    await expect(request('GET', '/home')).rejects.toMatchObject({
+      code,
+      statusCode,
+      data: { code },
+    })
+  })
+  it.each([
+    '<html>gateway</html>',
+    'null',
+    '[]',
+    '{"status":200,"message":"OK"}',
+    '{"message":"OK","data":{}}',
+  ])('拒绝不完整成功信封 %s', async body => {
+    const request = createRequest({
+      baseURL: 'http://localhost',
+      fetch: async () => new Response(body),
+    })
+    await expect(request('GET', '/home')).rejects.toMatchObject({ code: 'SERVICE_UNAVAILABLE' })
+  })
+  it('401 回调携带发出请求时的令牌', async () => {
+    let token = 'old'
+    const onUnauthorized = vi.fn()
+    const request = createRequest({
+      baseURL: 'http://localhost',
+      getToken: () => token,
+      onUnauthorized,
+      fetch: async () => {
+        token = 'new'
+        return envelope(null, 401)
+      },
+    })
+    await expect(request('GET', '/me')).rejects.toMatchObject({ code: 'UNAUTHORIZED' })
+    expect(onUnauthorized).toHaveBeenCalledWith('old')
+  })
+  it('即使底层 fetch 忽略取消也有超时上限', async () => {
+    const request = createRequest({
+      baseURL: 'http://localhost',
+      timeoutMs: 10,
+      fetch: () => new Promise<Response>(() => {}),
+    })
+    await expect(request('GET', '/home')).rejects.toMatchObject({
+      code: 'SERVICE_UNAVAILABLE',
+      message: '学苑接口请求超时',
+    })
+  })
+  it('取消后的晚到 401 不触发会话副作用', async () => {
+    let resolve!: (response: Response) => void
+    const onUnauthorized = vi.fn()
+    const request = createRequest({
+      baseURL: 'http://localhost',
+      onUnauthorized,
+      fetch: () =>
+        new Promise<Response>(done => {
+          resolve = done
+        }),
+    })
+    const controller = new AbortController()
+    const pending = request('GET', '/me', undefined, undefined, controller.signal)
+    const assertion = expect(pending).rejects.toMatchObject({ name: 'AbortError' })
+    controller.abort()
+    await assertion
+    resolve(envelope(null, 401))
+    await new Promise(done => setTimeout(done, 5))
+    expect(onUnauthorized).not.toHaveBeenCalled()
+  })
+})
+
+it('请求头可被 SSR h3 对象展开保留', async () => {
+  const fetch = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+    const merged = { ...init?.headers } as Record<string, string>
+    expect(merged.authorization).toBe('Bearer token-1')
+    expect(merged['x-locale']).toBe('en-US')
+    return envelope(true)
+  })
+  const request = createRequest({
+    baseURL: 'http://localhost',
+    getToken: () => 'token-1',
+    getLocale: () => 'en-US',
+    fetch,
+  })
+  await expect(request('GET', '/me')).resolves.toBe(true)
+})

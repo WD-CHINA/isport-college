@@ -53,7 +53,7 @@ const apiUrl = useApiUrl()
 }
 
 .home-news__heading a {
-  color: #2563eb;
+  color: var(--ic-color-brand-500);
 }
 
 .home-news__list {

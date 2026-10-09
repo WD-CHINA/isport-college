@@ -1,8 +1,8 @@
 import { expect, test } from './academy.fixture'
 
-test('首页和栏目 SSR 打到真实学苑数据', async ({ context }) => {
+test('首页和栏目 SSR 打到独立学苑协议服务器', async ({ context }) => {
   for (const [path, marker] of [
-    ['/', '运动游戏音乐'],
+    ['/', '资源示例 1'],
     ['/resources', '体能'],
     ['/research', '教研学习'],
     ['/schools', '学校案例'],
@@ -20,7 +20,7 @@ test('首页和栏目 SSR 打到真实学苑数据', async ({ context }) => {
 test('资源分类筛选更新查询参数', async ({ page }) => {
   await page.goto('/resources')
   await expect(page.getByRole('status')).toContainText(/共\s*\d+\s*条内容/)
-  await page.getByRole('button', { name: '体能', exact: true }).click()
+  await page.getByRole('button', { name: /体\s*能/, exact: true }).click()
   await expect(page).toHaveURL(/category=1/)
   await expect(page.getByRole('status')).toContainText(/共\s*\d+\s*条内容/)
 })

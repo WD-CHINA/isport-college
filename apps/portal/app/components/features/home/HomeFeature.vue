@@ -1,4 +1,11 @@
 <script setup lang="ts">
+import ContentGrid from '~/components/features/content/ContentGrid.vue'
+import HomeContentSection from '~/components/features/home/HomeContentSection.vue'
+import HomeHero from '~/components/features/home/HomeHero.vue'
+import HomeLearningEntries from '~/components/features/home/HomeLearningEntries.vue'
+import HomeNews from '~/components/features/home/HomeNews.vue'
+import HomePeople from '~/components/features/home/HomePeople.vue'
+import { useAcademyHome } from '~/composables/content/useAcademyHome'
 import { Alert as AAlert, Button as AButton } from 'antdv-next'
 
 const { t } = useI18n()
@@ -22,7 +29,7 @@ await request
   <div>
     <HomeHero />
     <div class="container-page academy-home">
-      <HomeLearningEntries />
+      <HomeLearningEntries :levels="levelCategories" />
       <AAlert v-if="error" type="error" :title="t('academy.requestFailed')">
         <template #action
           ><AButton @click="refresh()">{{ t('catalog.retry') }}</AButton></template

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import AppPagination from '~/components/app/AppPagination.vue'
+import ContentFilters from '~/components/features/content/ContentFilters.vue'
+import ContentGrid from '~/components/features/content/ContentGrid.vue'
+import { useContentList } from '~/composables/content/useContentList'
 import type { ContentChannel } from '@isport/shared'
 import { Alert as AAlert, Button as AButton } from 'antdv-next'
 
@@ -27,7 +31,8 @@ await request
       :resource-filters="resourceFilters"
       @update:model-value="update"
     />
-    <AAlert v-if="error || filterError" type="error" show-icon :title="t('academy.requestFailed')">
+    <AAlert v-if="filterError" type="warning" show-icon :title="t('academy.requestFailed')" />
+    <AAlert v-if="error" type="error" show-icon :title="t('academy.requestFailed')">
       <template #action
         ><AButton @click="retry">{{ t('catalog.retry') }}</AButton></template
       >
@@ -41,7 +46,7 @@ await request
         }}
       </p>
       <ContentGrid :items="data?.list ?? []" :loading="status === 'pending'" />
-      <ContentPagination
+      <AppPagination
         v-if="data"
         :total="data.total"
         :page="query.page"

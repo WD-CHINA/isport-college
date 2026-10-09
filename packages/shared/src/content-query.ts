@@ -1,76 +1,78 @@
 import {
-  BODY_PARTS,
-  FITNESS_CATEGORIES,
-  type ContentChannel,
-  type ContentQuery,
-  type Taxonomy,
-} from './academy'
-
-export const CONTENT_PAGE_SIZE = 12
-export const RESOURCE_FILTER_KINDS = ['video', 'courseware', 'audio', 'image'] as const
+  RESEARCH_CATEGORIES,
+  SCHOOL_CATEGORIES,
+  type WebListQuery,
+  type WebResourceFilters,
+} from './web-api'
+import type { ContentChannel } from './academy'
 
 function scalar(value: unknown): string {
-  return typeof value === 'string' ? value.trim() : typeof value === 'number' ? String(value) : ''
+  // 重复参数不取第一项，避免浏览器与服务端对输入作出不同解释。
+  return typeof value === 'string' ? value.trim() : ''
 }
-
-/** URL 是不可信输入；重复参数、跨栏目分类和失效筛选不进入业务查询。 */
+export function parseListPage(value: unknown): number {
+  const raw = scalar(value)
+  return /^[1-9]\d{0,3}$/.test(raw) ? Number(raw) : 1
+}
+function id(value: unknown): string | undefined {
+  const raw = scalar(value)
+  return /^\d{1,12}$/.test(raw) ? raw : undefined
+}
+/** 当前学苑 URL 查询的唯一解析器；未知字段不会进入请求。 */
 export function normalizeContentQuery(
   raw: Record<string, unknown>,
   channel: ContentChannel,
-  taxonomies: readonly Taxonomy[],
-): ContentQuery {
-  const categories = taxonomies.filter(item => item.enabled && item.channel === channel)
-  const requestedCategory = scalar(raw.category)
-  const category = categories.some(item => item.id === requestedCategory)
-    ? requestedCategory
-    : channel === 'resource'
-      ? (categories.find(item => item.id === 'fitness')?.id ?? categories[0]?.id)
-      : undefined
-  const pageValue = scalar(raw.page)
-  const page = /^[1-9]\d{0,3}$/.test(pageValue) ? Number(pageValue) : 1
+  filters?: WebResourceFilters | null,
+): WebListQuery {
+  const query: WebListQuery = { page: parseListPage(raw.page) }
   const keyword = scalar(raw.keyword).slice(0, 100)
-  const query: ContentQuery = { channel, page, pageSize: CONTENT_PAGE_SIZE }
-  if (category) query.category = category
   if (keyword) query.keyword = keyword
-  if (channel === 'resource') {
-    const level = scalar(raw.level)
-    if (/^[1-5]\.0$/.test(level) || /^[1-5]$/.test(level)) query.level = Number(level)
-    const kind = RESOURCE_FILTER_KINDS.find(item => item === scalar(raw.kind))
-    if (kind) query.kind = kind
-    if (category === 'fitness') {
-      const fitness = FITNESS_CATEGORIES.find(item => item === scalar(raw.fitness))
-      const bodyPart = BODY_PARTS.find(item => item === scalar(raw.bodyPart))
-      if (fitness) query.fitness = fitness
-      if (bodyPart) query.bodyPart = bodyPart
-    }
-    const secondCategoryId = scalar(raw.secondCategoryId)
-    const recommendedLevel = scalar(raw.recommendedLevel)
-    const bodyPartTagId = scalar(raw.bodyPartTagId)
-    const resourceType = scalar(raw.resourceType)
-    if (/^\d{1,12}$/.test(secondCategoryId)) query.secondCategoryId = secondCategoryId
-    if (/^\d{1,12}$/.test(recommendedLevel)) query.recommendedLevel = recommendedLevel
-    if (/^\d{1,12}$/.test(bodyPartTagId)) query.bodyPartTagId = bodyPartTagId
-    if (/^[01256]$/.test(resourceType)) query.resourceType = resourceType
+  const category = scalar(raw.category)
+  if (channel !== 'resource') {
+    const categories = channel === 'research' ? RESEARCH_CATEGORIES : SCHOOL_CATEGORIES
+    if (categories.some(item => item.id === category)) query.category = category
+    return query
+  }
+  if (id(category) && (!filters || filters.categoryList.some(item => item.id === category))) {
+    query.category = category
+  }
+  const second = id(raw.secondCategoryId)
+  if (
+    second &&
+    (!filters ||
+      filters.secondCategoryList.some(
+        item => item.id === second && (!query.category || item.parentId === query.category),
+      ))
+  ) {
+    query.secondCategoryId = second
+  }
+  // 将旧入口的 level 归一化为学苑规定的 recommendedLevel。
+  const level = id(raw.recommendedLevel ?? raw.level)
+  if (level && (!filters || filters.levelList.some(item => item.id === level))) {
+    query.recommendedLevel = level
+  }
+  const body = id(raw.bodyPartTagId)
+  if (body && (!filters || filters.bodyPartList.some(item => item.id === body))) {
+    query.bodyPartTagId = body
+  }
+  const type = scalar(raw.resourceType)
+  if (/^[01256]$/.test(type) && (!filters || filters.typeList.some(item => item.id === type))) {
+    query.resourceType = type
   }
   return query
 }
-
-export function contentQueryToUrl(query: ContentQuery): Record<string, string> {
+export function contentQueryToUrl(query: WebListQuery): Record<string, string> {
   const result: Record<string, string> = {}
   for (const key of [
     'category',
     'keyword',
-    'level',
-    'kind',
-    'fitness',
-    'bodyPart',
     'secondCategoryId',
     'recommendedLevel',
     'bodyPartTagId',
     'resourceType',
   ] as const) {
-    if (query[key] !== undefined && query[key] !== '') result[key] = String(query[key])
+    if (query[key]) result[key] = query[key]
   }
-  if (query.page && query.page > 1) result.page = String(query.page)
+  if (query.page > 1) result.page = String(query.page)
   return result
 }

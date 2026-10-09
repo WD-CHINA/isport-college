@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAcademy } from '~/composables/useAcademy'
 import { AVATAR_IDS, normalizeNickname, type WebProfile } from '@isport/shared'
 import { Alert as AAlert, Button as AButton, Input as AInput } from 'antdv-next'
 

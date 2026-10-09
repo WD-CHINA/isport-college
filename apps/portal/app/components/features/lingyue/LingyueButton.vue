@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { Button as AButton } from 'antdv-next'
+import { ACADEMY_CAPABILITIES } from '~/config/capabilities'
 
 defineProps<{ label?: string }>()
 const { t } = useI18n()
-const { state, enter } = useLingyue()
 </script>
 
 <template>
-  <AButton :disabled="state.pending" @click="enter">{{ label || t('lingyue.enter') }}</AButton>
+  <AButton :disabled="!ACADEMY_CAPABILITIES.lingyue.enabled" :title="t('academy.unavailable')">
+    {{ label || t('lingyue.enter') }}
+  </AButton>
 </template>

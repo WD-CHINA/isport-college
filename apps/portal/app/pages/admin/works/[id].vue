@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import WorkDetailFeature from '~/components/features/creation/WorkDetailFeature.vue'
+import UnavailableFeature from '~/components/features/UnavailableFeature.vue'
 
 definePageMeta({ layout: 'admin', academyGate: { permission: 'creation:use' } })
-const route = useRoute()
+const { t } = useI18n()
+useSeoMeta({ title: () => t('seo.adminTitle'), robots: 'noindex, nofollow, noarchive' })
 </script>
 
 <template>
-  <WorkDetailFeature :id="String(route.params.id)" />
+  <UnavailableFeature capability="creation" />
 </template>

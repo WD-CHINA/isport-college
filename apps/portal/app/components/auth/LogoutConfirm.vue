@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useSessionActions } from '~/composables/auth/useSessionActions'
+import { useLoginUiStore } from '~/stores/login-ui'
 import { App, Modal as AModal } from 'antdv-next'
-const auth = useAuthStore()
+const loginUi = useLoginUiStore()
+const { logout } = useSessionActions()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { message } = App.useApp()
@@ -9,7 +12,7 @@ async function confirm() {
   if (pending.value) return
   pending.value = true
   try {
-    await auth.logout()
+    await logout()
   } catch {
     message.warning(t('academy.logoutLocal'))
   } finally {
@@ -21,7 +24,7 @@ async function confirm() {
 
 <template>
   <AModal
-    v-model:open="auth.logoutConfirmVisible"
+    v-model:open="loginUi.logoutConfirmVisible"
     :title="t('common.logout')"
     :confirm-loading="pending"
     :ok-text="t('common.confirm')"

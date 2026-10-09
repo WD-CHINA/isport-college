@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useExpandedPreview } from '~/composables/media/useExpandedPreview'
 import { Button as AButton } from 'antdv-next'
 
 defineProps<{ title: string }>()

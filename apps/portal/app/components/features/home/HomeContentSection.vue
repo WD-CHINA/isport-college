@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ContentGrid from '~/components/features/content/ContentGrid.vue'
 import type { WebContentCard } from '@isport/shared'
 import { Button as AButton } from 'antdv-next'
 
@@ -66,7 +67,7 @@ const more = computed(() =>
 
 .home-content-section__heading a {
   flex-shrink: 0;
-  color: #2563eb;
+  color: var(--ic-color-brand-500);
 }
 
 .home-content-section__tabs {

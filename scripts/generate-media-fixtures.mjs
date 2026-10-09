@@ -77,6 +77,6 @@ pdf += offsets
   .slice(1)
   .map(offset => `${String(offset).padStart(10, '0')} 00000 n \n`)
   .join('')
-pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 /ID [<61636164656d79> <61636164656d79>] >>\nstartxref\n${xref}\n%%EOF\n`
+pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R /ID [<61636164656d79> <61636164656d79>] >>\nstartxref\n${xref}\n%%EOF\n`
 await writeFile(join(root, 'sample.pdf'), pdf)
 console.info('已生成本地 PNG、WAV、WebM 和三页 PDF 测试素材。')

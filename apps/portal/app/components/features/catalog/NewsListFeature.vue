@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { parseListPage } from '@isport/shared'
+import AppPagination from '~/components/app/AppPagination.vue'
+import { useAcademy } from '~/composables/useAcademy'
 import {
   formatPublishedAt,
   isContentAssetUrl,
@@ -14,10 +17,7 @@ const router = useRouter()
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
-const page = computed(() => {
-  const value = Number(route.query.page ?? 1)
-  return Number.isInteger(value) && value > 0 ? value : 1
-})
+const page = computed(() => parseListPage(route.query.page))
 const request = useAsyncData(
   () => `academy:news:${locale.value}:${page.value}`,
   (_app, { signal }) => academy.news({ pageNum: page.value, pageSize: WEB_PAGE_SIZE }, signal),
@@ -63,7 +63,7 @@ function href(id: number, detailType: string, jumpUrl: string) {
       </li>
     </ul>
     <AEmpty v-else :description="t('catalog.noResults')" />
-    <ContentPagination
+    <AppPagination
       v-if="data"
       :total="data.total"
       :page="page"

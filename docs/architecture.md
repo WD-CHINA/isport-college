@@ -1,727 +1,105 @@
-# isport-academy 前端架构设计
+# isport-academy 当前架构
 
-> 状态：C 端已直接对接融梦学苑前台 `/api/v1`；投稿、积分与管理端写接口不在该文档中  
-> 更新日期：2026-10-09  
-> 适用范围：C 端门户与管理端前端
+更新日期：2026-10-09。当前只有一个 Nuxt 4 应用与 Nitro 发布产物。门户采用 SSR；管理端采用 CSR，并统一禁止收录。
 
-## 0. 学苑前台接口
+## 数据与部署边界
 
-门户浏览器和 SSR 都请求 `NUXT_PUBLIC_API_BASE` 上的 `/api/v1`。响应包体为 `{status, message, data}`，鉴权使用 `Authorization: Bearer {token}`，语言使用 `X-Locale: zh-CN|en-US`。不再提供同源 Mock，也不使用产品阶段开关。
+浏览器与 SSR 都直连 `NUXT_PUBLIC_API_BASE` 的 `/api/v1`，响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。浏览器访问接口与媒体域需要对应 CORS 配置。生产应用没有同源业务 mock。
 
 ```text
-页面 / Feature
-  → composable 或 store（组装参数、整理响应）
-  → useAcademy()（在 setup 中为当前请求创建）
-  → app/api/academy.ts（路径与参数，响应原样返回）
-  → app/api/request.ts（信封、鉴权头、语言头）
-  → http(s)://<NUXT_PUBLIC_API_BASE>/api/v1
+pages → Feature → domain composable
+                     ↓
+                 useAcademy（当前 Nuxt 请求自己的 Pinia/fetch）
+                     ↓
+                 utils/academy-data + web-response（调用侧验证业务数据）
+                     ↓
+                 api/academy（路径、方法、参数）
+                     ↓
+                 api/request（HTTP、信封、鉴权、语言、超时与取消）
+                     ↓
+                 外部学苑 /api/v1
 ```
 
-- `packages/shared/src/web-api.ts`：融梦学苑前台文档中的卡片、详情、资料和分页类型。
-- `apps/portal/app/api/request.ts`：唯一请求实现。拼 `/api/v1`，写入 Bearer 与 `X-Locale`，解开信封；401 时清本地会话。查询值在这里转成字符串。
-- `apps/portal/app/api/academy.ts`：只声明学苑路径、方法和参数。
-- `apps/portal/app/api/errors.ts`：统一 `ApiError`。
-- `apps/portal/app/composables/useAcademy.ts`：在路由中间件和 setup 中为当前请求创建客户端。服务端使用这次请求的 fetch，同一次渲染内复用。语言头以当前路由为准，`/en` 为 `en-US`，其余为 `zh-CN`。`app.vue` await `ensureAcademySession()`；`/me` 失败时保留本地会话，不阻断公开页。
-- `apps/portal/app/utils/profile.ts`：登录和 `/me` 的资料整理。`apps/portal/app/utils/api-url.ts`：展示层把相对资源地址补成接口域名下的绝对地址。
-- 投稿、积分、灵跃和管理端写接口不在前台文档中，调用 `academyUnavailable()`。旧课程 `/rsp/**` 由 Nitro 返回 503。
-- `apps/portal/server/plugins/academy.ts`：未配置 `NUXT_PUBLIC_API_BASE` 时拒绝启动。
+`api/academy` 中的 TypeScript 类型描述预期协议；运行时验证由调用侧适配器负责。成功 HTTP 响应必须具有完整信封，列表、首页、枚举、计数和媒体字段通过验证后才进入展示组件。登录和资料使用 `utils/profile` 整理。
 
-### 0.1 运行开关
+`ApiError` 同时提供 HTTP `statusCode` 与可序列化的 `data.code`。Nuxt 转换错误后仍可通过 `apiErrorCode()` 识别。HTTP 401/403/404/5xx 优先于错误文案；只兼容后端既有的 400 下架响应。默认请求上限为 8 秒，取消信号贯穿请求；取消后的晚到响应不能执行会话副作用。
 
-| 环境变量               | 默认值／用途                                       |
-| ---------------------- | -------------------------------------------------- |
-| `NUXT_PUBLIC_API_BASE` | 必填；学苑前台根地址，例如 `http://10.9.0.26:8090` |
-| `NUXT_PUBLIC_SITE_ENV` | `development`；非 `production` 全站禁止收录        |
+## 会话职责
 
-### 0.2 测试与迁移状态
+- `stores/auth.ts`：会话、当前资料、权限、Cookie 和会话版本；不调用接口、不打开弹窗、不导航。
+- `stores/login-ui.ts`：登录意图、弹窗、昵称引导与退出确认。
+- `composables/auth/useSessionActions.ts`：登录和退出的接口编排，拒绝旧弹窗或旧会话产生的晚到响应。
+- `composables/auth/useSmsLogin.ts`：短信表单、校验和重发倒计时。
+- `composables/account/useProfile.ts`：资料更新；响应仅能写回发出请求时的会话。
 
-前台接口单测在 `apps/portal/test`：请求信封、学苑路径、资料整理和相对媒体地址。`e2e/catalog.spec.ts` 用真实学苑数据检查首页和栏目的 SSR。`auth`、`media`、`creation-p0`、`route-gate`、`role-navigation` 仍跳过，因为它们依赖已删除的同源 mock 会话，待按短信登录重写。生产构建测试使用 `siteEnv=test`，不等同于生产站点环境。
+`useAcademy()` 创建时显式绑定当前 Nuxt 的 Pinia，并在发送时读取这个 store 的令牌。401 回调携带原请求令牌，仅使匹配会话失效；匿名或旧令牌请求不能清掉后来建立的会话。退出和资料更新遵守相同规则。会话变化只清理详情、个人记录等相关数据缓存，公开首页与列表不会因此消失。
 
-路由归一化单测在 `packages/shared/test/routing.test.ts`，权限表单测在 `packages/shared/test/access-control.test.ts`。
+Cookie 为 SameSite=Lax；`siteEnv=production` 时使用 Secure。令牌放在 store 的私有引用中，暴露的计算属性不会进入 Pinia SSR state。由于保留浏览器直连 Bearer 协议，Cookie 仍需被 JavaScript 读取；本轮没有实现 HttpOnly。若改为 HttpOnly，需要单独设计同源认证代理及部署边界。
 
-## 1. 背景与目标
+当前 `/me` 不返回角色或权限，因此 `hasWebPermission()` 只向有效前台会话开放 `account:view`。菜单和路由使用相同判断；客户端权限判断不能替代学苑后端授权。
 
-项目同时面向两类用户：
+## SSR 与故障隔离
 
-- C 端用户使用公开门户，需要服务端渲染、搜索引擎友好和完整的移动端体验。
-- 管理用户使用中后台，需要登录后访问，不允许被搜索引擎收录，并同时支持 PC 与移动端。
+公开页不等待 `/me`：资料在浏览器挂载后刷新，上限 2 秒。受保护路由先刷新已登录会话，401 会恢复为访客登录流程；其他资料服务故障保留本地会话，实际业务接口仍由后端鉴权。
 
-C 端浏览、短信登录和个人资料已经对接融梦学苑前台 `/api/v1`。投稿、积分、灵跃和管理端写入仍不在该文档中。
+详情正文独立 SSR；推荐在浏览器单独请求。推荐失败不会覆盖正文。资源、教师和动态不存在时，页面正文及 HTTP 响应均为 404。浏览计数只在浏览器提交，互动和计数的旧响应不能覆盖新会话数据。
 
-### 1.1 架构目标
+`shared/content-query.ts` 是教学资源、教研和校本栏目 URL 查询的唯一规则：拒绝重复参数，页码范围为 1..9999，校验分类及二级分类关系，过滤未知条件；旧 `level` 链接统一转换为 `recommendedLevel`。教师和动态列表复用同一页码解析器。首页水平入口由接口分组生成。
 
-- 使用 Monorepo 管理应用、组件、设计令牌和工程配置。
-- 最终只产生一个 Nuxt 发布产物和一个服务入口。
-- C 端默认 SSR，管理端路由采用 CSR。
-- C 端和管理端共用设计语言，但不强制共用全部业务组件。
-- 支持中文和英文。
-- PC、平板和移动端均可使用。
-- 学苑请求与接口路径分开，业务代码不直接拼接 `/api/v1`。
-- 保持类型安全、模块边界清晰，并具备基本测试和质量门禁。
-
-### 1.2 首期非目标
-
-- 前台不实现学苑服务端的数据库和授权；登录令牌由学苑接口签发。
-- 不在本仓库实现投稿、积分、灵跃和管理端写接口。
-- 不承诺 Chrome 88 等旧版本浏览器兼容性。
-- 不在首期实现微前端、多个独立部署单元或复杂多租户架构。
-
-## 2. 技术栈
-
-| 分类     | 选型                                  | 用途                                       |
-| -------- | ------------------------------------- | ------------------------------------------ |
-| Monorepo | pnpm workspace + Turborepo            | 依赖管理、任务编排和构建缓存               |
-| 应用框架 | Nuxt 4                                | SSR、CSR、路由、Nitro 服务与统一构建产物   |
-| UI 框架  | Vue 3                                 | Composition API 与组件体系                 |
-| 语言     | TypeScript                            | 应用、组件、配置和领域类型                 |
-| 路由     | Nuxt Pages / Vue Router               | 文件路由、路由中间件和导航                 |
-| 状态管理 | Pinia                                 | 登录态、用户偏好及跨页面 UI 状态           |
-| 原子样式 | UnoCSS                                | 响应式布局、原子类和设计令牌消费           |
-| 组件库   | antdv-next                            | 表单、表格、弹窗等通用组件，管理端优先使用 |
-| 国际化   | @nuxtjs/i18n / vue-i18n               | 中英文路由和文案                           |
-| 日期时间 | dayjs                                 | 日期解析、格式化、语言和时区处理           |
-| 测试     | Vitest + Nuxt Test Utils + Playwright | 单元、组件、Nuxt 集成和端到端测试          |
-
-依赖必须通过根目录锁文件固定版本。`antdv-next` 等更新较快的依赖不得在 CI 中隐式升级。
-
-## 3. 总体架构
-
-项目采用“单 Nuxt 应用 + 路由级混合渲染”的结构。
-
-```mermaid
-flowchart TD
-  Browser[浏览器] --> Nitro[Nuxt / Nitro]
-  Nitro --> Public[C 端路由<br/>SSR]
-  Nitro --> Admin[管理端路由<br/>CSR Shell]
-  Public --> Features[Feature 组件与 Composables]
-  Admin --> Features
-  Features --> AcademyApi[app/api/academy.ts]
-  AcademyApi --> Request[app/api/request.ts]
-  Request --> AcademyWeb[学苑 /api/v1]
-  Features --> UI[ui-core / ui-admin]
-  UI --> Tokens[design-tokens]
-```
-
-### 3.1 为什么使用一个 Nuxt 应用
-
-- C 端 SSR 与管理端 CSR 可以通过 Nuxt `routeRules` 同时实现。
-- 只生成一个 `.output`，部署时只启动一个 Nitro 服务。
-- 登录状态、国际化和设计令牌无需在两个应用间重复配置。
-- 首期业务规模尚不需要独立发布和团队隔离。
-- 将来管理端需要独立域名或发布节奏时，可以再从 `/admin` 路由分区提取为独立应用。
-
-## 4. Monorepo 目录规划
+## 目录与组件
 
 ```text
-.
-├── apps/
-│   └── portal/
-│       ├── app/
-│       │   ├── assets/
-│       │   ├── components/
-│       │   │   ├── app/
-│       │   │   ├── auth/
-│       │   │   └── features/
-│       │   ├── api/
-│       │   ├── composables/
-│       │   ├── layouts/
-│       │   │   ├── default.vue
-│       │   │   └── admin.vue
-│       │   ├── middleware/
-│       │   ├── pages/
-│       │   │   ├── index.vue
-│       │   │   └── admin/
-│       │   ├── plugins/
-│       │   ├── stores/
-│       │   ├── utils/
-│       │   ├── app.vue
-│       │   └── error.vue
-│       ├── public/
-│       ├── server/
-│       ├── test/
-│       ├── nuxt.config.ts
-│       └── package.json
-├── packages/
-│   ├── design-tokens/
-│   ├── i18n/
-│   ├── rich-text/
-│   ├── shared/
-│   ├── ui-core/
-│   ├── ui-admin/
-│   ├── unocss-preset/
-│   ├── eslint-config/
-│   └── tsconfig/
-├── docs/
-│   └── architecture.md
-├── scripts/
-├── package.json
-├── pnpm-workspace.yaml
-└── turbo.json
+apps/portal/app/
+  api/                 HTTP 与外部接口定义
+  config/capabilities.ts  尚未接入能力的声明
+  pages/               路由、门禁与 Feature 入口
+  layouts/             公开与管理端外壳
+  components/
+    app/               导航、页脚、通用分页
+    auth/              登录与资料表单展示
+    features/          home/content/catalog/account/lingyue
+                       UnavailableFeature 统一不可用页
+  composables/
+    auth/              登录流程与登录门禁
+    account/           资料与个人互动记录
+    content/           首页、列表、详情状态
+    media/             PDF 与展开预览
+    useAcademy.ts      当前请求的客户端
+    useLocaleSwitch.ts / useRefreshOnFocus.ts
+  stores/              auth 与 login-ui
+  utils/               调用侧响应验证、资料与 URL 整理
 ```
 
-### 4.1 分层与包职责
+业务 composable、store、工具和本地组件显式导入；Nuxt/Vue 内置 API 保留自动导入。展示组件通过 props/emits 与业务编排通信。分页由 `components/app/AppPagination.vue` 提供，颜色优先消费 `design-tokens`。
 
-| 层级     | 包／目录                                | 唯一职责                                        | 禁止事项                          |
-| -------- | --------------------------------------- | ----------------------------------------------- | --------------------------------- |
-| 应用层   | `apps/portal`                           | Nuxt 路由、页面编排、状态、服务端接口与部署入口 | 被工作区包反向依赖                |
-| 展示层   | `ui-core`、`ui-admin`、`rich-text`      | 通用组件、管理端组件、富文本编辑与安全渲染      | 路由、业务请求、应用全局状态      |
-| 领域基础 | `shared`、`i18n`                        | 平台无关类型、常量、纯函数、公共语言资源        | Vue/Nuxt 生命周期和浏览器专属 API |
-| 样式基础 | `design-tokens`、`unocss-preset`        | 令牌单一来源及其 UnoCSS 映射                    | 页面逻辑和业务组件                |
-| 工程工具 | `eslint-config`、`tsconfig`、根目录配置 | 编译、检查、任务编排和仓库级约束                | 运行时业务代码                    |
+投稿、积分、教师资料、灵跃和管理端接口尚未接入。`config/capabilities.ts` 是其当前声明；灵跃操作入口禁用，已有路由保留门禁并展示统一不可用页。旧课程组件、失败接口、伪业务状态和原型模型已移除，旧 `/courses` 兼容路由与 `/rsp` 隔离响应继续保留。新增能力需要真实协议与对应测试，不能只打开声明中的开关。
 
-依赖由真正使用它的 workspace 声明；根 `package.json` 只保留仓库工具，不能作为业务依赖兜底。包只通过 `exports` 暴露公共 API，禁止跨包读取 `src` 私有文件。
+## Workspace 边界
 
-Portal 内部也按职责组织：`pages` 仅负责路由入口，`layouts` 负责壳层，`components/features` 负责业务展示与交互，`composables` 负责可复用业务状态，`stores` 负责跨路由客户端状态。`app/api` 只负责请求和接口路径，字段整理留在调用方。`server` 负责启动检查、管理端 CSR、收录控制和已隔离的旧路由。
+| 层   | 目录                                                 | 职责                                      |
+| ---- | ---------------------------------------------------- | ----------------------------------------- |
+| 应用 | `apps/portal`                                        | 路由、业务、状态、Nitro 服务与部署        |
+| 展示 | `ui-core`、`ui-admin`、`rich-text`                   | 通用展示与交互，通过输入/事件使用业务能力 |
+| 基础 | `shared`、`design-tokens`                            | 平台无关类型、常量、纯函数与设计令牌      |
+| 配置 | `i18n`、`unocss-preset`、`eslint-config`、`tsconfig` | 国际化及工程配置                          |
 
-### 4.2 依赖方向
+根 `eslint.config.mjs` 是唯一入口。既有规则约束分层方向，`packages/eslint-config/boundaries.mjs` 补充解析后的 workspace 路径、exports、实际依赖声明与循环依赖检查。展示包禁止请求、store 和路由运行时，并检查直接/别名网络调用。包内相对路径也不能绕过应用与跨包边界。规则的行为由 Node 测试覆盖。
 
-依赖必须保持单向：
+Turbo 将根 ESLint、Stylelint、Prettier 配置和架构规则列为全局缓存输入，规则变化会使旧任务缓存失效。
 
-```text
-portal
-├── ui-admin ───────> ui-core ───────> design-tokens / shared
-├── rich-text ───────────────────────> design-tokens / shared
-├── i18n ────────────────────────────> shared
-└── unocss-preset ───────────────────> design-tokens
-```
+## 国际化、收录与发布
 
-箭头表示允许的依赖方向，不要求必须依赖。根 `eslint.config.mjs` 对工作区包和 Portal 客户端的禁止导入执行检查；`pnpm lint` 是架构边界门禁。`shared` 额外禁止 Vue、Nuxt、Pinia、antdv-next 和浏览器全局。
+默认中文无前缀，英文使用 `/en`；根路径按语言 Cookie 或浏览器偏好重定向，具体业务路由以 URL 为准。学苑语言头不依赖异步 i18n composable。
 
-## 5. 渲染与路由策略
+管理端在 Nuxt routeRules 和 HTTP 中间件中强制 CSR，后者使用归一化路径处理大小写变体。管理及个人路由输出 `noindex, nofollow, noarchive`；非生产环境全站禁止收录。发布只启动一个 `.output/server/index.mjs`。
 
-### 5.1 C 端
+| 环境变量               | 用途                                                             |
+| ---------------------- | ---------------------------------------------------------------- |
+| `NUXT_PUBLIC_API_BASE` | 必填，学苑前台根地址；缺失时启动检查失败                         |
+| `NUXT_PUBLIC_SITE_ENV` | 默认 development；production 启用 Secure Cookie 并允许公开页收录 |
 
-- 默认使用 SSR。
-- 首页、公开列表、公开详情和搜索落地页可被搜索引擎访问。
-- 后续可针对内容稳定的页面增加 `prerender`、`swr` 或 `isr`。
-- 用户个性化区域使用客户端状态，不将敏感信息写入公共缓存。
+## 验收
 
-### 5.2 管理端
+`pnpm check:ci` 执行 lint、CSS、format、类型、单测、构建及生产产物 E2E，覆盖率使用 `pnpm test:coverage` 单独生成。E2E 的 `/api/v1` 服务器只位于 `apps/portal/e2e`，由 Playwright 启动；SSR 和浏览器都通过外域 HTTP 请求它，不依赖内网服务或生产业务 mock。
 
-- `/admin` 及其子路由使用 CSR。
-- 英文管理端 `/en/admin` 及其子路由同样使用 CSR。
-- 管理端页面组件不参与服务端渲染。
-- 未登录访问时保留目标地址并打开登录弹窗。
-- 登录成功后继续进入目标页面。
-
-CSR 由 `routeRules` 声明，并由 `server/middleware/academy-gate.ts` 按归一化路径兜底：
-`routeRules` 只按字面路径匹配，`/Admin/courses` 这类大小写变体不会命中，若只依赖路由规则
-管理端会被服务端直出。
-
-### 5.3 Nuxt 路由规则
-
-```ts
-// nuxt.config.ts
-routeRules: {
-  ...adminRouteRules, // 由 LOCALE_URL_PREFIXES 生成 /admin、/en/admin 及其 /** 的 { ssr: false }
-}
-```
-
-学苑数据直接请求 `NUXT_PUBLIC_API_BASE`，不再经过本站 `/api/academy/**`。
-
-C 端 SSR 是 Nuxt 默认行为，无需再配置全局 `/**: { ssr: true }`。
-管理端的 `X-Robots-Tag` 不再写在这里，而是由 5.5 的服务端门禁统一输出，
-避免同一份字面路径在配置里重复四遍、且无法覆盖大小写变体。
-
-### 5.4 禁止管理端被收录
-
-管理端同时使用以下措施：
-
-- `server/middleware/academy-gate.ts` 按归一化路径返回 `X-Robots-Tag: noindex, nofollow, noarchive`。
-- 管理端布局通过 `useSeoMeta` 输出等价的 robots Meta。
-- `robots.txt` 禁止抓取 `/admin` 和 `/en/admin`。
-- 所有管理功能经过登录和能力检查。
-- 测试、预发环境默认全站禁止收录。
-
-`robots.txt` 和 `noindex` 不是安全措施。管理端写入不在当前前台接口中；将来接入时必须由服务端校验身份和权限。
-
-### 5.5 路由与权限门禁
-
-区域判定一律基于归一化路径，禁止再写 `path.startsWith('/admin/')` 或硬编码 `/en` 前缀：
-
-- `packages/shared/src/routing.ts` 提供 `normalizeRoutePath`（去查询串、去语言前缀、去尾斜杠、转小写）、
-  `isAdminRoutePath`、`isPrivateRoutePath`；语言前缀来自 `LOCALE_URL_PREFIXES`，与 `i18n.locales` 同源。
-- vue-router 的路径匹配默认大小写不敏感，而 `to.path` / `event.path` 保留用户输入的原始大小写，
-  因此字符串前缀判断会被 `/Admin/courses` 绕过，语言前缀同样是同一类陷阱。
-
-门禁分三层，职责不重叠：
-
-| 层         | 位置                                  | 职责                                                     |
-| ---------- | ------------------------------------- | -------------------------------------------------------- |
-| HTTP       | `server/middleware/academy-gate.ts`   | 管理端与 `/account/teacher` 输出 noindex；管理端强制 CSR |
-| 客户端路由 | `app/middleware/access.global.ts`     | 登录引导、403 页面、SPA 内跳转                           |
-| 前台接口   | `NUXT_PUBLIC_API_BASE` 上的 `/api/v1` | 登录态与内容权限由学苑服务校验                           |
-
-页面通过 `definePageMeta` 声明契约，客户端门禁与服务端配置共用同一份权限表：
-
-```ts
-// 管理端工作台
-definePageMeta({ layout: 'admin', academyGate: { permission: 'admin:view' } })
-// 创作中心：教师可见，与菜单使用同一个权限
-definePageMeta({ layout: 'admin', academyGate: { permission: 'creation:use' } })
-// 仅需登录
-definePageMeta({ academyGate: { auth: true } })
-definePageMeta({ academyGate: { permission: 'account:view' } })
-```
-
-- 管理端区域（归一化后位于 `/admin` 之下）未声明 `permission` 时按 `admin:view` 处理，
-  新增管理端页面忘记声明只会更严格，不会静默放开。
-- 菜单可见性与路由门禁必须使用同一个权限，禁止出现“菜单隐藏但路由可达”。
-- 学苑前台资料没有角色。`auth.can()` 只在已登录时放行 `account:view`，`isAdmin` 恒为 false，因此已登录用户访问管理端仍会得到 403。
-- 权限名称仍先在 `packages/shared/src/access-control.ts` 声明。客户端判断不代替学苑服务端授权。
-- 没有产品阶段开关，私有路径不会因为阶段被 404。`/account/teacher` 只额外禁止收录。
-
-## 6. 国际化
-
-### 6.1 Locale
-
-| Locale  | 说明     | 默认 |
-| ------- | -------- | ---- |
-| `zh-CN` | 简体中文 | 是   |
-| `en-US` | 英文     | 否   |
-
-### 6.2 URL 策略
-
-统一使用 `prefix_except_default`：
-
-```text
-/                     中文首页
-/resources            资源
-/research             教研
-/schools              学校案例
-/teachers             名师
-/news                 动态
-/en/resources         对应英文路径
-/admin                中文管理端
-/en/admin             英文管理端
-```
-
-这样可以保证中英文公开页面具有独立 URL、canonical 和 hreflang。管理端虽然不参与 SEO，但继续使用相同的路由规则可以避免在一个 Nuxt 应用中维护两套语言状态机制。
-
-语言检测由 `@nuxtjs/i18n` 完成，偏好写入 `ic_locale` Cookie。仅访问根路径时，服务端会优先使用已有 Cookie，其次参考浏览器语言，并重定向到相应语言路由；带前缀或具体业务路径的 URL 始终以路由为准。
-
-### 6.3 文案和日期
-
-- 页面和组件中不得直接硬编码用户可见文案。
-- 语言包按 Locale 懒加载。
-- `html[lang]`、antdv-next Locale 和 dayjs Locale 必须同步切换。
-- 日期数据统一以 ISO 8601 传递和存储，展示时按当前语言和浏览器时区格式化。
-- 语言偏好使用 Cookie 保存，确保 SSR 首屏语言与客户端一致。
-
-## 7. 登录与访问控制
-
-### 7.1 短信登录
-
-登录走学苑前台：`POST /auth/sms` 发送验证码，`POST /auth/login` 提交 `{phone, code, agreed}`。没有固定演示密码，也没有角色字段。手机号和验证码的格式校验在登录表单，不在 `app/api/academy.ts`。
-
-### 7.2 登录状态
-
-- 会话写入 `ic_auth` Cookie，形状为 `{token, profile, newUser}`，默认有效期 7 天。
-- Pinia Auth Store 用 `useCookie` 在 SSR 和客户端读取同一份会话。旧的字符串 id、姓名或角色字段会被拒绝。
-- 资料由 `toWebProfile` 整理后再写入会话。启动时若已有令牌，插件会请求 `/me` 覆盖本地资料。
-- Cookie 由前端写入，不是 `HttpOnly`。学苑接口仍以 `Authorization: Bearer` 校验令牌。
-- 退出时先调用 `POST /auth/logout`，再清理 Cookie 与内存状态。401 时请求层直接清会话。
-
-### 7.3 全局登录弹窗
-
-全局只挂载一个 `LoginModal`，避免每个页面重复创建弹窗和状态。
-
-`app.vue` 挂载唯一的 `LoginModal`，以及昵称引导和退出确认。
-
-登录门禁包含两类入口：
-
-1. 路由门禁：由 `app/middleware/access.global.ts` 统一执行，页面用 `academyGate` 声明所需登录或权限（见 5.5）。服务端渲染阶段未登录只跳过，不在 HTML 里打开弹窗。
-2. 操作门禁：点赞、收藏等操作执行前调用 `openLoginModal` 或 `useAuthGate().requireAuth()`。
-
-推荐统一通过 `useAuthGate()` 调用：
-
-```ts
-await requireAuth({
-  reason: 'enroll',
-  onSuccess: () => enroll(),
-})
-```
-
-流程如下：
-
-```mermaid
-sequenceDiagram
-  participant U as 用户
-  participant G as Auth Gate
-  participant M as Login Modal
-  participant A as 原目标操作
-
-  U->>G: 访问受保护路由或执行受保护操作
-  G->>G: 检查登录状态
-  alt 已登录
-    G->>A: 继续执行
-  else 未登录
-    G->>M: 打开弹窗并保存意图
-    U->>M: 短信登录
-    M->>G: 登录成功
-    G->>A: 恢复路由或操作
-  end
-```
-
-PC 端使用居中弹窗；移动端使用接近全屏的响应式弹窗。关闭登录弹窗表示取消当前受保护操作。
-
-## 8. 状态管理
-
-### 8.1 Pinia 适用范围
-
-Pinia 用于：
-
-- 当前用户和登录状态。
-- 语言、主题、导航折叠等用户偏好。
-- 跨页面共享且有明确生命周期的 UI 状态。
-- 需要恢复的短期业务草稿。
-
-Pinia 不用于：
-
-- 无条件保存所有列表和详情响应。
-- 替代学苑接口响应或服务端数据缓存。
-- 存放可以由现有状态计算出的重复数据。
-
-状态保持最小化，派生数据使用 `computed`。Watch 只承担副作用，不承担派生状态计算。
-
-### 8.2 SSR 约束
-
-- 不在模块顶层创建跨请求共享的可变单例状态。
-- 不在 SSR 初始渲染中直接读取 `window`、`document` 或 `localStorage`。
-- SSR 需要使用的会话和偏好通过 Nuxt `useCookie` 或模块提供的服务端 Cookie 能力读取。
-- 仅客户端持久化的数据在 mounted 后恢复，并避免引起首屏 Hydration 不一致。
-
-## 9. 数据访问
-
-页面和组件不拼接 `/api/v1`。调用关系见第 0 节。
-
-- 列表、详情、首页、点赞和收藏在对应 composable 里组装查询，并消费接口原样返回的数据。
-- 登录态在 `stores/auth.ts` 里校验令牌和资料。
-- 封面、头像和音视频地址在展示组件里用 `useApiUrl()` 补全。
-- 旧课程接口 `app/api/course.ts` 直接拒绝；同源 `/rsp/**` 返回 503。
-- 错误统一为 `ApiError`。用户取消保留 `AbortError`。
-- 接口根地址只来自 `runtimeConfig.public.apiBase`。
-- 学苑服务负责登录态和内容权限。前端权限只决定路由和按钮，且当前只识别已登录用户的 `account:view`。
-
-## 10. 组件与代码组织
-
-### 10.1 Vue 编码基线
-
-- 使用 Vue 3 Composition API。
-- SFC 默认使用 `<script setup lang="ts">`。
-- SFC 顺序统一为 `<script>`、`<template>`、`<style>`。
-- Props 向下、Events 向上，组件公共契约必须类型化。
-- 复杂状态和副作用放入专注的 Composable。
-- 页面组件只负责路由级编排，不承载大段业务实现。
-- 不可信内容不得直接通过 `v-html` 渲染。
-
-### 10.2 Feature 目录
-
-非简单功能按 Feature 组织：
-
-```text
-components/features/course/
-├── CourseFeature.vue
-├── CourseFilters.vue
-├── CourseList.vue
-├── CourseCard.vue
-└── CourseEmptyState.vue
-
-composables/course/
-├── useCourseList.ts
-└── useCourseEnrollment.ts
-```
-
-路由页面保持轻量：
-
-```vue
-<script setup lang="ts">
-import CourseFeature from '~/components/features/course/CourseFeature.vue'
-</script>
-
-<template>
-  <CourseFeature />
-</template>
-```
-
-### 10.3 antdv-next 使用边界
-
-- 管理端优先使用 antdv-next，并通过 `ui-admin` 二次封装常用模式。
-- C 端可使用基础表单、弹窗等组件，但品牌展示组件优先放在 `ui-core`。
-- 业务代码不得大量使用 `:deep()` 覆盖组件库内部样式。
-- 主题调整优先通过设计令牌和 ConfigProvider 完成。
-- 静态 Message、Modal、Notification 必须确保能够获取当前主题和 Locale 上下文。
-
-## 11. 设计令牌与样式系统
-
-### 11.1 单一来源
-
-`packages/design-tokens` 是样式值的唯一来源，至少包含：
-
-- 品牌色和语义色。
-- 文本与背景色。
-- 字号、字重和行高。
-- 间距阶梯。
-- 圆角和阴影。
-- Z-Index 层级。
-- 响应式断点。
-- 动效时长与缓动。
-
-同一份令牌生成或导出：
-
-```text
-tokens.ts
-css-vars.css
-antdv-theme.ts
-uno-theme.ts
-tokens.json
-```
-
-UnoCSS 与 antdv-next 不得各自维护一套重复的品牌色和间距值。
-
-### 11.2 样式优先级
-
-1. 设计令牌。
-2. UnoCSS Utilities 和项目级 Shortcuts。
-3. antdv-next 组件 Token。
-4. 组件局部 `<style scoped>`。
-5. 极少数经过说明的深层覆盖。
-
-禁止在页面中散落无法解释的颜色、字号、间距和 Z-Index 魔法数字。
-
-## 12. 响应式设计
-
-### 12.1 默认断点
-
-| 名称  | 最小宽度 | 用途     |
-| ----- | -------: | -------- |
-| `xs`  |        0 | 小屏手机 |
-| `sm`  |    640px | 大屏手机 |
-| `md`  |    768px | 平板     |
-| `lg`  |   1024px | 小型桌面 |
-| `xl`  |   1280px | 标准桌面 |
-| `2xl` |   1536px | 大屏桌面 |
-
-断点由设计令牌提供，并映射到 UnoCSS。组件不得自行定义互相冲突的断点体系。
-
-### 12.2 C 端
-
-- Mobile First。
-- 内容宽度、留白、字号和图片比例随断点变化。
-- 触控目标尺寸原则上不小于 44×44px。
-- 首屏内容优先，非关键模块和图片延迟加载。
-- 不以单纯缩放桌面页面代替移动端布局。
-
-### 12.3 管理端
-
-- 桌面侧边导航在移动端变为抽屉。
-- 多列表单在移动端变为单列。
-- 表格根据业务选择关键列、卡片列表或横向滚动。
-- 固定操作区必须避开移动端安全区域。
-- 居中弹窗在窄屏下变为接近全屏。
-- PC 和移动端功能一致，允许呈现方式不同。
-
-## 13. 浏览器策略
-
-- 支持 Chrome、Edge、Firefox 和 Safari 的近期稳定版本。
-- 移动端覆盖近期 iOS Safari、Android Chrome 和主流 WebView。
-- Chrome 88 不是硬性兼容目标。
-- 不默认引入旧浏览器 Polyfill 和 Legacy Bundle。
-- 每次升级 Nuxt、Vite、UnoCSS 或 antdv-next 后执行关键路径 E2E 回归。
-
-精确浏览器版本矩阵应在上线前根据真实用户数据补充。
-
-## 14. 构建与发布
-
-### 14.1 Turbo 任务
-
-根任务建议包括：
-
-```text
-dev
-build
-lint
-typecheck
-test
-test:e2e
-```
-
-`build` 依赖上游包构建，缓存输出包括包产物和 Nuxt `.output`。`dev` 为持久任务，不使用缓存。
-
-### 14.2 构建产物
-
-根目录执行：
-
-```bash
-pnpm build
-```
-
-Nuxt 原始产物：
-
-```text
-apps/portal/.output/
-├── public/
-├── server/
-│   └── index.mjs
-└── nitro.json
-```
-
-发布聚合脚本将其复制为统一目录：
-
-```text
-dist/
-├── public/
-├── server/
-│   └── index.mjs
-└── nitro.json
-```
-
-生产启动命令：
-
-```bash
-NODE_ENV=production node dist/server/index.mjs
-```
-
-`dist` 是唯一需要部署的应用目录。运行环境仍需提供兼容版本的 Node.js 和必要环境变量。
-
-### 14.3 发布约束
-
-- 不使用 `nuxt generate` 作为最终发布方式，因为 C 端需要运行时 SSR 和路由级混合渲染。
-- 构建产物不得包含源码 `.env` 文件。
-- 私密配置只能放在服务端 Runtime Config；`runtimeConfig.public` 中的值会暴露给浏览器。
-- 静态资源可通过 CDN 提供，但 HTML SSR 请求仍进入 Nitro 服务。
-
-## 15. 测试与质量门禁
-
-### 15.1 测试分层
-
-| 层级      | 工具                    | 重点                                                 |
-| --------- | ----------------------- | ---------------------------------------------------- |
-| 单元测试  | Vitest                  | 包内纯函数，以及 `apps/portal/test` 的请求与资料整理 |
-| 组件测试  | Vitest + Vue Test Utils | Props、Events、表单和响应式状态                      |
-| Nuxt 测试 | Nuxt Test Utils         | Middleware、Plugin、SSR 和路由配置                   |
-| E2E       | Playwright              | 登录门禁、中英文、C 端和管理端关键路径               |
-| 视觉回归  | Playwright Screenshot   | 关键页面在桌面和移动端的布局                         |
-
-### 15.2 合并前检查
-
-```text
-lint
-typecheck
-unit test
-Nuxt build
-关键 E2E
-```
-
-至少覆盖以下场景：
-
-- 中英文 C 端页面可以 SSR。
-- `/admin` 和 `/en/admin` 不输出业务 SSR 内容。
-- 管理端响应包含禁止索引 Header。
-- 未登录访问受保护页面会打开登录弹窗。
-- 短信登录后恢复原导航或操作。
-- PC 和移动端导航、表格、表单及弹窗可用。
-- 刷新后能够从 `ic_auth` 恢复登录状态。
-
-## 16. 安全基线
-
-前端基线：
-
-- 不在客户端代码中放置真实密钥。
-- 用户输入默认按文本渲染。
-- 富文本必须经过可信白名单清洗。
-- 外部链接使用必要的 `rel` 属性。
-- Cookie 在生产接入后端时使用合适的 `Secure`、`HttpOnly` 和 `SameSite` 策略。
-- 后续真实接口必须处理 CSRF、XSS、越权和重放风险。
-- 管理端是否显示按钮不能代替学苑服务端权限校验。
-- 不在仓库中放置固定登录口令。
-
-## 17. 可观测性与性能
-
-### 17.1 性能原则
-
-- 路由级代码分割。
-- 大型、低频组件异步加载。
-- 图片使用合适尺寸、现代格式和懒加载。
-- C 端减少首屏 JavaScript，避免将管理端组件引入公共页面入口。
-- 大数据表格和列表在确认瓶颈后使用虚拟滚动。
-- 性能优化以真实测量结果为依据。
-
-### 17.2 后续生产能力
-
-接入生产环境前补充：
-
-- 前端异常采集。
-- Nitro 服务错误与结构化日志。
-- Web Vitals 和页面性能监控。
-- 发布版本号与 Source Map 管理。
-- 接口错误率和关键业务转化埋点。
-
-## 18. 分阶段实施计划
-
-### 阶段一：工程骨架
-
-- 初始化 pnpm workspace 和 Turbo。
-- 创建 `apps/portal` Nuxt 4 应用。
-- 创建共享包和依赖边界。
-- 配置 TypeScript、ESLint、UnoCSS、Pinia、i18n 和 antdv-next。
-- 配置 SSR/CSR Route Rules 和统一构建产物。
-
-### 阶段二：设计系统与应用外壳
-
-- 建立基础设计令牌。
-- 完成 C 端和管理端 Layout。
-- 完成桌面与移动端导航。
-- 完成语言切换和基础 SEO。
-- 完成全局登录弹窗和 Auth Gate。
-
-### 阶段三：学苑前台对接
-
-- C 端浏览、短信登录和个人资料对接 `/api/v1`。
-- 删除同源 Mock 与产品阶段开关。
-- 投稿、积分、灵跃和管理端写入保持不可用，直到前台文档覆盖它们。
-
-### 阶段四：质量和发布
-
-- 补齐单元、集成和 E2E 测试。
-- 验证中英文和响应式页面。
-- 验证 SEO 与管理端禁止收录策略。
-- 输出 `dist` 单目录发布产物。
-
-## 19. 待补充产品决策
-
-以下内容不阻塞工程骨架，但会影响业务实现：
-
-- C 端页面和功能清单。
-- 管理端模块和增删改查范围。
-- 公开页面、受保护页面和受保护操作清单。
-- 产品名称、Logo、品牌色及视觉参考。
-- 是否需要深色主题或多品牌主题。
-- SEO 页面、站点地图和结构化数据范围。
-- 上线环境、域名、CDN 和 Node.js 托管方式。
-- 投稿、积分、灵跃和管理端写接口的协议。
-
-## 20. 已确认架构决策摘要
-
-| 决策       | 结论                                           |
-| ---------- | ---------------------------------------------- |
-| 应用数量   | 一个 Nuxt 4 应用 `apps/portal`                 |
-| 构建产物   | 一个 `.output`，聚合为根目录 `dist`            |
-| C 端渲染   | SSR，后续按页面增加缓存或预渲染                |
-| 管理端渲染 | `/admin` 与 `/en/admin` 使用 CSR               |
-| 管理端索引 | Header、Meta、robots 和登录门禁多层限制        |
-| 响应式     | C 端和管理端均完整支持移动端和 PC 端           |
-| 国际化     | `zh-CN`、`en-US`，中文默认，URL 前缀策略       |
-| 登录       | 全局弹窗，短信验证码，`ic_auth` 保存令牌和资料 |
-| 后端       | C 端对接学苑 `/api/v1`；请求与接口路径分开     |
-| 设计系统   | UnoCSS 与 antdv-next 共用单一设计令牌来源      |
-| 浏览器     | 现代浏览器近期稳定版本，不强制支持 Chrome 88   |
-
-## 21. 工程配置约束
-
-- Node.js 统一使用 24，最低版本为 24.11.0。
-- 仓库只保留根目录一个 `eslint.config.mjs`，应用和包不得复制独立配置。
-- 纯 TypeScript 包继承 `@isport/tsconfig/base.json`；浏览器和 Vue 包继承 `browser.json`。
-- `shared` 不允许导入 Vue、Nuxt、Pinia，也不允许访问浏览器全局对象。
-- 任意 CI 平台统一执行 `pnpm check:ci`；本项目不维护 `.github/workflows`。
-- 普通单测不声明缓存产物，覆盖率由 `pnpm test:coverage` 独立生成。
+回归涵盖交错 SSR 会话、旧 401、晚到登录/退出、响应信封、超时、资料、短信登录、恢复导航、个人记录、推荐降级、真实 404、媒体、移动端、普通用户门禁、语言及 noindex。具体检查结果记录在 `docs/repair-plan.md`。

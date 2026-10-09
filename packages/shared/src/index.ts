@@ -1,6 +1,5 @@
 export * from './types'
 export * from './constants'
-export * from './entities'
 export * from './access-control'
 export * from './routing'
 export * from './academy'

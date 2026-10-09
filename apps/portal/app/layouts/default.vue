@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppFooter from '~/components/app/AppFooter.vue'
+import AppHeader from '~/components/app/AppHeader.vue'
 // C 端默认布局：Header + 内容 + Footer
 </script>
 

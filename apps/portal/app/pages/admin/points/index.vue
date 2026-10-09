@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import PointsFeature from '~/components/features/creation/PointsFeature.vue'
+import UnavailableFeature from '~/components/features/UnavailableFeature.vue'
 
 definePageMeta({ layout: 'admin', academyGate: { permission: 'creation:use' } })
+const { t } = useI18n()
+useSeoMeta({ title: () => t('seo.adminTitle'), robots: 'noindex, nofollow, noarchive' })
 </script>
 
 <template>
-  <PointsFeature />
+  <UnavailableFeature capability="points" />
 </template>

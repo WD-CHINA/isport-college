@@ -1,4 +1,5 @@
 import { defineConfig } from '@isport/eslint-config'
+import { boundaryPlugin } from '@isport/eslint-config/boundaries'
 
 const runtimePackages = [
   '@isport/design-tokens',
@@ -52,6 +53,11 @@ function packageBoundary(files, packageName, allowedPackages = [], extraPatterns
  */
 export default [
   ...defineConfig({ vue: true, tsconfigRootDir: import.meta.dirname }),
+  {
+    files: ['apps/**/*.{js,mjs,ts,tsx,vue}', 'packages/**/*.{js,mjs,ts,tsx,vue}'],
+    plugins: { architecture: boundaryPlugin(import.meta.dirname) },
+    rules: { 'architecture/imports': 'error', 'architecture/presentation-effects': 'error' },
+  },
   packageBoundary(
     ['packages/shared/src/**/*.ts', 'packages/shared/test/**/*.ts'],
     '@isport/shared',

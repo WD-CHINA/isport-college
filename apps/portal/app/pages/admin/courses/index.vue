@@ -1,17 +1,11 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: 'admin',
-  academyGate: { permission: 'course:manage' },
-})
+import UnavailableFeature from '~/components/features/UnavailableFeature.vue'
 
+definePageMeta({ layout: 'admin', academyGate: { permission: 'course:manage' } })
 const { t } = useI18n()
-
-useSeoMeta({
-  title: () => `${t('nav.courseManage')} - ${t('seo.adminTitle')}`,
-  robots: 'noindex, nofollow, noarchive',
-})
+useSeoMeta({ title: () => t('seo.adminTitle'), robots: 'noindex, nofollow, noarchive' })
 </script>
 
 <template>
-  <AdminCourseManageFeature />
+  <UnavailableFeature capability="courseManagement" />
 </template>

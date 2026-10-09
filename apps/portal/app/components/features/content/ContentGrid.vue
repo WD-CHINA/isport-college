@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ContentCard from '~/components/features/content/ContentCard.vue'
 import type { WebContentCard } from '@isport/shared'
 import { Empty as AEmpty, Skeleton as ASkeleton } from 'antdv-next'
 

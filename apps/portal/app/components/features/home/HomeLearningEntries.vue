@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import LingyueButton from '~/components/features/lingyue/LingyueButton.vue'
+defineProps<{ levels: { id: string; name: string }[] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
 </script>
@@ -8,12 +10,12 @@ const localePath = useLocalePath()
     <h2>{{ t('catalog.byLevel') }}</h2>
     <div class="learning-entries__levels">
       <NuxtLink
-        v-for="level in 5"
-        :key="level"
-        :to="localePath({ path: '/resources', query: { level } })"
+        v-for="level in levels"
+        :key="level.id"
+        :to="localePath({ path: '/resources', query: { recommendedLevel: level.id } })"
       >
-        <span>{{ String(level).padStart(2, '0') }}</span
-        >{{ t('catalog.levelValue', { level }) }} →
+        <span>{{ level.id.padStart(2, '0') }}</span
+        >{{ level.name }} →
       </NuxtLink>
     </div>
     <h2>{{ t('lingyue.tools') }}</h2>
@@ -24,6 +26,7 @@ const localePath = useLocalePath()
         :label="t(`lingyue.${tool}`)"
       />
     </div>
+    <p>{{ t('academy.unavailable') }}</p>
   </section>
 </template>
 
@@ -50,14 +53,14 @@ const localePath = useLocalePath()
   gap: 16px;
   padding: 20px;
   border-radius: 12px;
-  background: #eef4ff;
-  color: #1e40af;
+  background: var(--ic-color-brand-50);
+  color: var(--ic-color-brand-700);
 }
 
 .learning-entries__levels span {
   font-size: 28px;
   font-weight: 700;
-  color: #8bb1f8;
+  color: var(--ic-color-brand-400);
 }
 
 .learning-entries__tools {

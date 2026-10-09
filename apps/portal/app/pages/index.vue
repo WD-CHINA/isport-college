@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import HomeFeature from '~/components/features/home/HomeFeature.vue'
 const { t } = useI18n()
 
 useSeoMeta({

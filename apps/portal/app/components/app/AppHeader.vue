@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { useLocaleSwitch } from '~/composables/useLocaleSwitch'
+import { useLoginUiStore } from '~/stores/login-ui'
+import { useAuthStore } from '~/stores/auth'
 import { UiBrandLogo, UiLocaleSelect } from '@isport/ui-core'
 import { Button as AButton } from 'antdv-next'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
 
 const auth = useAuthStore()
+const loginUi = useLoginUiStore()
 const route = useRoute()
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -39,11 +43,11 @@ function isActive(to: string, exact: boolean): boolean {
 }
 
 function openLogin() {
-  auth.openLoginModal({ reason: 'default' })
+  loginUi.openLoginModal({ reason: 'default' })
 }
 
 function handleLogout() {
-  auth.logoutConfirmVisible = true
+  loginUi.logoutConfirmVisible = true
 }
 </script>
 

@@ -50,9 +50,6 @@ importers:
 
   apps/portal:
     dependencies:
-      '@antdv-next/icons':
-        specifier: 1.1.2
-        version: 1.1.2(vue@3.5.43(typescript@5.9.3))
       '@isport/design-tokens':
         specifier: workspace:*
         version: link:../../packages/design-tokens
@@ -65,9 +62,6 @@ importers:
       '@isport/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      '@isport/ui-admin':
-        specifier: workspace:*
-        version: link:../../packages/ui-admin
       '@isport/ui-core':
         specifier: workspace:*
         version: link:../../packages/ui-core
@@ -86,9 +80,6 @@ importers:
       antdv-next:
         specifier: 1.5.4
         version: 1.5.4(vue@3.5.43(typescript@5.9.3))
-      crypto-js:
-        specifier: 4.2.0
-        version: 4.2.0
       dayjs:
         specifier: 1.11.23
         version: 1.11.23
@@ -107,6 +98,9 @@ importers:
       vue:
         specifier: 3.5.43
         version: 3.5.43(typescript@5.9.3)
+      vue-router:
+        specifier: 5.3.1
+        version: 5.3.1(@vue/compiler-sfc@3.5.43)(esbuild@0.28.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.43(typescript@5.9.3)))(rolldown@1.2.9)(rollup@4.63.3)(vite@8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.104.1)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))(vue@3.5.43(typescript@5.9.3))(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28))
     devDependencies:
       '@antdv-next/nuxt':
         specifier: 1.1.0
@@ -117,12 +111,12 @@ importers:
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
-      '@types/crypto-js':
-        specifier: 4.2.2
-        version: 4.2.2
       '@types/node':
         specifier: 26.6.2
         version: 26.6.2
+      '@vitest/coverage-v8':
+        specifier: 4.1.11
+        version: 4.1.11(vitest@4.1.11)
       eslint:
         specifier: 9.39.5
         version: 9.39.5(jiti@2.7.0)
@@ -2413,9 +2407,6 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
-  '@types/crypto-js@4.2.2':
-    resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==}
-
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
@@ -3471,9 +3462,6 @@ packages:
     peerDependenciesMeta:
       srvx:
         optional: true
-
-  crypto-js@4.2.0:
-    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
 
   css-functions-list@3.3.3:
     resolution: {integrity: sha512-8HFEBPKhOpJPEPu70wJJetjKta86Gw9+CCyCnB3sui2qQfOvRyqBy4IKLKKAwdMpWb2lHXWk9Wb4Z6AmaUT1Pg==}
@@ -8457,8 +8445,6 @@ snapshots:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
 
-  '@types/crypto-js@4.2.2': {}
-
   '@types/deep-eql@4.0.2': {}
 
   '@types/esrecurse@4.3.1': {}
@@ -9914,8 +9900,6 @@ snapshots:
   crossws@0.4.12(srvx@1.0.5):
     optionalDependencies:
       srvx: 1.0.5
-
-  crypto-js@4.2.0: {}
 
   css-functions-list@3.3.3: {}
 

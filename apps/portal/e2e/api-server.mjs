@@ -1,136 +1,253 @@
 /* global process, URL, Buffer, console */
-/**
- * E2E 本地接口服务器：模拟 isport-library 后端（/rsp 前缀、{code,msg,data} 包体）。
- * 应用代码始终请求真实接口，测试稳定性由本服务器保证（playwright webServer 拉起）。
- */
+/** Test-only /api/v1 protocol server. No application code imports this module. */
 import { createServer } from 'node:http'
+import { setTimeout as delay } from 'node:timers/promises'
+import { readFile } from 'node:fs/promises'
 
-const PORT = Number(process.env.E2E_API_PORT ?? 3200)
-
-/** 1x1 透明 PNG，作为验证码图 */
-const CAPTCHA_IMG =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
-
-/** 平台资源种子数据（字段对齐后端 LearnVideoVO） */
-let rows = [
-  resource(101, '少儿体适能训练营', '李铮', 90, 18, 1, true, '2026-10-12'),
-  resource(102, '成人篮球提高课', '王昊然', 120, 20, 3, false, '2026-10-14'),
-  resource(103, '儿童游泳启蒙班', '陈思雨', 60, 9, 1, true, '2026-10-17'),
-  resource(104, '成人体适能评估课', '李铮', 60, 6, 2, false, '2026-10-19'),
-  resource(105, '青少年足球战术课', '赵天宇', 120, 14, 4, false, '2026-10-21'),
-  resource(106, '瑜伽拉伸放松课', '孙雅琪', 45, 11, 2, true, '2026-10-24'),
-]
-let nextId = 107
-
-function resource(
-  id,
-  name,
-  uploadUser,
-  durationMin,
-  viewCount,
-  recommendedLevel,
-  systemShared,
-  createDate,
-) {
-  return {
-    id,
-    name,
-    type: 0,
-    duration: durationMin * 60,
-    tag: `${name}简介`,
-    createDate,
-    recommendedLevel,
-    systemShared,
-    uploadUser,
-    viewCount,
-  }
-}
-
-const CORS = {
+const port = Number(process.env.E2E_API_PORT ?? 3200)
+const cors = {
   'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET,POST,OPTIONS',
+  'access-control-allow-methods': 'GET,POST,PUT,OPTIONS',
   'access-control-allow-headers': '*',
 }
-
-function send(res, data, code = 200, msg = 'ok') {
-  res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', ...CORS })
-  res.end(JSON.stringify({ code, msg, data }))
+const actions = new Map()
+let sequence = 0
+const profile = id => ({
+  id,
+  phoneMask: '138****8000',
+  nickname: `测试用户${id}`,
+  avatarCode: 1,
+  nicknamePromptNeeded: false,
+})
+const profiles = new Map()
+const state = token => {
+  if (!actions.has(token)) actions.set(token, { LIKE: new Set(), FAVORITE: new Set() })
+  return actions.get(token)
 }
-
-const server = createServer((req, res) => {
-  if (req.method === 'OPTIONS') {
-    res.writeHead(204, CORS)
-    return res.end()
+function send(res, data, status = 200, message = 'OK') {
+  res.writeHead(status, { ...cors, 'content-type': 'application/json; charset=utf-8' })
+  res.end(JSON.stringify({ status, message, data }))
+}
+function card(id, channel = 'RESOURCE', english = false) {
+  const detailType =
+    { 2: 'VIDEO', 3: 'AUDIO', 4: 'DOCUMENT', 5: 'IMAGE', 6: 'DOCUMENT', 7: 'LINK', 9: 'VIDEO' }[
+      id
+    ] ?? 'ARTICLE'
+  return {
+    channel,
+    origin: 'PLATFORM',
+    originId: id,
+    contentKey: `${channel}:${id}`,
+    title: english ? `Resource ${id}` : `资源示例 ${id}`,
+    summary: english ? 'Teaching example' : '教学资源示例',
+    coverUrl: '/media/sample.png',
+    detailType,
+    categoryCode: channel === 'RESOURCE' ? '1' : channel === 'RESEARCH' ? 'SERIES' : 'DIGITAL',
+    categoryName: english ? 'Fitness' : '体能',
+    authorName: '测试作者',
+    provinceName: '上海',
+    schoolName: '测试学校',
+    viewCount: 10,
+    likeCount: 2,
+    favoriteCount: 3,
+    interactive: true,
+    publishedAt: 1791504000000,
   }
-
-  const url = new URL(req.url ?? '/', 'http://localhost')
-  const chunks = []
-  req.on('data', chunk => chunks.push(chunk))
-  req.on('end', () => {
+}
+function detail(id, channel, english, token) {
+  const value = card(id, channel, english)
+  const file = {
+    2: 'sample.webm',
+    3: 'sample.wav',
+    4: 'sample.pdf',
+    5: 'sample.png',
+    6: 'slides.pptx',
+    9: 'missing.webm',
+  }[id]
+  const mediaType = {
+    2: 'VIDEO',
+    3: 'AUDIO',
+    4: 'DOCUMENT',
+    5: 'IMAGE',
+    6: 'DOCUMENT',
+    9: 'VIDEO',
+  }[id]
+  return {
+    ...value,
+    description: value.summary,
+    htmlBody: '<h2>资源正文</h2><p>这是可独立加载的教学正文。</p><script>alert("unsafe")</script>',
+    jumpUrl: 'https://example.com/lesson',
+    resourceType: null,
+    mediaList: file
+      ? [{ mediaType, fileUrl: `/media/${file}`, coverUrl: '', durationSec: 1, pageCount: 1 }]
+      : [],
+    liked: state(token).LIKE.has(value.contentKey),
+    favorited: state(token).FAVORITE.has(value.contentKey),
+  }
+}
+const teacher = {
+  id: 1,
+  name: '张老师',
+  schoolOrg: '测试学校',
+  jobTitle: '体育教师',
+  honorTitle: '优秀教师',
+  avatarUrl: '/media/sample.png',
+  story: '<p>教师故事</p>',
+}
+const news = {
+  id: 1,
+  categoryCode: 'NEWS',
+  categoryName: '新闻',
+  title: '行业动态示例',
+  summary: '体育教学动态',
+  coverUrl: '/media/sample.png',
+  detailType: 'ARTICLE',
+  jumpUrl: '',
+  htmlBody: '<p>动态正文</p>',
+  publishedAt: 1791504000000,
+}
+function page(rows, query) {
+  const pageNum = Number(query.get('pageNum') ?? 1)
+  const pageSize = Number(query.get('pageSize') ?? 12)
+  return {
+    total: rows.length,
+    pageNum,
+    pageSize,
+    list: rows.slice((pageNum - 1) * pageSize, pageNum * pageSize),
+  }
+}
+const server = createServer(async (req, res) => {
+  try {
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, cors)
+      return res.end()
+    }
+    const url = new URL(req.url ?? '/', `http://localhost:${port}`)
+    if (url.pathname.startsWith('/media/')) {
+      const name = url.pathname.slice(7)
+      if (!['sample.png', 'sample.pdf', 'sample.wav', 'sample.webm'].includes(name))
+        return send(res, null, 404, 'Not found')
+      const data = await readFile(new URL(`../public/media/${name}`, import.meta.url))
+      const mime = {
+        png: 'image/png',
+        pdf: 'application/pdf',
+        wav: 'audio/wav',
+        webm: 'video/webm',
+      }[name.split('.').pop()]
+      res.writeHead(200, { ...cors, 'content-type': mime, 'content-length': data.length })
+      return res.end(data)
+    }
+    const chunks = []
+    for await (const chunk of req) chunks.push(chunk)
     const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString()) : {}
-    const path = url.pathname
-
-    if (path === '/rsp/app/captcha')
-      return send(res, { ckey: 'e2e-ckey', length: 4, base64Img: CAPTCHA_IMG })
-
-    if (path === '/rsp/user/login') {
-      // 验证码统一为 1234；错误时返回业务码验证登录失效链路
-      if (body.captcha !== '1234') return send(res, null, 500, '验证码错误')
+    const path = url.pathname.replace(/^\/api\/v1/, '')
+    const token = String(req.headers.authorization ?? '').replace(/^Bearer /, '')
+    const id = Number(/^e2e-(\d+)-/.exec(token)?.[1] ?? 1)
+    const english = req.headers['x-locale'] === 'en-US'
+    if (path === '/health') return send(res, true)
+    if (path === '/auth/sms') return send(res, { retryAfter: 60 })
+    if (path === '/auth/login') {
+      if (body.code !== '123456' || body.agreed !== true) return send(res, null, 400, '验证码错误')
+      return send(res, { token: `e2e-1-login-${++sequence}`, newUser: false, profile: profile(1) })
+    }
+    if (path === '/auth/logout') return send(res, null)
+    if (path.startsWith('/me') || path.startsWith('/actions/')) {
+      if (token.includes('slow-me') && path === '/me') await delay(3000)
+      if (!token || token.includes('expired')) return send(res, null, 401, '登录已过期')
+      if (path === '/me') return send(res, profiles.get(token) ?? profile(id))
+      if (path === '/me/nickname' || path === '/me/avatar') {
+        const updated = {
+          ...(profiles.get(token) ?? profile(id)),
+          ...(path.endsWith('nickname')
+            ? { nickname: body.nickname }
+            : { avatarCode: body.avatarCode }),
+        }
+        profiles.set(token, updated)
+        return send(res, updated)
+      }
+      if (path === '/me/nickname-prompt') return send(res, null)
+      if (path === '/me/actions') {
+        const action = url.searchParams.get('action') ?? 'FAVORITE'
+        const channel = url.searchParams.get('channel')
+        const rows = [...state(token)[action]]
+          .map(key => {
+            const [kind, value] = key.split(':')
+            return card(Number(value), kind, english)
+          })
+          .filter(row => !channel || row.channel === channel)
+        return send(res, page(rows, url.searchParams))
+      }
+      if (path === '/actions/like' || path === '/actions/favorite') {
+        const kind = path.endsWith('like') ? 'LIKE' : 'FAVORITE'
+        const key = `${body.channel}:${body.originId}`
+        const items = state(token)[kind]
+        if (items.has(key)) items.delete(key)
+        else items.add(key)
+        return send(res, {
+          active: items.has(key),
+          count: (kind === 'LIKE' ? 2 : 3) + Number(items.has(key)),
+        })
+      }
+    }
+    if (path === '/avatars') return send(res, [1, 2, 3, 4])
+    if (path === '/contents/view') return send(res, null)
+    if (path === '/contents/recommend') {
+      if (url.searchParams.get('originId') === '8')
+        return send(res, null, 503, 'Service unavailable')
+      return send(res, [card(1, url.searchParams.get('channel') ?? 'RESOURCE', english)])
+    }
+    if (path === '/resources/filters')
       return send(res, {
-        id: 9001,
-        roleId: 2,
-        authorities: '',
-        token: 'e2e-token',
-        nickName: 'E2E 管理员',
-        schoolName: 'E2E 学校',
+        categoryList: [
+          { id: '1', name: english ? 'Fitness' : '体能', parentId: null },
+          { id: '2', name: english ? 'Sports' : '专项运动', parentId: null },
+        ],
+        secondCategoryList: [{ id: '10', name: '力量', parentId: '1' }],
+        levelList: [1, 2, 3, 4, 5].map(id => ({
+          id: String(id),
+          name: `水平 ${id}`,
+          parentId: null,
+        })),
+        bodyPartList: [{ id: '4', name: '上肢', parentId: null }],
+        typeList: ['0', '1', '2', '5', '6'].map(id => ({ id, name: `类型 ${id}`, parentId: null })),
       })
-    }
-
-    if (path === '/rsp/user/logout') return send(res, 'ok')
-
-    if (path === '/rsp/resource/platform/list') {
-      const filtered = body.name ? rows.filter(row => row.name.includes(body.name)) : rows
-      const pageNum = Number(body.pageNum ?? 1)
-      const pageSize = Number(body.pageSize ?? 10)
+    if (path === '/home')
       return send(res, {
-        total: filtered.length,
-        rows: filtered.slice((pageNum - 1) * pageSize, pageNum * pageSize),
+        featuredList: [card(1, 'RESOURCE', english)],
+        hotList: [card(2, 'RESOURCE', english)],
+        resourceGroupList: [
+          { groupId: 1, groupName: '体能', itemList: [card(1, 'RESOURCE', english)] },
+        ],
+        levelGroupList: [
+          { groupId: 3, groupName: '水平三', itemList: [card(3, 'RESOURCE', english)] },
+        ],
+        researchList: [card(1, 'RESEARCH', english)],
+        schoolList: [card(1, 'SCHOOL', english)],
+        teacherList: [teacher],
+        newsList: [news],
       })
+    const match = /^\/(resources|research|schools)(?:\/(\d+))?$/.exec(path)
+    if (match) {
+      const channel = { resources: 'RESOURCE', research: 'RESEARCH', schools: 'SCHOOL' }[match[1]]
+      if (match[2]) {
+        const originId = Number(match[2])
+        return originId > 0 && originId <= 24
+          ? send(res, detail(originId, channel, english, token))
+          : send(res, null, 404, '内容不存在')
+      }
+      let rows = Array.from({ length: 24 }, (_, index) => card(index + 1, channel, english))
+      const keyword = url.searchParams.get('keyword')
+      if (keyword) rows = rows.filter(row => row.title.includes(keyword))
+      return send(res, page(rows, url.searchParams))
     }
-
-    if (path === '/rsp/resource/platform/detail') {
-      const found = rows.find(row => String(row.id) === url.searchParams.get('id'))
-      return found ? send(res, found) : send(res, null, 404, '资源不存在')
-    }
-
-    if (path === '/rsp/resource/platform/view') {
-      const found = rows.find(row => String(row.id) === url.searchParams.get('id'))
-      if (found) found.viewCount += 1
-      return send(res, 1)
-    }
-
-    if (path === '/rsp/resource/platform/add') {
-      const created = { id: nextId++, duration: 0, viewCount: 0, type: 0, ...body }
-      rows.push(created)
-      return send(res, String(created.id))
-    }
-
-    if (path === '/rsp/resource/platform/edit') {
-      const index = rows.findIndex(row => String(row.id) === String(body.id))
-      if (index >= 0) rows[index] = { ...rows[index], ...body }
-      return send(res, 'ok')
-    }
-
-    if (path === '/rsp/resource/platform/delete') {
-      rows = rows.filter(row => String(row.id) !== url.searchParams.get('id'))
-      return send(res, 'ok')
-    }
-
-    res.writeHead(404, CORS)
-    res.end()
-  })
+    if (path === '/teachers') return send(res, page([teacher], url.searchParams))
+    if (path === '/teachers/1') return send(res, teacher)
+    if (path === '/news') return send(res, page([news], url.searchParams))
+    if (path === '/news/1') return send(res, news)
+    return send(res, null, 404, 'Not found')
+  } catch (error) {
+    console.error(error)
+    if (!res.headersSent) send(res, null, 500, 'Test server failure')
+  }
 })
-
-server.listen(PORT, '127.0.0.1', () => {
-  console.info(`[e2e-api] mock backend listening on http://127.0.0.1:${PORT}`)
-})
+server.listen(port, '127.0.0.1', () => console.info(`[e2e-api] http://127.0.0.1:${port}`))

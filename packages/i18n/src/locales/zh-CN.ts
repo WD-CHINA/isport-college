@@ -111,6 +111,7 @@ export default {
     gateDefault: '登录后继续操作',
   },
   academy: {
+    unavailable: '该功能暂未接入，当前不可用。',
     requestFailed: '请求失败，请重试',
     phone: '手机号',
     phoneInvalid: '请输入 11 位国内手机号',

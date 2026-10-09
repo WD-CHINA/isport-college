@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { isApiError } from '~/api/errors'
+import { useAcademy } from '~/composables/useAcademy'
+import { apiErrorCode } from '~/api/errors'
 import { isContentAssetUrl } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import { RichTextContent } from '@isport/rich-text'
@@ -20,12 +21,14 @@ const request = useAsyncData(
 )
 const { data, error, refresh } = request
 const notFound = computed(
-  () =>
-    error.value?.statusCode === 404 ||
-    (isApiError(error.value) && error.value.code === 'NOT_FOUND'),
+  () => error.value?.statusCode === 404 || apiErrorCode(error.value) === 'NOT_FOUND',
 )
 useSeoMeta({ title: () => data.value?.name || t('detail.notFound') })
 await request
+if (import.meta.server && notFound.value) {
+  const event = useRequestEvent()
+  if (event) setResponseStatus(event, 404)
+}
 </script>
 
 <template>

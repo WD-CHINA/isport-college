@@ -23,7 +23,7 @@ const symbol = computed(() => symbols[props.avatarCode - 1] ?? '●')
   flex: 0 0 32px;
   border-radius: 50%;
   color: #1d4e7b;
-  background: #dbeafe;
+  background: var(--ic-color-brand-100);
   font-size: 22px;
 }
 </style>

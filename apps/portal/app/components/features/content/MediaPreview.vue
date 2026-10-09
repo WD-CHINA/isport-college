@@ -8,6 +8,7 @@ const props = defineProps<{ media: MediaAsset; title: string }>()
 const emit = defineEmits<{ error: [] }>()
 const { t } = useI18n()
 const player = useTemplateRef<HTMLMediaElement>('player')
+const ready = shallowRef(false)
 const failed = shallowRef(false)
 const playing = shallowRef(false)
 const attempt = shallowRef(0)
@@ -24,9 +25,13 @@ function retry() {
   attempt.value++
   speed.value = '1'
 }
-function changeSpeed() {
-  if (player.value) player.value.playbackRate = Number(speed.value)
+function changeSpeed(event: Event) {
+  const rate = Number((event.target as HTMLSelectElement).value)
+  if (player.value) player.value.playbackRate = rate
 }
+onMounted(() => {
+  ready.value = true
+})
 watch(() => props.media, retry)
 onBeforeUnmount(() => player.value?.pause())
 </script>
@@ -92,7 +97,12 @@ onBeforeUnmount(() => player.value?.pause())
         />
         <label class="media-preview__speed"
           >{{ t('media.speed') }}
-          <select v-model="speed" :aria-label="t('media.speed')" @change="changeSpeed">
+          <select
+            v-model="speed"
+            :disabled="!ready"
+            :aria-label="t('media.speed')"
+            @change="changeSpeed"
+          >
             <option v-for="rate in ['0.5', '1', '1.25', '1.5', '2']" :key="rate" :value="rate">
               {{ rate }}×
             </option>
@@ -108,7 +118,7 @@ onBeforeUnmount(() => player.value?.pause())
   padding: 40px 24px;
   text-align: center;
   border-radius: 12px;
-  background: #eff6ff;
+  background: var(--ic-color-brand-50);
 }
 
 .media-preview__image {
@@ -147,7 +157,7 @@ onBeforeUnmount(() => player.value?.pause())
   width: 10px;
   height: 64px;
   border-radius: 8px;
-  background: #2563eb;
+  background: var(--ic-color-brand-500);
   transform: scaleY(0.3);
   animation: wave 0.8s ease-in-out infinite alternate;
   animation-play-state: paused;

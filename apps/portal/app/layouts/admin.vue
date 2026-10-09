@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useLocaleSwitch } from '~/composables/useLocaleSwitch'
+import { useLoginUiStore } from '~/stores/login-ui'
+import { useAuthStore } from '~/stores/auth'
 import { UiBrandLogo, UiLocaleSelect } from '@isport/ui-core'
 import {
   Button as AButton,
@@ -13,6 +16,7 @@ import {
 } from 'antdv-next'
 
 const auth = useAuthStore()
+const loginUi = useLoginUiStore()
 const route = useRoute()
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -111,7 +115,7 @@ function handleMenuClick({ key }: { key: string | number }) {
 
 function handleUserMenuClick({ key }: { key: string | number }) {
   if (key === 'logout') {
-    auth.logoutConfirmVisible = true
+    loginUi.logoutConfirmVisible = true
     return
   }
   void navigateTo(localePath('/'))

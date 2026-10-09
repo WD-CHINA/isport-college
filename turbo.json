@@ -24,5 +24,11 @@
     "test:e2e": {
       "cache": false
     }
-  }
+  },
+  "globalDependencies": [
+    "eslint.config.mjs",
+    "packages/eslint-config/**",
+    "stylelint.config.mjs",
+    "prettier.config.mjs"
+  ]
 }

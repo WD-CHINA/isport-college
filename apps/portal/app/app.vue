@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { ensureAcademySession } from '~/composables/useAcademy'
+import LoginModal from '~/components/auth/LoginModal.vue'
+import LogoutConfirm from '~/components/auth/LogoutConfirm.vue'
+import NicknameGuide from '~/components/auth/NicknameGuide.vue'
 import { antdvThemeToken } from '@isport/design-tokens/antdv-theme'
 import { resolveDataLocale } from '@isport/shared'
 import { App as AApp, ConfigProvider as AConfigProvider } from 'antdv-next'
@@ -9,7 +13,10 @@ const { locale, localeProperties, t } = useI18n()
 const runtimeConfig = useRuntimeConfig()
 const preventIndexing = runtimeConfig.public.siteEnv !== 'production'
 
-await ensureAcademySession()
+// 公开页首屏不等待资料服务；受保护页在路由门禁中验证会话。
+onMounted(() => {
+  void ensureAcademySession()
+})
 
 useHead(() => ({
   htmlAttrs: { lang: localeProperties.value.language ?? locale.value },
@@ -32,7 +39,6 @@ useSeoMeta({
       <LoginModal />
       <NicknameGuide />
       <LogoutConfirm />
-      <LingyueDialog />
     </AApp>
   </AConfigProvider>
 </template>

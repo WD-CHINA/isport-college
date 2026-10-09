@@ -1,22 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { hasPermission } from '../src/access-control'
+import { hasWebPermission, PERMISSIONS } from '../src/access-control'
 
-describe('hasPermission', () => {
-  it('按角色聚合权限', () => {
-    expect(hasPermission(['user'], 'creation:use')).toBe(true)
-    expect(hasPermission(['user', 'reviewer'], 'work:review')).toBe(true)
-    expect(hasPermission(['user', 'operator'], 'course:manage')).toBe(true)
-    expect(hasPermission(['user', 'reviewer'], 'course:manage')).toBe(false)
+describe('当前学苑协议权限', () => {
+  it('有效前台会话只开放个人中心', () => {
+    for (const permission of PERMISSIONS)
+      expect(hasWebPermission({ id: 1 }, permission)).toBe(permission === 'account:view')
   })
-
-  it('admin 拥有全部权限', () => {
-    expect(hasPermission(['admin'], 'work:review')).toBe(true)
-    expect(hasPermission(['admin'], 'content:manage')).toBe(true)
-    expect(hasPermission(['admin'], 'creation:use')).toBe(true)
-  })
-
-  it('未登录用户不拥有权限', () => {
-    expect(hasPermission(undefined, 'account:view')).toBe(false)
-    expect(hasPermission([], 'admin:view')).toBe(false)
+  it('缺失或畸形资料不能授予权限', () => {
+    for (const profile of [undefined, null, { id: 0 }, { id: -1 }, { id: 1.5 }])
+      expect(hasWebPermission(profile, 'account:view')).toBe(false)
   })
 })

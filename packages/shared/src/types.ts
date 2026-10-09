@@ -13,6 +13,3 @@ export interface PageResult<T> {
   page: number
   pageSize: number
 }
-
-/** 账号角色。前台资料接口不返回角色，管理端能力默认关闭。 */
-export type Role = 'user' | 'admin' | 'reviewer' | 'operator'

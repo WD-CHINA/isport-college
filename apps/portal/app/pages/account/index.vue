@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAuthStore } from '~/stores/auth'
 import AccountFeature from '~/components/features/account/AccountFeature.vue'
 definePageMeta({ academyGate: { permission: 'account:view' } })
 const auth = useAuthStore()

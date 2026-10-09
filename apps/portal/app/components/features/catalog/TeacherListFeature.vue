@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { parseListPage } from '@isport/shared'
+import AppPagination from '~/components/app/AppPagination.vue'
+import { useAcademy } from '~/composables/useAcademy'
 import { isContentAssetUrl, WEB_PAGE_SIZE } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import { Alert as AAlert, Button as AButton, Empty as AEmpty } from 'antdv-next'
@@ -9,10 +12,7 @@ const router = useRouter()
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
-const page = computed(() => {
-  const value = Number(route.query.page ?? 1)
-  return Number.isInteger(value) && value > 0 ? value : 1
-})
+const page = computed(() => parseListPage(route.query.page))
 const keyword = computed(() => (typeof route.query.keyword === 'string' ? route.query.keyword : ''))
 const request = useAsyncData(
   () => `academy:teachers:${locale.value}:${page.value}:${keyword.value}`,
@@ -58,7 +58,7 @@ function changePage(next: number) {
       </li>
     </ul>
     <AEmpty v-else :description="t('catalog.noResults')" />
-    <ContentPagination
+    <AppPagination
       v-if="data"
       :total="data.total"
       :page="page"

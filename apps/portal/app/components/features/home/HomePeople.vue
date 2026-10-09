@@ -56,7 +56,7 @@ const apiUrl = useApiUrl()
 }
 
 .home-people__heading a {
-  color: #2563eb;
+  color: var(--ic-color-brand-500);
 }
 
 .home-people__list {
@@ -89,8 +89,8 @@ const apiUrl = useApiUrl()
 .home-people__fallback {
   display: grid;
   place-items: center;
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--ic-color-brand-100);
+  color: var(--ic-color-brand-600);
   font-size: 24px;
 }
 

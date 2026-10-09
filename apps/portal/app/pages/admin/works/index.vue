@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import WorksListFeature from '~/components/features/creation/WorksListFeature.vue'
+import UnavailableFeature from '~/components/features/UnavailableFeature.vue'
 
 definePageMeta({ layout: 'admin', academyGate: { permission: 'creation:use' } })
+const { t } = useI18n()
+useSeoMeta({ title: () => t('seo.adminTitle'), robots: 'noindex, nofollow, noarchive' })
 </script>
 
 <template>
-  <WorksListFeature />
+  <UnavailableFeature capability="creation" />
 </template>
