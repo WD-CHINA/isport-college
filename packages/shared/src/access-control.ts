@@ -1,6 +1,17 @@
 import type { Role } from './types'
 
-/** 前端导航与服务端鉴权共享的细粒度权限。 */
+/**
+ * 前端导航与服务端鉴权共享的细粒度权限。
+ *
+ * 每个权限都必须有真实门禁，禁止只用于菜单可见性：
+ * - `account:view`：个人中心（本人资料与教师资料）
+ * - `creation:use`：创作中心（概览、我的创作、我的积分）
+ * - `admin:view`：管理端工作台
+ * - `course:manage` / `content:manage`：管理端课程与内容运营操作
+ * - `work:review`：投稿审核（页面尚未交付，服务端已按此权限校验）
+ *
+ * 路由侧通过页面 `academyGate` 元数据声明。前台接口自行校验登录态。
+ */
 export const PERMISSIONS = [
   'account:view',
   'creation:use',

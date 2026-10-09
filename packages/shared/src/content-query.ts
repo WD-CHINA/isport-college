@@ -43,13 +43,32 @@ export function normalizeContentQuery(
       if (fitness) query.fitness = fitness
       if (bodyPart) query.bodyPart = bodyPart
     }
+    const secondCategoryId = scalar(raw.secondCategoryId)
+    const recommendedLevel = scalar(raw.recommendedLevel)
+    const bodyPartTagId = scalar(raw.bodyPartTagId)
+    const resourceType = scalar(raw.resourceType)
+    if (/^\d{1,12}$/.test(secondCategoryId)) query.secondCategoryId = secondCategoryId
+    if (/^\d{1,12}$/.test(recommendedLevel)) query.recommendedLevel = recommendedLevel
+    if (/^\d{1,12}$/.test(bodyPartTagId)) query.bodyPartTagId = bodyPartTagId
+    if (/^[01256]$/.test(resourceType)) query.resourceType = resourceType
   }
   return query
 }
 
 export function contentQueryToUrl(query: ContentQuery): Record<string, string> {
   const result: Record<string, string> = {}
-  for (const key of ['category', 'keyword', 'level', 'kind', 'fitness', 'bodyPart'] as const) {
+  for (const key of [
+    'category',
+    'keyword',
+    'level',
+    'kind',
+    'fitness',
+    'bodyPart',
+    'secondCategoryId',
+    'recommendedLevel',
+    'bodyPartTagId',
+    'resourceType',
+  ] as const) {
     if (query[key] !== undefined && query[key] !== '') result[key] = String(query[key])
   }
   if (query.page && query.page > 1) result.page = String(query.page)

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AccountFeature from '~/components/features/account/AccountFeature.vue'
-definePageMeta({ middleware: ['auth'] })
+definePageMeta({ academyGate: { permission: 'account:view' } })
 const auth = useAuthStore()
 const localePath = useLocalePath()
 watch(

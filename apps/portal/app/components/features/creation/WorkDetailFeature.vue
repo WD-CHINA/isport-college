@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { WorkDetail } from '~/types/work'
 import type { WorkStatus } from '@isport/shared'
 import {
   Alert as AAlert,
@@ -11,15 +12,13 @@ import {
 const props = defineProps<{ id: string }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const academy = useAcademy()
 const auth = useAuthStore()
 
 const key = computed(() => `academy:work:${auth.user?.id}:${props.id}`)
-const { data, error, pending, refresh } = useAsyncData(key, (_app, { signal }) =>
-  academy.call('work/detail', { id: props.id }, signal),
+const { data, error, pending, refresh } = await useAsyncData<WorkDetail>(key, (_app, { signal }) =>
+  academyUnavailable('work/detail', { id: props.id }, signal),
 )
 useSeoMeta({ title: () => t('creation.works.detail') })
-await useAsyncData(key, (_app, { signal }) => academy.call('work/detail', { id: props.id }, signal))
 
 const statusColor: Record<WorkStatus, string> = {
   draft: 'default',

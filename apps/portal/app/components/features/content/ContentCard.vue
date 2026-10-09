@@ -1,21 +1,33 @@
 <script setup lang="ts">
-import { contentPath, safeExternalUrl, isLocalImageUrl, type AcademyContent } from '@isport/shared'
+import {
+  formatPublishedAt,
+  isContentAssetUrl,
+  webContentPath,
+  type WebContentCard,
+} from '@isport/shared'
+import { useApiUrl } from '~/utils/api-url'
 
-const props = defineProps<{ content: AcademyContent }>()
+const props = defineProps<{ content: WebContentCard }>()
 const { t } = useI18n()
-const localize = useLocalizedText()
 const localePath = useLocalePath()
+const apiUrl = useApiUrl()
 const imageFailed = shallowRef(false)
-const external = computed(() => props.content.media.kind === 'link')
-const href = computed(() =>
-  external.value
-    ? safeExternalUrl(props.content.media.url)
-      ? props.content.media.url
-      : undefined
-    : localePath(contentPath(props.content)),
-)
+const href = computed(() => localePath(webContentPath(props.content)))
+const coverUrl = computed(() => apiUrl(props.content.coverUrl))
+const kind = computed(() => {
+  const kinds = {
+    VIDEO: 'video',
+    AUDIO: 'audio',
+    DOCUMENT: 'pdf',
+    IMAGE: 'image',
+    LINK: 'link',
+    ARTICLE: 'article',
+  } as const
+  return kinds[props.content.detailType] ?? 'article'
+})
+const published = computed(() => formatPublishedAt(props.content.publishedAt))
 watch(
-  () => props.content.cover,
+  () => props.content.coverUrl,
   () => {
     imageFailed.value = false
   },
@@ -23,18 +35,12 @@ watch(
 </script>
 
 <template>
-  <article class="content-card" :data-content-id="content.id">
-    <NuxtLink
-      :to="href"
-      :external="external"
-      :target="external ? '_blank' : undefined"
-      :rel="external ? 'noopener noreferrer' : undefined"
-      class="content-card__link"
-    >
+  <article class="content-card" :data-content-id="content.contentKey">
+    <NuxtLink :to="href" class="content-card__link">
       <div class="content-card__cover">
         <img
-          v-if="isLocalImageUrl(content.cover) && !imageFailed"
-          :src="content.cover"
+          v-if="isContentAssetUrl(coverUrl) && !imageFailed"
+          :src="coverUrl"
           alt=""
           loading="lazy"
           width="640"
@@ -42,25 +48,19 @@ watch(
           @error="imageFailed = true"
         />
         <span v-else>{{ t('catalog.noCover') }}</span>
-        <span class="content-card__kind"
-          >{{ t(`catalog.media.${content.media.kind}`)
-          }}<template v-if="content.music"> · {{ t('catalog.music') }}</template></span
-        >
+        <span class="content-card__kind">{{ t(`catalog.media.${kind}`) }}</span>
       </div>
       <div class="content-card__body">
-        <h3>{{ localize(content.title) }}</h3>
-        <p>{{ localize(content.summary) }}</p>
+        <h3>{{ content.title }}</h3>
+        <p>{{ content.summary }}</p>
         <div class="content-card__meta">
-          <span v-if="content.channel === 'resource' && content.level">{{
-            t('catalog.levelValue', { level: content.level })
-          }}</span>
-          <span v-if="content.channel === 'school'"
-            >{{ content.province }} · {{ content.school }}</span
+          <span v-if="content.categoryName">{{ content.categoryName }}</span>
+          <span v-if="content.channel === 'SCHOOL' && (content.provinceName || content.schoolName)"
+            >{{ content.provinceName }} · {{ content.schoolName }}</span
           >
-          <span>{{ t('catalog.views', { count: content.views }) }}</span>
-          <time :datetime="content.publishedAt">{{ content.publishedAt.slice(0, 10) }}</time>
+          <span>{{ t('catalog.views', { count: content.viewCount }) }}</span>
+          <time v-if="published" :datetime="published">{{ published }}</time>
         </div>
-        <span v-if="external" class="content-card__external">{{ t('catalog.external') }} ↗</span>
       </div>
     </NuxtLink>
     <slot />

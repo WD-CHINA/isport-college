@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import type { AcademyContent, LocalizedText } from '@isport/shared'
+import { formatPublishedAt, type WebContentDetail } from '@isport/shared'
 
-defineProps<{ content: AcademyContent; categoryLabel: LocalizedText }>()
+const props = defineProps<{ content: WebContentDetail }>()
 const { t } = useI18n()
-const localize = useLocalizedText()
 const localePath = useLocalePath()
-const channels = { resource: '/resources', research: '/research', school: '/schools' }
+const channels = { RESOURCE: '/resources', RESEARCH: '/research', SCHOOL: '/schools' }
+const localChannels = { RESOURCE: 'resource', RESEARCH: 'research', SCHOOL: 'school' } as const
+const kinds = {
+  VIDEO: 'video',
+  AUDIO: 'audio',
+  DOCUMENT: 'pdf',
+  IMAGE: 'image',
+  LINK: 'link',
+  ARTICLE: 'article',
+} as const
+const published = computed(() => formatPublishedAt(props.content.publishedAt))
 </script>
 
 <template>
@@ -14,25 +23,24 @@ const channels = { resource: '/resources', research: '/research', school: '/scho
       <NuxtLink :to="localePath('/')">{{ t('nav.home') }}</NuxtLink
       ><span>/</span>
       <NuxtLink :to="localePath(channels[content.channel])">{{
-        t(`catalog.channels.${content.channel}`)
+        t(`catalog.channels.${localChannels[content.channel]}`)
       }}</NuxtLink
       ><span>/</span>
-      <span>{{ localize(categoryLabel) }}</span>
+      <span>{{ content.categoryName }}</span>
     </nav>
     <header>
-      <h1 class="detail-shell__title">{{ localize(content.title) }}</h1>
+      <h1 class="detail-shell__title">{{ content.title }}</h1>
       <p class="detail-shell__meta">
-        <span>{{ t('detail.author') }}：{{ content.author }}</span>
-        <time :datetime="content.publishedAt">{{ content.publishedAt.slice(0, 10) }}</time>
-        <span>{{ t(`catalog.media.${content.media.kind}`) }}</span>
-        <span v-if="content.level">{{ t('catalog.levelValue', { level: content.level }) }}</span>
-        <span v-if="content.school">{{ content.province }} · {{ content.school }}</span>
+        <span v-if="content.authorName">{{ t('detail.author') }}：{{ content.authorName }}</span>
+        <time v-if="published" :datetime="published">{{ published }}</time>
+        <span>{{ t(`catalog.media.${kinds[content.detailType]}`) }}</span>
+        <span v-if="content.schoolName">{{ content.provinceName }} · {{ content.schoolName }}</span>
       </p>
     </header>
     <slot />
     <section class="detail-shell__summary">
       <h2>{{ t('detail.summary') }}</h2>
-      <p>{{ localize(content.summary) || t('detail.noSummary') }}</p>
+      <p>{{ content.summary || content.description || t('detail.noSummary') }}</p>
     </section>
     <slot name="interactions" />
   </article>

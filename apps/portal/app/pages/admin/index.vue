@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'admin',
-  middleware: 'auth',
+  academyGate: { permission: 'admin:view' },
 })
 
 const { t } = useI18n()

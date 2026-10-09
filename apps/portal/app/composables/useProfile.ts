@@ -1,27 +1,50 @@
-import { isApiError } from '@isport/api-client'
+import { isApiError } from '~/api/errors'
+import type { WebProfile } from '@isport/shared'
 
 export function useProfile() {
   const auth = useAuthStore()
   const academy = useAcademy()
   const { t, locale } = useI18n()
-  const pending = ref(false)
-  const error = ref('')
-  async function save(value: { nickname: string; avatar: string }) {
+  const pending = shallowRef(false)
+  const error = shallowRef('')
+
+  function fail(cause: unknown) {
+    error.value =
+      isApiError(cause) && locale.value === 'zh' ? cause.message : t('academy.requestFailed')
+  }
+
+  async function save(value: { nickname: string; avatarCode: number }) {
     if (pending.value) return false
-    const token = auth.session?.token
     pending.value = true
     error.value = ''
     try {
-      const user = await academy.call('account/profile', value)
-      auth.updateUser(user, token)
-      return auth.session?.token === token
+      await academy.updateNickname({ nickname: value.nickname })
+      auth.updateUser(await academy.updateAvatar({ avatarCode: value.avatarCode }))
+      return true
     } catch (cause) {
-      error.value =
-        isApiError(cause) && locale.value === 'zh' ? cause.message : t('academy.requestFailed')
+      fail(cause)
       return false
     } finally {
       pending.value = false
     }
   }
-  return { pending, error, save }
+
+  async function skipNickname() {
+    if (pending.value || !auth.user) return false
+    pending.value = true
+    error.value = ''
+    try {
+      await academy.dismissNicknamePrompt()
+      const profile: WebProfile = { ...auth.user, nicknamePromptNeeded: false }
+      auth.updateUser(profile)
+      return true
+    } catch (cause) {
+      fail(cause)
+      return false
+    } finally {
+      pending.value = false
+    }
+  }
+
+  return { pending, error, save, skipNickname }
 }

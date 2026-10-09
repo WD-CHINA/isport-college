@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SubmissionFeature from '~/components/features/creation/SubmissionFeature.vue'
 
-definePageMeta({ layout: 'admin', middleware: ['auth'] })
+definePageMeta({ layout: 'admin', academyGate: { permission: 'creation:use' } })
 const route = useRoute()
 const editId = typeof route.query.id === 'string' ? route.query.id : undefined
 </script>

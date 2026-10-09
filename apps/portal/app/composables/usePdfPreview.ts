@@ -1,6 +1,6 @@
 import type { PDFDocumentLoadingTask, PDFDocumentProxy, RenderTask } from 'pdfjs-dist'
 import type { Ref } from 'vue'
-import { isLocalMediaUrl } from '@isport/shared'
+import { isContentAssetUrl } from '@isport/shared'
 
 export function usePdfPreview(
   source: Readonly<Ref<string>>,
@@ -70,7 +70,7 @@ export function usePdfPreview(
     loadingTask = undefined
     await previous?.destroy().catch(() => {})
     try {
-      if (!isLocalMediaUrl(source.value)) throw new Error('INVALID_PDF_SOURCE')
+      if (!isContentAssetUrl(source.value)) throw new Error('INVALID_PDF_SOURCE')
       const [pdfjs, worker] = await Promise.all([
         import('pdfjs-dist'),
         import('pdfjs-dist/build/pdf.worker.min.mjs?url'),

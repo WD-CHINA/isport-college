@@ -8,14 +8,12 @@ const { t } = useI18n()
 const { pending, error, save } = useProfile()
 const editing = shallowRef(false)
 const saved = shallowRef(false)
-const maskedPhone = computed(
-  () => auth.user?.phone?.replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2') ?? '',
-)
+const maskedPhone = computed(() => auth.user?.phoneMask ?? '')
 function startEditing() {
   editing.value = true
   saved.value = false
 }
-async function submit(value: { nickname: string; avatar: string }) {
+async function submit(value: { nickname: string; avatarCode: number }) {
   saved.value = false
   if (await save(value)) {
     editing.value = false
@@ -27,9 +25,9 @@ async function submit(value: { nickname: string; avatar: string }) {
 <template>
   <section v-if="auth.user" class="account-profile">
     <header class="account-profile__head">
-      <AccountAvatar :avatar="auth.user.avatar" />
+      <AccountAvatar :avatar-code="auth.user.avatarCode" />
       <div class="account-profile__ident">
-        <h2>{{ auth.user.name || t('academy.anonymous') }}</h2>
+        <h2>{{ auth.user.nickname || t('academy.anonymous') }}</h2>
         <p>{{ t('academy.phone') }}：{{ maskedPhone }}</p>
       </div>
       <AButton v-if="!editing" class="account-profile__edit" @click="startEditing">

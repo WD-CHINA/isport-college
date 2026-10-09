@@ -1,58 +1,62 @@
-import type { ContentChannel, InteractionKind } from '@isport/shared'
+import type { InteractionKind, WebChannel, WebContentCard } from '@isport/shared'
+import { toWebChannel } from '~/utils/web-channel'
 
 export function useAccountActivity() {
   const academy = useAcademy()
   const auth = useAuthStore()
   const kind = shallowRef<InteractionKind>('favorite')
-  const channel = shallowRef<ContentChannel | ''>('')
+  const channel = shallowRef<'resource' | 'research' | 'school' | ''>('')
   const page = shallowRef(1)
   const removing = shallowRef('')
   const failed = shallowRef(false)
-  let disposed = false
+  const remoteChannel = computed<WebChannel | undefined>(() =>
+    channel.value ? toWebChannel(channel.value) : undefined,
+  )
   const key = computed(
     () => `academy:activity:${auth.user?.id}:${kind.value}:${channel.value}:${page.value}`,
   )
-  const request = useAsyncData(key, (_app, { signal }) =>
-    academy.call(
-      'interaction/list',
-      {
-        kind: kind.value,
-        channel: channel.value || undefined,
-        page: page.value,
-        pageSize: 12,
-      },
-      signal,
-    ),
-  )
-  // 直接派生自 request.data：SSR 等待数据解析后渲染、客户端复用同一 payload，
-  // 避免用 watcher 同步默认值造成首帧计数不一致的水合告警。
+  const request = useAsyncData(key, async (_app, { signal }) => {
+    const action = kind.value === 'like' ? 'LIKE' : 'FAVORITE'
+    const [current, likes, favorites] = await Promise.all([
+      academy.actions(
+        { action, channel: remoteChannel.value, pageNum: page.value, pageSize: 12 },
+        signal,
+      ),
+      academy.actions({ action: 'LIKE', pageNum: 1, pageSize: 1 }, signal),
+      academy.actions({ action: 'FAVORITE', pageNum: 1, pageSize: 1 }, signal),
+    ])
+    return {
+      ...current,
+      totals: { like: likes.total, favorite: favorites.total },
+    }
+  })
   const totals = computed(() => request.data.value?.totals ?? { like: 0, favorite: 0 })
-  function filter(nextKind: InteractionKind, nextChannel: ContentChannel | '') {
+  function filter(nextKind: InteractionKind, nextChannel: 'resource' | 'research' | 'school' | '') {
     kind.value = nextKind
     channel.value = nextChannel
     page.value = 1
     failed.value = false
   }
-  async function remove(id: string) {
+  async function remove(contentKey: string) {
     if (removing.value) return
-    const token = auth.session?.token
-    const removedKind = kind.value
-    removing.value = id
+    const item = request.data.value?.list.find(row => row.contentKey === contentKey)
+    if (!item) return
+    removing.value = contentKey
     failed.value = false
     try {
-      await academy.call('interaction/set', { id, kind: removedKind, active: false })
-      if (disposed || auth.session?.token !== token) return
+      const target = { channel: item.channel, origin: item.origin, originId: item.originId }
+      if (kind.value === 'like') await academy.like(target)
+      else await academy.favorite(target)
       await request.refresh()
       if (request.data.value?.list.length === 0 && page.value > 1) page.value--
     } catch {
-      if (!disposed && auth.session?.token === token) failed.value = true
+      failed.value = true
     } finally {
       removing.value = ''
     }
   }
   useRefreshOnFocus(() => request.refresh())
-  onScopeDispose(() => {
-    disposed = true
-  })
   return { kind, channel, page, removing, failed, totals, request, filter, remove }
 }
+
+export type ActivityCard = WebContentCard

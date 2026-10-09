@@ -53,9 +53,6 @@ importers:
       '@antdv-next/icons':
         specifier: 1.1.2
         version: 1.1.2(vue@3.5.43(typescript@5.9.3))
-      '@isport/api-client':
-        specifier: workspace:*
-        version: link:../../packages/api-client
       '@isport/design-tokens':
         specifier: workspace:*
         version: link:../../packages/design-tokens
@@ -138,37 +135,12 @@ importers:
       unocss:
         specifier: 66.10.5
         version: 66.10.5(@unocss/webpack@66.10.5(esbuild@0.28.2)(rolldown@1.2.9)(rollup@4.63.3)(vite@8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.104.1)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)))(rolldown@1.2.9)(rollup@4.63.3)(srvx@0.11.22)(vite@8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.104.1)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
-      vue-tsc:
-        specifier: 3.3.11
-        version: 3.3.11(typescript@5.9.3)
-
-  packages/api-client:
-    dependencies:
-      '@isport/mock-data':
-        specifier: workspace:*
-        version: link:../mock-data
-      '@isport/shared':
-        specifier: workspace:*
-        version: link:../shared
-      ofetch:
-        specifier: 1.5.1
-        version: 1.5.1
-    devDependencies:
-      '@isport/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
-      '@vitest/coverage-v8':
-        specifier: 4.1.11
-        version: 4.1.11(vitest@4.1.11)
-      eslint:
-        specifier: 9.39.5
-        version: 9.39.5(jiti@2.7.0)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       vitest:
         specifier: 4.1.11
         version: 4.1.11(@types/node@26.6.2)(@vitest/coverage-v8@4.1.11)(vite@8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.104.1)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
+      vue-tsc:
+        specifier: 3.3.11
+        version: 3.3.11(typescript@5.9.3)
 
   packages/design-tokens:
     devDependencies:
@@ -218,28 +190,6 @@ importers:
       typescript:
         specifier: 5.9.3
         version: 5.9.3
-
-  packages/mock-data:
-    dependencies:
-      '@isport/shared':
-        specifier: workspace:*
-        version: link:../shared
-    devDependencies:
-      '@isport/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
-      '@vitest/coverage-v8':
-        specifier: 4.1.11
-        version: 4.1.11(vitest@4.1.11)
-      eslint:
-        specifier: 9.39.5
-        version: 9.39.5(jiti@2.7.0)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: 4.1.11
-        version: 4.1.11(@types/node@26.6.2)(@vitest/coverage-v8@4.1.11)(vite@8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.104.1)(sass@1.104.1)(terser@5.51.2)(yaml@2.9.1))
 
   packages/rich-text:
     dependencies:

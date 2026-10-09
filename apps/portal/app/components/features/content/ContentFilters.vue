@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import {
-  BODY_PARTS,
-  FITNESS_CATEGORIES,
-  RESOURCE_FILTER_KINDS,
-  type ContentChannel,
-  type ContentQuery,
-  type Taxonomy,
-} from '@isport/shared'
+import type { WebListQuery, WebResourceFilters } from '@isport/shared'
 import { Button as AButton, Input as AInput, Select as ASelect } from 'antdv-next'
 
-const props = defineProps<{ channel: ContentChannel; taxonomies: Taxonomy[] }>()
-const model = defineModel<ContentQuery>({ required: true })
+const props = defineProps<{
+  channel: 'resource' | 'research' | 'school'
+  categories: { id: string; name: string }[]
+  resourceFilters?: WebResourceFilters | null
+}>()
+const model = defineModel<WebListQuery>({ required: true })
 const { t } = useI18n()
-const localize = useLocalizedText()
 const keyword = shallowRef(model.value.keyword ?? '')
 watch(
   () => model.value.keyword,
@@ -20,62 +16,71 @@ watch(
     keyword.value = value ?? ''
   },
 )
-const categories = computed(() => props.taxonomies.filter(item => item.channel === props.channel))
 const resource = computed(() => props.channel === 'resource')
+const secondCategories = computed(() =>
+  (props.resourceFilters?.secondCategoryList ?? []).filter(
+    item => item.parentId === model.value.category,
+  ),
+)
 const fields = computed(() => {
   if (!resource.value) return []
   const all = { value: '', label: t('common.all') }
-  const result = [
-    {
-      key: 'level' as const,
-      label: t('catalog.level'),
-      options: [
-        all,
-        ...[1, 2, 3, 4, 5].map(value => ({
-          value: String(value),
-          label: t('catalog.levelValue', { level: value }),
-        })),
-      ],
-    },
-    {
-      key: 'kind' as const,
-      label: t('catalog.kind'),
-      options: [
-        all,
-        ...RESOURCE_FILTER_KINDS.map(value => ({ value, label: t(`catalog.media.${value}`) })),
-      ],
-    },
-  ]
-  if (model.value.category !== 'fitness') return result
+  const filters = props.resourceFilters
+  if (!filters) return []
+  const named = (items: { id: string; name: string }[]) =>
+    items.map(item => ({ value: item.id, label: item.name }))
   return [
-    ...result,
-    {
-      key: 'fitness' as const,
-      label: t('catalog.fitness'),
-      options: [
-        all,
-        ...FITNESS_CATEGORIES.map(value => ({
-          value,
-          label: t(`catalog.fitnessOptions.${value}`),
-        })),
-      ],
-    },
-    {
-      key: 'bodyPart' as const,
-      label: t('catalog.bodyPart'),
-      options: [
-        all,
-        ...BODY_PARTS.map(value => ({ value, label: t(`catalog.bodyOptions.${value}`) })),
-      ],
-    },
-  ]
+    secondCategories.value.length
+      ? {
+          key: 'secondCategoryId' as const,
+          label: t('catalog.category'),
+          options: [all, ...named(secondCategories.value)],
+        }
+      : undefined,
+    filters.levelList.length
+      ? {
+          key: 'recommendedLevel' as const,
+          label: t('catalog.level'),
+          options: [all, ...named(filters.levelList)],
+        }
+      : undefined,
+    filters.typeList.length
+      ? {
+          key: 'resourceType' as const,
+          label: t('catalog.kind'),
+          options: [all, ...named(filters.typeList)],
+        }
+      : undefined,
+    filters.bodyPartList.length
+      ? {
+          key: 'bodyPartTagId' as const,
+          label: t('catalog.bodyPart'),
+          options: [all, ...named(filters.bodyPartList)],
+        }
+      : undefined,
+  ].filter(item => item !== undefined)
 })
-function set(field: string, value: unknown) {
-  model.value = { ...model.value, [field]: value, page: 1 }
+function set(field: keyof WebListQuery, value: unknown) {
+  const next: WebListQuery = { ...model.value, page: 1 }
+  const text = typeof value === 'string' ? value : ''
+  if (field === 'category') {
+    next.category = text || undefined
+    next.secondCategoryId = undefined
+  } else if (field === 'keyword') {
+    next.keyword = text || undefined
+  } else if (
+    field === 'secondCategoryId' ||
+    field === 'recommendedLevel' ||
+    field === 'bodyPartTagId' ||
+    field === 'resourceType'
+  ) {
+    next[field] = text || undefined
+  }
+  model.value = next
 }
 function reset() {
   keyword.value = ''
-  model.value = { channel: props.channel, category: model.value.category, page: 1 }
+  model.value = { page: 1 }
 }
 </script>
 
@@ -95,7 +100,6 @@ function reset() {
     </form>
     <div class="content-filters__categories" role="group" :aria-label="t('catalog.category')">
       <AButton
-        v-if="!resource"
         :type="!model.category ? 'primary' : 'default'"
         :aria-pressed="!model.category"
         @click="set('category', '')"
@@ -107,7 +111,7 @@ function reset() {
         :type="model.category === item.id ? 'primary' : 'default'"
         :aria-pressed="model.category === item.id"
         @click="set('category', item.id)"
-        >{{ localize(item.label) }}</AButton
+        >{{ item.name }}</AButton
       >
     </div>
     <div v-if="fields.length" class="content-filters__fields">

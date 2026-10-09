@@ -1,36 +1,33 @@
 <script setup lang="ts">
-import { AVATAR_IDS, normalizeNickname } from '@isport/shared'
-import type { AcademyUser } from '@isport/shared'
+import { AVATAR_IDS, normalizeNickname, type WebProfile } from '@isport/shared'
 import { Alert as AAlert, Button as AButton, Input as AInput } from 'antdv-next'
 
-const props = defineProps<{ user: AcademyUser; pending: boolean; error?: string }>()
-const emit = defineEmits<{ save: [value: { nickname: string; avatar: string }] }>()
+const props = defineProps<{ user: WebProfile; pending: boolean; error?: string }>()
+const emit = defineEmits<{ save: [value: { nickname: string; avatarCode: number }] }>()
+const academy = useAcademy()
 const { t } = useI18n()
 const formId = useId()
-const nickname = ref(props.user.name)
-const avatar = ref(props.user.avatar)
-const invalid = ref(false)
-const symbols: Record<string, string> = {
-  ball: '◉',
-  star: '★',
-  sun: '☀',
-  mountain: '▲',
-  runner: '➜',
-  swimmer: '≈',
-  cyclist: '◎',
-  racket: '◈',
-}
+const nickname = shallowRef(props.user.nickname)
+const avatarCode = shallowRef(props.user.avatarCode)
+const invalid = shallowRef(false)
+const avatarRequest = useAsyncData('academy:avatars', () => academy.avatars())
+const codes = computed(() =>
+  avatarRequest.data.value?.length
+    ? avatarRequest.data.value
+    : AVATAR_IDS.map((_, index) => index + 1),
+)
+const symbols = ['◉', '➜', '≈', '◎', '◈', '★', '▲', '☀']
 watch(
   () => props.user,
   user => {
-    nickname.value = user.name
-    avatar.value = user.avatar
+    nickname.value = user.nickname
+    avatarCode.value = user.avatarCode
   },
 )
 function submit() {
   const value = normalizeNickname(nickname.value)
   invalid.value = value === null
-  if (value !== null) emit('save', { nickname: value, avatar: avatar.value })
+  if (value !== null) emit('save', { nickname: value, avatarCode: avatarCode.value })
 }
 </script>
 
@@ -52,15 +49,15 @@ function submit() {
     <p>{{ t('academy.nicknameRule') }}</p>
     <fieldset :disabled="pending" class="profile-form__avatars">
       <legend>{{ t('academy.avatar') }}</legend>
-      <label v-for="id in AVATAR_IDS" :key="id" class="profile-form__avatar">
+      <label v-for="code in codes" :key="code" class="profile-form__avatar">
         <input
-          v-model="avatar"
+          v-model="avatarCode"
           type="radio"
           :name="`${formId}-avatar`"
-          :value="id"
-          :aria-label="t(`academy.avatars.${id}`)"
+          :value="code"
+          :aria-label="t(`academy.avatars.${AVATAR_IDS[code - 1] ?? 'ball'}`)"
         />
-        <span aria-hidden="true">{{ symbols[id] || '●' }}</span>
+        <span aria-hidden="true">{{ symbols[code - 1] || '●' }}</span>
       </label>
     </fieldset>
     <AButton html-type="submit" type="primary" :loading="pending">{{ t('common.save') }}</AButton>

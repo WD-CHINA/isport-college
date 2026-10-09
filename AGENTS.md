@@ -4,7 +4,27 @@
 
 本项目是 pnpm + Turborepo Monorepo。`apps/portal` 是 Nuxt 4 应用：页面、布局、状态和组件位于 `app/`，Nitro 处理器位于 `server/`，静态资源位于 `public/`，Playwright 用例位于 `e2e/`。
 
-通用能力放在 `packages/`：`ui-core` 和 `ui-admin` 提供 Vue 组件，`api-client` 管理 Repository 接口与适配器，`mock-data` 保存测试数据，`design-tokens` 生成主题资源，`shared` 仅存放平台无关的 TypeScript。新增模块前先确认 `docs/architecture.md` 中的职责与依赖方向。
+通用能力放在 `packages/`：`ui-core` 和 `ui-admin` 提供 Vue 组件，`design-tokens` 生成主题资源，`shared` 仅存放平台无关的 TypeScript。前台请求放在 `apps/portal/app/api`：`request.ts` 只负责地址、鉴权头、语言头和 `{status,message,data}` 信封；`academy.ts` 只声明学苑路径和参数。响应整理放在使用它的 composable、store 或展示组件。`useAcademy()` 在 setup 中为当前请求创建客户端，服务端使用这次请求的 fetch。新增模块前先确认 `docs/architecture.md` 中的职责与依赖方向。
+
+## 架构边界（强制）
+
+工作区采用由上到下的单向依赖，箭头表示允许方向：
+
+```text
+portal -> ui-admin -> ui-core -> design-tokens / shared
+portal -> rich-text -> ui-core / design-tokens / shared
+portal -> shared
+portal -> i18n -> shared
+portal -> unocss-preset -> design-tokens
+```
+
+- `apps/portal` 是唯一应用和部署边界；任何 `packages/*` 都不得反向依赖它，也不得导入 `~/`、`@/`、`#app` 等应用私有别名。
+- 包之间只能通过目标包 `package.json` 的 `exports` 导入，禁止跨包读取 `src`。依赖必须声明在实际使用它的 workspace 中，根目录不能为业务依赖兜底。
+- `shared` 只包含领域类型、常量和纯函数；`design-tokens` 只包含平台无关令牌。两者不得引入 Vue、Nuxt、Pinia、antdv-next 或应用状态。
+- `ui-core`、`ui-admin`、`rich-text` 只负责展示与交互，不得发起业务请求、访问 Portal store 或承载路由逻辑。
+- `pages` 只作为路由入口，业务编排放入 `components/features`，可复用状态放入 `composables`，跨路由客户端状态放入 `stores`。`app/api` 只放请求与接口路径，不放字段校验和业务判断。鉴权、权限和持久化放入 `server`。
+- 前端菜单与路由统一调用 `auth.can(permission)`，但客户端判断不代替服务端授权。新增权限先在 `shared` 的权限模型中声明。
+- 新能力若不符合现有层级，应提取到正确的下层包，不得通过深层导入、循环依赖或复制代码绕过边界。根 `eslint.config.mjs` 是强制门禁，修改后至少运行 `pnpm lint` 和相关类型检查。
 
 ## 开发、构建与检查命令
 
@@ -26,7 +46,7 @@ Prettier 统一使用两空格缩进、单引号、无分号、尾逗号和 100 
 
 ## 测试要求
 
-单元测试与源码就近放置；浏览器、SSR 和完整用户流程放在 `apps/portal/e2e`。认证、路由、SSR、管理端和非生产环境 `noindex` 行为发生变化时，必须补充回归测试。当前没有全局覆盖率阈值，但应检查受影响包的覆盖率结果。
+包的单元测试放在各包 `test/` 目录；Portal 的接口单测放在 `apps/portal/test`。浏览器、SSR 和完整用户流程放在 `apps/portal/e2e`。认证、路由、SSR、管理端和非生产环境 `noindex` 行为发生变化时，必须补充回归测试。当前没有全局覆盖率阈值，但应检查受影响包的覆盖率结果。
 
 ## 提交与合并请求
 

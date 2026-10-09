@@ -1,5 +1,4 @@
 import type { UploadedFile } from '@isport/shared'
-import { isApiError } from '@isport/api-client'
 
 export type UploadPurpose = 'video' | 'courseware' | 'image'
 
@@ -11,14 +10,8 @@ export interface UploadState {
   error: string | null
 }
 
-/**
- * 管理一个文件的上传状态。purpose 决定服务端允许的类型与大小。
- * 上传通过 academyHttp（ofetch）发送 multipart/form-data。
- */
+/** 文件上传不在学苑前台接口中。 */
 export function useFileUpload() {
-  const nuxt = useNuxtApp()
-  const { t } = useI18n()
-
   function createSlot() {
     return reactive<UploadState>({
       file: null,
@@ -29,36 +22,16 @@ export function useFileUpload() {
     })
   }
 
-  async function upload(slot: UploadState, purpose: UploadPurpose, file: File) {
+  async function upload(slot: UploadState, _purpose: UploadPurpose, file: File) {
     slot.file = file
     slot.record = null
-    slot.error = null
     slot.progress = 0
-    slot.uploading = true
-
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('purpose', purpose)
-
+    slot.uploading = false
     try {
-      const record = await nuxt.$academyHttp<UploadedFile>('/api/academy/files', {
-        method: 'POST',
-        body: formData,
-        timeout: 0, // 大文件不超时
-        // ofetch 在有 body 时不自动设置 Content-Type，让浏览器添加 boundary
-        headers: {},
-      })
-      slot.record = record
-      slot.progress = 100
+      await academyUnavailable()
     } catch (err: unknown) {
-      if (isApiError(err)) {
-        slot.error = err.message
-      } else {
-        slot.error = t('creation.file.uploadFailed')
-      }
+      slot.error = err instanceof Error ? err.message : String(err)
       slot.file = null
-    } finally {
-      slot.uploading = false
     }
   }
 

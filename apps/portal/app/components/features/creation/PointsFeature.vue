@@ -70,7 +70,6 @@ function goLingyue() {
     <header class="points-feature__head">
       <div>
         <h1 class="points-feature__title">{{ t('points.title') }}</h1>
-        <p class="points-feature__desc">{{ t('points.mockNotice') }}</p>
       </div>
       <AButton @click="goCreation">{{ t('points.backToCreation') }}</AButton>
     </header>

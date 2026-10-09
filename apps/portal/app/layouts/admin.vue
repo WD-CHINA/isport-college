@@ -189,7 +189,7 @@ function goHome() {
             @menu-click="handleUserMenuClick"
           >
             <AButton type="text" class="admin-header__user">
-              {{ auth.user?.name }}
+              {{ auth.user?.nickname }}
             </AButton>
           </ADropdown>
         </div>

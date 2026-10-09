@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { Result as AResult } from 'antdv-next'
 
-definePageMeta({ middleware: 'auth' })
+definePageMeta({ academyGate: { auth: true } })
 const { t } = useI18n()
 const { state } = useLingyue()
 const auth = useAuthStore()
-const successful = computed(() => Boolean(auth.user && state.value.successfulUser === auth.user.id))
+const successful = computed(() =>
+  Boolean(auth.user && state.value.successfulUser === String(auth.user.id)),
+)
 useSeoMeta({ title: () => t('lingyue.title') })
 </script>
 

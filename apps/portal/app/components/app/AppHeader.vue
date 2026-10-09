@@ -4,7 +4,6 @@ import { Button as AButton } from 'antdv-next'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
 
 const auth = useAuthStore()
-const settings = useAcademySettings()
 const route = useRoute()
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -19,23 +18,21 @@ watch(
   },
 )
 
-const navItems = computed(() => {
-  const p1Enabled = settings.value?.productPhase === 'p1'
-  return [
-    { to: localePath('/'), label: t('nav.home'), exact: true },
-    { to: localePath('/resources'), label: t('academy.resources'), exact: false },
-    { to: localePath('/research'), label: t('academy.research'), exact: false },
-    { to: localePath('/schools'), label: t('academy.schools'), exact: false },
-    ...(p1Enabled && auth.can('creation:use')
-      ? [{ to: localePath('/admin/creation'), label: t('academy.creation'), exact: false }]
-      : []),
-    { to: localePath('/account'), label: t('academy.account'), exact: false },
-    // 审核与内容管理页面尚未实现；仅向运营/管理员暴露当前真实存在的后台首页。
-    ...(p1Enabled && auth.can('admin:view')
-      ? [{ to: localePath('/admin'), label: t('nav.adminEntry'), exact: false }]
-      : []),
-  ]
-})
+const navItems = computed(() => [
+  { to: localePath('/'), label: t('nav.home'), exact: true },
+  { to: localePath('/resources'), label: t('academy.resources'), exact: false },
+  { to: localePath('/research'), label: t('academy.research'), exact: false },
+  { to: localePath('/schools'), label: t('academy.schools'), exact: false },
+  { to: localePath('/teachers'), label: t('academy.teachers'), exact: false },
+  { to: localePath('/news'), label: t('academy.news'), exact: false },
+  ...(auth.can('creation:use')
+    ? [{ to: localePath('/admin/creation'), label: t('academy.creation'), exact: false }]
+    : []),
+  { to: localePath('/account'), label: t('academy.account'), exact: false },
+  ...(auth.can('admin:view')
+    ? [{ to: localePath('/admin'), label: t('nav.adminEntry'), exact: false }]
+    : []),
+])
 
 function isActive(to: string, exact: boolean): boolean {
   return exact ? route.path === to : route.path.startsWith(to)
@@ -79,8 +76,8 @@ function handleLogout() {
         <!-- Cookie 会话可由 SSR 读取，首屏与客户端使用同一登录态 -->
         <template v-if="auth.isLoggedIn">
           <NuxtLink :to="localePath('/account')" class="app-header__user">
-            <AccountAvatar v-if="auth.user?.avatar" :avatar="auth.user.avatar" />
-            <span>{{ auth.user?.name || t('academy.account') }}</span>
+            <AccountAvatar v-if="auth.user" :avatar-code="auth.user.avatarCode" />
+            <span>{{ auth.user?.nickname || t('academy.account') }}</span>
           </NuxtLink>
           <AButton type="text" @click="handleLogout">
             {{ t('common.logout') }}
@@ -140,7 +137,7 @@ function handleLogout() {
         class="app-header__panel-action"
         @click="handleLogout"
       >
-        {{ t('common.logout') }}（{{ auth.user?.name }}）
+        {{ t('common.logout') }}（{{ auth.user?.nickname }}）
       </AButton>
     </nav>
   </header>

@@ -1,4 +1,4 @@
-import { isApiError } from '@isport/api-client'
+import { isApiError } from '~/api/errors'
 import { enrollCourse } from '~/api/course'
 import { App } from 'antdv-next'
 

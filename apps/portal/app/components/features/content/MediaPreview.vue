@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { isLocalImageUrl, isLocalMediaUrl, type MediaAsset } from '@isport/shared'
+import { isContentAssetUrl, type MediaAsset } from '@isport/shared'
 import { Alert as AAlert, Button as AButton } from 'antdv-next'
 import PdfPreview from './PdfPreview.vue'
 import PreviewFrame from './PreviewFrame.vue'
@@ -12,11 +12,7 @@ const failed = shallowRef(false)
 const playing = shallowRef(false)
 const attempt = shallowRef(0)
 const speed = shallowRef('1')
-const safeSource = computed(() =>
-  props.media.kind === 'image'
-    ? isLocalImageUrl(props.media.url)
-    : isLocalMediaUrl(props.media.url),
-)
+const safeSource = computed(() => isContentAssetUrl(props.media.url))
 function failure() {
   failed.value = true
   playing.value = false
@@ -39,6 +35,7 @@ onBeforeUnmount(() => player.value?.pause())
   <div v-if="media.kind === 'ppt'" class="media-preview__placeholder">
     <strong>{{ media.filename || 'PPT' }}</strong>
     <p>{{ t('media.pptNotice') }}</p>
+    <span v-if="media.pageCount">{{ media.pageCount }}</span>
     <span v-if="media.size">{{ Math.ceil(media.size / 1024) }} KB</span>
   </div>
   <PdfPreview

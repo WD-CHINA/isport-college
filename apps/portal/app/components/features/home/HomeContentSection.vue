@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import type { AcademyContent, Taxonomy } from '@isport/shared'
+import type { WebContentCard } from '@isport/shared'
 import { Button as AButton } from 'antdv-next'
 
 const props = defineProps<{
   title: string
-  items: AcademyContent[]
+  items: WebContentCard[]
   to: string
-  categories?: Taxonomy[]
+  categories?: { id: string; name: string }[]
   category?: string
+  query?: Record<string, string>
 }>()
 const emit = defineEmits<{ select: [category: string] }>()
 const { t } = useI18n()
-const localize = useLocalizedText()
 const localePath = useLocalePath()
 const more = computed(() =>
-  localePath({ path: props.to, query: props.category ? { category: props.category } : {} }),
+  localePath({
+    path: props.to,
+    query: props.query ?? (props.category ? { category: props.category } : {}),
+  }),
 )
 </script>
 
@@ -36,7 +39,7 @@ const more = computed(() =>
         :type="category === item.id ? 'primary' : 'default'"
         :aria-pressed="category === item.id"
         @click="emit('select', item.id)"
-        >{{ localize(item.label) }}</AButton
+        >{{ item.name }}</AButton
       >
     </div>
     <ContentGrid :items="items" />

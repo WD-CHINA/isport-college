@@ -1,5 +1,5 @@
 import { ElementType, parseDocument } from 'htmlparser2'
-import { isLocalImageUrl, safeRichTextHref } from '@isport/shared'
+import { isContentImageUrl, safeRichTextHref } from '@isport/shared'
 
 type ParsedNode = ReturnType<typeof parseDocument>['children'][number]
 export type SafeContentNode =
@@ -74,7 +74,7 @@ export function parseSafeContent(content: string, anchorPrefix = 'article') {
       }
       if (node.name === 'img') {
         const src = node.attribs.src ?? ''
-        if (!isLocalImageUrl(src)) return []
+        if (!isContentImageUrl(src)) return []
         attrs.src = src
         attrs.alt = (node.attribs.alt ?? '').slice(0, 200)
         attrs.loading = 'lazy'

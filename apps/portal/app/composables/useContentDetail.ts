@@ -1,56 +1,70 @@
-import type { ContentChannel, ContentStats, InteractionKind } from '@isport/shared'
-import { isApiError } from '@isport/api-client'
+import { isApiError } from '~/api/errors'
+import type { ContentStats, InteractionKind, WebContentDetail } from '@isport/shared'
+import { toWebChannel } from '~/utils/web-channel'
 
-export function useContentDetail(id: string, channel: ContentChannel) {
+export function useContentDetail(id: string, channel: 'resource' | 'research' | 'school') {
   const academy = useAcademy()
   const auth = useAuthStore()
   const nuxt = useNuxtApp()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const pending = shallowRef(false)
   const interactionFailed = shallowRef(false)
   const viewFailed = shallowRef(false)
-  const mounted = shallowRef(false)
   let disposed = false
-  let eventId = ''
   let reported = false
-  let reporting = false
-  let mutation = 0
-  const key = computed(() => `academy:detail:${channel}:${id}:${auth.user?.id ?? 'guest'}`)
+  const remoteChannel = toWebChannel(channel)
+  const originId = /^[1-9]\d{0,15}$/.test(id) ? Number(id) : 0
+  const key = computed(
+    () => `academy:detail:${locale.value}:${channel}:${id}:${auth.user?.id ?? 'guest'}`,
+  )
   const request = useAsyncData(key, async (_app, { signal }) => {
-    const value = await academy.call('content/detail', { id }, signal)
-    if (value.content.channel !== channel)
-      throw createError({ statusCode: 404, statusMessage: t('detail.notFound') })
-    return value
+    if (!originId) throw createError({ statusCode: 404, statusMessage: t('detail.notFound') })
+    const detail = await academy.content(remoteChannel, originId, signal)
+    const recommendations = await academy.recommend(
+      {
+        channel: detail.channel,
+        origin: detail.origin,
+        originId: detail.originId,
+        categoryCode: detail.channel === 'RESOURCE' ? undefined : detail.categoryCode,
+        limit: 4,
+      },
+      signal,
+    )
+    return { detail, recommendations }
   })
   const notFound = computed(() => {
     const error = request.error.value
     return error?.statusCode === 404 || (isApiError(error) && error.code === 'NOT_FOUND')
   })
-  const stats = computed(() => request.data.value?.stats)
-  function applyStats(value: ContentStats) {
-    if (request.data.value) request.data.value = { ...request.data.value, stats: value }
+  const stats = computed<ContentStats | undefined>(() => {
+    const detail = request.data.value?.detail
+    if (!detail) return undefined
+    return {
+      views: detail.viewCount,
+      likes: detail.likeCount,
+      favorites: detail.favoriteCount,
+      liked: detail.liked,
+      favorited: detail.favorited,
+    }
+  })
+  function patch(detail: WebContentDetail) {
+    if (request.data.value) request.data.value = { ...request.data.value, detail }
   }
   async function reportView() {
-    if (
-      !mounted.value ||
-      reported ||
-      reporting ||
-      !request.data.value ||
-      request.error.value ||
-      disposed
-    )
-      return
-    reporting = true
-    eventId ||= crypto.randomUUID()
+    const detail = request.data.value?.detail
+    if (reported || !detail || request.error.value || disposed) return
+    reported = true
     try {
-      const value = await academy.call('content/view', { id, eventId })
-      reported = true
-      if (!disposed && stats.value) applyStats({ ...stats.value, views: value.views })
+      await academy.view({
+        channel: detail.channel,
+        origin: detail.origin,
+        originId: detail.originId,
+      })
+      if (!disposed) patch({ ...detail, viewCount: detail.viewCount + 1 })
       viewFailed.value = false
     } catch {
+      reported = false
       if (!disposed) viewFailed.value = true
-    } finally {
-      reporting = false
     }
   }
   async function refresh() {
@@ -61,55 +75,42 @@ export function useContentDetail(id: string, channel: ContentChannel) {
     if (!auth.isLoggedIn) {
       auth.openLoginModal({
         reason: 'interaction',
-        onSuccess: async () => {
-          if (!disposed) {
-            await request.refresh()
-            await setInteraction(kind, active)
-          }
+        onSuccess: () => {
+          if (!disposed) return setInteraction(kind, active)
         },
       })
       return
     }
-    const token = auth.session?.token
-    const current = ++mutation
+    const detail = request.data.value?.detail
+    if (!detail) return
     pending.value = true
     interactionFailed.value = false
     try {
-      // 先结束已有查询，防止旧查询覆盖新的关系状态。
-      await request.refresh()
-      if (disposed || auth.session?.token !== token || current !== mutation) return
-      const value = await academy.call('interaction/set', { id, kind, active })
-      if (!disposed && auth.session?.token === token && current === mutation) {
-        applyStats(value)
-        nuxt.runWithContext(() =>
-          clearNuxtData(cacheKey => cacheKey.startsWith('academy:activity:')),
-        )
+      const target = {
+        channel: detail.channel,
+        origin: detail.origin,
+        originId: detail.originId,
       }
+      const result = kind === 'like' ? await academy.like(target) : await academy.favorite(target)
+      if (disposed) return
+      patch({
+        ...detail,
+        ...(kind === 'like'
+          ? { liked: result.active, likeCount: result.count }
+          : { favorited: result.active, favoriteCount: result.count }),
+      })
+      nuxt.runWithContext(() => clearNuxtData(cacheKey => cacheKey.startsWith('academy:activity:')))
     } catch {
-      if (!disposed && current === mutation && auth.session?.token === token)
-        interactionFailed.value = true
+      if (!disposed) interactionFailed.value = true
     } finally {
-      if (current === mutation) pending.value = false
+      pending.value = false
     }
   }
-  watch(
-    () => auth.session?.token,
-    () => {
-      ++mutation
-      pending.value = false
-      interactionFailed.value = false
-    },
-    { flush: 'sync' },
-  )
-  watch(
-    [mounted, request.status],
-    () => {
-      if (!viewFailed.value) void reportView()
-    },
-    { flush: 'post' },
-  )
   onMounted(() => {
-    mounted.value = true
+    void reportView()
+  })
+  watch(request.status, status => {
+    if (status === 'success' && !viewFailed.value) void reportView()
   })
   onScopeDispose(() => {
     disposed = true

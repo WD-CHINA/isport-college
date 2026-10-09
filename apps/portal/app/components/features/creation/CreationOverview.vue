@@ -6,85 +6,34 @@ import CreationTypes from './CreationTypes.vue'
 const { t } = useI18n()
 const localePath = useLocalePath()
 const auth = useAuthStore()
-const academy = useAcademy()
 
-// 概览统计：已发布/草稿箱/审核中数量、最新已发布作品、积分余额与本月收支。
+/** 投稿与积分不在前台接口中，概览只展示占位统计。 */
 const stats = reactive({ published: 0, drafts: 0, pending: 0 })
 const points = reactive({ available: 0, monthGain: 0, monthSpend: 0 })
 const latestWork = shallowRef<Work | null>(null)
 
-async function loadSummary() {
-  if (!auth.isLoggedIn) return
-  try {
-    const [published, drafts, pending] = await Promise.all([
-      academy.call('work/list', { page: 1, pageSize: 1, status: 'published' }),
-      academy.call('work/list', { page: 1, pageSize: 1, status: 'draft' }),
-      academy.call('work/list', { page: 1, pageSize: 1, status: 'pending' }),
-    ])
-    stats.published = published.total
-    stats.drafts = drafts.total
-    stats.pending = pending.total
-    latestWork.value = published.list[0] ?? null
-  } catch {
-    /* 忽略列表加载失败，保持默认 0 */
-  }
-  try {
-    const account = await academy.call('points/account', {})
-    points.available = account.available
-    const now = new Date()
-    const sameMonth = (iso: string) => {
-      const d = new Date(iso)
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
-    }
-    points.monthGain = account.entries
-      .filter(entry => entry.kind === 'reward' && sameMonth(entry.createdAt))
-      .reduce((sum, entry) => sum + entry.amount, 0)
-    points.monthSpend = account.entries
-      .filter(
-        entry => (entry.kind === 'spend' || entry.kind === 'freeze') && sameMonth(entry.createdAt),
-      )
-      .reduce((sum, entry) => sum + Math.abs(entry.amount), 0)
-  } catch {
-    /* P0 或未登录时积分接口会被拒绝，忽略 */
-  }
-}
-
-watch(
-  () => auth.user?.id,
-  () => {
-    void loadSummary()
-  },
-  { immediate: true },
-)
-
-// 游客可浏览概览，涉及个人数据或投稿的动作先唤起登录。
-function requireLogin(redirect: string) {
+function go(path: string) {
+  const target = localePath(path)
   if (!auth.isLoggedIn) {
-    auth.openLoginModal({ reason: 'account', redirect })
-    return false
+    auth.openLoginModal({ reason: 'account', redirect: target })
+    return
   }
-  return true
+  void navigateTo(target)
 }
-
 function goSubmit() {
-  const target = localePath('/admin/works/submit')
-  if (requireLogin(target)) void navigateTo(target)
+  go('/admin/works/submit')
 }
 function goWorks() {
-  const target = localePath('/admin/works')
-  if (requireLogin(target)) void navigateTo(target)
+  go('/admin/works')
 }
 function goPoints() {
-  const target = localePath('/admin/points')
-  if (requireLogin(target)) void navigateTo(target)
+  go('/admin/points')
 }
 function goWork(id: string) {
-  const target = localePath(`/admin/works/${id}`)
-  if (requireLogin(target)) void navigateTo(target)
+  go(`/admin/works/${id}`)
 }
 function onSelectType(kind: string) {
-  const target = localePath(`/admin/works/submit?kind=${kind}`)
-  if (requireLogin(target)) void navigateTo(target)
+  go(`/admin/works/submit?kind=${kind}`)
 }
 </script>
 

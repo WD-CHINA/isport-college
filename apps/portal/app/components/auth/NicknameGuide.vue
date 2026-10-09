@@ -2,9 +2,12 @@
 import { Button as AButton, Modal as AModal } from 'antdv-next'
 const auth = useAuthStore()
 const { t } = useI18n()
-const { pending, error, save } = useProfile()
-async function submit(value: { nickname: string; avatar: string }) {
+const { pending, error, save, skipNickname } = useProfile()
+async function submit(value: { nickname: string; avatarCode: number }) {
   if (await save(value)) auth.nicknameGuideVisible = false
+}
+async function skip() {
+  if (await skipNickname()) auth.nicknameGuideVisible = false
 }
 </script>
 
@@ -24,7 +27,7 @@ async function submit(value: { nickname: string; avatar: string }) {
       :error="error"
       @save="submit"
     />
-    <AButton class="mt-4" type="text" @click="auth.nicknameGuideVisible = false">{{
+    <AButton class="mt-4" type="text" :disabled="pending" @click="skip">{{
       t('academy.skip')
     }}</AButton>
   </AModal>

@@ -19,7 +19,7 @@ const latestLoading = computed(() => latestStatus.value === 'pending')
   <section class="admin-dashboard">
     <AdminPageHeader
       :title="t('nav.dashboard')"
-      :description="t('admin.welcome', { name: auth.user?.name ?? '' })"
+      :description="t('admin.welcome', { name: auth.user?.nickname ?? '' })"
     />
 
     <section class="admin-dashboard__latest">

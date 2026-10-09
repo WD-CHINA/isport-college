@@ -3,7 +3,7 @@ import { Modal as AModal } from 'antdv-next'
 
 const auth = useAuthStore()
 const { t } = useI18n()
-const { form, challenge, sending, submitting, error, remaining, send, submit } = useSmsLogin()
+const { form, sending, submitting, error, remaining, send, submit } = useSmsLogin()
 const visible = computed({
   get: () => auth.loginModalVisible,
   set: value => {
@@ -30,7 +30,6 @@ const visible = computed({
       :submitting="submitting"
       :error="error"
       :remaining="remaining"
-      :demo-code="challenge?.demoCode"
       @send="send"
       @submit="submit"
     />

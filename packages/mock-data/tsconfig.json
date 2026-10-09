@@ -1,4 +1,0 @@
-{
-  "extends": "@isport/tsconfig/base.json",
-  "include": ["src/**/*.ts"]
-}

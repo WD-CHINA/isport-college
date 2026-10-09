@@ -11,7 +11,8 @@ const links = computed(() => [
   { to: localePath('/resources'), label: t('academy.resources') },
   { to: localePath('/research'), label: t('academy.research') },
   { to: localePath('/schools'), label: t('academy.schools') },
-  { to: localePath('/admin/creation'), label: t('academy.creation') },
+  { to: localePath('/teachers'), label: t('academy.teachers') },
+  { to: localePath('/news'), label: t('academy.news') },
   { to: localePath('/legal/terms'), label: t('academy.terms') },
   { to: localePath('/legal/privacy'), label: t('academy.privacy') },
 ])

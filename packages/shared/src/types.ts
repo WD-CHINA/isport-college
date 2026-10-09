@@ -14,5 +14,5 @@ export interface PageResult<T> {
   pageSize: number
 }
 
-/** 演示角色：Mock 用户默认同时拥有 C 端用户与管理员角色 */
+/** 账号角色。前台资料接口不返回角色，管理端能力默认关闭。 */
 export type Role = 'user' | 'admin' | 'reviewer' | 'operator'

@@ -1,9 +1,14 @@
-import type { LoginPayload } from '~/api/auth'
-import type { AcademySession } from '@isport/api-client'
-import { AUTH_COOKIE_NAME, AUTH_SESSION_TTL, hasPermission } from '@isport/shared'
-import type { AcademyUser, Permission } from '@isport/shared'
+import { ApiError } from '~/api/errors'
+import { toWebProfile } from '~/utils/profile'
+import { AUTH_COOKIE_NAME, AUTH_SESSION_TTL } from '@isport/shared'
+import type { Permission, WebProfile, WebSession } from '@isport/shared'
 
 export type AuthGateReason = 'enroll' | 'admin' | 'default' | 'interaction' | 'lingyue' | 'account'
+export interface LoginPayload {
+  phone: string
+  code: string
+  agreed: boolean
+}
 
 /** 登录意图：登录成功后恢复的目标路由或操作 */
 export interface LoginIntent {
@@ -12,46 +17,52 @@ export interface LoginIntent {
   onSuccess?: () => void | Promise<void>
 }
 
+function validProfile(value: unknown): value is WebProfile {
+  if (!value || typeof value !== 'object') return false
+  const profile = value as WebProfile
+  return (
+    typeof profile.id === 'number' &&
+    profile.id > 0 &&
+    typeof profile.phoneMask === 'string' &&
+    typeof profile.nickname === 'string' &&
+    typeof profile.avatarCode === 'number' &&
+    typeof profile.nicknamePromptNeeded === 'boolean'
+  )
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const nuxt = useNuxtApp()
+  const academy = useAcademy()
   let epoch = 0
-  /** Cookie 仅携带演示会话；用户与权限由服务端 token 记录再次校验。 */
-  const sessionCookie = useCookie<AcademySession | null>(AUTH_COOKIE_NAME, {
+  const sessionCookie = useCookie<WebSession | null>(AUTH_COOKIE_NAME, {
     maxAge: AUTH_SESSION_TTL,
     path: '/',
     sameSite: 'lax',
   })
   const candidate = sessionCookie.value
   const validShape =
-    candidate &&
+    !!candidate &&
     typeof candidate.token === 'string' &&
     candidate.token.length > 0 &&
-    candidate.token.length <= 256 &&
-    candidate.user &&
-    typeof candidate.user.id === 'string' &&
-    typeof candidate.user.name === 'string' &&
-    typeof candidate.user.phone === 'string' &&
-    typeof candidate.user.avatar === 'string' &&
-    Array.isArray(candidate.user.roles) &&
-    candidate.user.roles.every(role => typeof role === 'string')
-  const session = shallowRef<AcademySession | null>(validShape ? candidate : null)
+    candidate.token.length <= 4096 &&
+    validProfile(candidate.profile)
+  const session = shallowRef<WebSession | null>(validShape ? candidate : null)
   if (candidate && !validShape) sessionCookie.value = null
   const nicknameGuideVisible = shallowRef(false)
   const logoutConfirmVisible = shallowRef(false)
 
-  const user = computed(() => session.value?.user ?? null)
+  const user = computed(() => session.value?.profile ?? null)
   const isLoggedIn = computed(() => session.value !== null)
-  const isAdmin = computed(() => user.value?.roles.includes('admin') ?? false)
 
-  /** UI 与路由统一通过权限判断；admin 的超级角色能力由共享权限表提供。 */
+  /** 前台资料接口没有角色；已登录仅开放个人中心。 */
   function can(permission: Permission) {
-    return hasPermission(user.value?.roles, permission)
+    return permission === 'account:view' && isLoggedIn.value
   }
+  const isAdmin = computed(() => false)
   function invalidatePrivateData() {
     nuxt.runWithContext(() => clearNuxtData(key => key.startsWith('academy:')))
   }
 
-  /** 全局唯一登录弹窗状态（仅客户端使用，SSR 初始输出不受影响） */
   const loginModalVisible = shallowRef(false)
   const loginIntent = shallowRef<LoginIntent | null>(null)
 
@@ -60,7 +71,6 @@ export const useAuthStore = defineStore('auth', () => {
     loginModalVisible.value = true
   }
 
-  /** 关闭弹窗表示取消当前受保护操作 */
   function closeLoginModal() {
     epoch++
     loginModalVisible.value = false
@@ -69,22 +79,31 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(payload: LoginPayload) {
     const attempt = epoch
-    const next = await nuxt.$academy.call('auth/login', payload)
+    const next = await academy.login(payload)
+    const profile = toWebProfile(next.profile)
+    if (typeof next.token !== 'string' || !next.token || !profile) {
+      throw ApiError.serviceUnavailable('登录响应缺少令牌')
+    }
     if (attempt !== epoch) return null
     invalidatePrivateData()
-    session.value = next
-    sessionCookie.value = next
-    nicknameGuideVisible.value = next.promptNickname
-    return next
+    const stored: WebSession = {
+      token: next.token,
+      profile,
+      newUser: next.newUser === true,
+    }
+    session.value = stored
+    sessionCookie.value = stored
+    nicknameGuideVisible.value = next.profile.nicknamePromptNeeded
+    return stored
   }
 
-  function updateUser(next: AcademyUser, expectedToken = session.value?.token) {
-    if (!session.value || session.value.token !== expectedToken) return
-    session.value = { ...session.value, user: next }
+  function updateUser(value: unknown, expectedToken = session.value?.token) {
+    const profile = toWebProfile(value)
+    if (!profile || !session.value || session.value.token !== expectedToken) return
+    session.value = { ...session.value, profile }
     sessionCookie.value = session.value
   }
 
-  /** 登录成功：恢复路由或受保护操作 */
   async function resolveLoginSuccess() {
     const intent = loginIntent.value
     closeLoginModal()
@@ -94,7 +113,6 @@ export const useAuthStore = defineStore('auth', () => {
     await intent?.onSuccess?.()
   }
 
-  /** 仅清理本地会话（401 响应时由 HTTP 层调用，不再发起 logout 请求） */
   function clearSession() {
     session.value = null
     sessionCookie.value = null
@@ -104,10 +122,9 @@ export const useAuthStore = defineStore('auth', () => {
     invalidatePrivateData()
   }
 
-  /** 显式退出登录：后端失效 token 无论如何都清理本地会话 */
   async function logout() {
     try {
-      await nuxt.$academy.call('auth/logout', {})
+      await academy.logout()
     } finally {
       clearSession()
     }

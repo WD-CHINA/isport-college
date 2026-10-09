@@ -149,7 +149,7 @@ const practiceModeOptions = [
           <AButton v-else @click="coverInput?.click()">{{ t('creation.file.selectFile') }}</AButton>
         </div>
         <p class="submission__hint">
-          {{ t('creation.file.coverLabel') }} · {{ t('creation.file.mockNotice') }}
+          {{ t('creation.file.coverLabel') }}
         </p>
       </AFormItem>
 

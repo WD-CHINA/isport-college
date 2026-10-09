@@ -4,9 +4,11 @@ import { Alert as AAlert, Button as AButton } from 'antdv-next'
 
 const props = defineProps<{ channel: ContentChannel }>()
 const { t } = useI18n()
-const { query, request, taxonomyRequest, update, changePage, retry } = useContentList(props.channel)
+const { query, request, filterRequest, categories, update, changePage, retry } = useContentList(
+  props.channel,
+)
 const { data, status, error } = request
-const { data: taxonomies, error: taxonomyError } = taxonomyRequest
+const { data: resourceFilters, error: filterError } = filterRequest
 const title = computed(() => t(`catalog.channels.${props.channel}`))
 useSeoMeta({ title: () => title.value, description: () => t('catalog.description') })
 await request
@@ -21,15 +23,11 @@ await request
     <ContentFilters
       :model-value="query"
       :channel="channel"
-      :taxonomies="taxonomies ?? []"
+      :categories="categories"
+      :resource-filters="resourceFilters"
       @update:model-value="update"
     />
-    <AAlert
-      v-if="error || taxonomyError"
-      type="error"
-      show-icon
-      :title="t('academy.requestFailed')"
-    >
+    <AAlert v-if="error || filterError" type="error" show-icon :title="t('academy.requestFailed')">
       <template #action
         ><AButton @click="retry">{{ t('catalog.retry') }}</AButton></template
       >
@@ -46,7 +44,7 @@ await request
       <ContentPagination
         v-if="data"
         :total="data.total"
-        :page="query.page ?? 1"
+        :page="query.page"
         :page-size="data.pageSize"
         @change="changePage"
       />

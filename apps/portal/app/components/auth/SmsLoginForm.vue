@@ -11,7 +11,6 @@ defineProps<{
   submitting: boolean
   remaining: number
   error: string
-  demoCode?: string
 }>()
 defineEmits<{ send: []; submit: [] }>()
 const phone = defineModel<string>('phone', { required: true })
@@ -23,8 +22,6 @@ const localePath = useLocalePath()
 
 <template>
   <form class="sms-form" novalidate @submit.prevent="$emit('submit')">
-    <AAlert type="info" :title="t('academy.smsMock')" show-icon />
-    <p v-if="demoCode" data-testid="demo-code">{{ t('academy.demoCode', { code: demoCode }) }}</p>
     <AAlert v-if="error" type="error" :title="error" role="alert" show-icon />
     <label for="login-phone">{{ t('academy.phone') }}</label>
     <AInput

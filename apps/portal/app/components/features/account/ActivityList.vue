@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { ActivityItem, InteractionKind, ContentChannel } from '@isport/shared'
+import type { InteractionKind, WebContentCard } from '@isport/shared'
 import { Button as AButton, Skeleton as ASkeleton } from 'antdv-next'
 import ContentCard from '../content/ContentCard.vue'
 
 const props = defineProps<{
-  items: ActivityItem[]
+  items: WebContentCard[]
   kind: InteractionKind
-  channel: ContentChannel | ''
+  channel: 'resource' | 'research' | 'school' | ''
   loading: boolean
   removing: string
 }>()
@@ -25,17 +25,12 @@ const browsePath = computed(() =>
 <template>
   <ASkeleton v-if="loading" active />
   <div v-else-if="items.length" class="activity-list">
-    <ContentCard v-for="item in items" :key="item.content.id" :content="item.content">
+    <ContentCard v-for="item in items" :key="item.contentKey" :content="item">
       <div class="activity-list__action">
-        <time :datetime="item.createdAt"
-          >{{ t('account.relationTime') }}：{{
-            item.createdAt.slice(0, 19).replace('T', ' ')
-          }}</time
-        >
         <AButton
           :disabled="Boolean(removing)"
-          :loading="removing === item.content.id"
-          @click="emit('remove', item.content.id)"
+          :loading="removing === item.contentKey"
+          @click="emit('remove', item.contentKey)"
           >{{ t(kind === 'favorite' ? 'detail.unfavorite' : 'detail.unlike') }}</AButton
         >
       </div>

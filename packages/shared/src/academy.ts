@@ -1,8 +1,6 @@
 import type { LocalizedText, User } from './entities'
 import type { PageQuery } from './types'
 
-export type ProductPhase = 'p0' | 'p1'
-export type DataSource = 'mock' | 'http'
 export type ContentChannel = 'resource' | 'research' | 'school'
 export type MediaKind = 'video' | 'audio' | 'image' | 'pdf' | 'ppt' | 'article' | 'link'
 export type ContentStatus = 'draft' | 'published' | 'offline' | 'deleted'
@@ -48,6 +46,22 @@ export interface MediaAsset {
   mime?: string
   size?: number
   duration?: number
+  pageCount?: number
+}
+
+/** 教学资源筛选项。`id` 来自接口，不能在页面里写死。 */
+export interface ResourceFilterOption {
+  id: string
+  name: string
+  parentId: string | null
+}
+
+export interface ResourceFilterSet {
+  categoryList: ResourceFilterOption[]
+  secondCategoryList: ResourceFilterOption[]
+  levelList: ResourceFilterOption[]
+  bodyPartList: ResourceFilterOption[]
+  typeList: ResourceFilterOption[]
 }
 
 export interface AcademyContent {
@@ -71,6 +85,10 @@ export interface AcademyContent {
   views: number
   sourceWorkId?: string
   version: number
+  /** 为 false 时不展示点赞和收藏。未返回时保持可互动。 */
+  interactive?: boolean
+  /** 详情里的多条媒体。卡片只使用 `media`。 */
+  mediaList?: MediaAsset[]
 }
 
 export interface ContentQuery extends PageQuery {
@@ -81,6 +99,11 @@ export interface ContentQuery extends PageQuery {
   kind?: MediaKind | 'courseware'
   fitness?: string
   bodyPart?: string
+  /** 教学资源二级分类、水平、部位、类型，取值是筛选项 id。 */
+  secondCategoryId?: string
+  recommendedLevel?: string
+  bodyPartTagId?: string
+  resourceType?: string
 }
 
 export interface ContentStats {
@@ -212,6 +235,38 @@ export interface RecommendationSlots {
   featured: string[]
   popular: string[]
   coCreated: string[]
+}
+
+/** 名师卡片。详情比列表多 `story`。 */
+export interface AcademyTeacher {
+  id: string
+  name: string
+  schoolOrg: string
+  jobTitle: string
+  honorTitle: string
+  avatarUrl: string
+  story: string
+}
+
+/** 行业动态。`detailType` 为 ARTICLE 时渲染正文，为 LINK 时跳转外链。 */
+export interface AcademyNews {
+  id: string
+  categoryCode: string
+  categoryName: string
+  title: string
+  summary: string
+  coverUrl: string
+  detailType: 'ARTICLE' | 'LINK'
+  jumpUrl: string
+  htmlBody: string
+  publishedAt: string
+}
+
+/** 首页水平专区。一组对应一个推荐水平。 */
+export interface HomeLevelGroup {
+  id: string
+  name: string
+  items: AcademyContent[]
 }
 
 export interface ContentReport {

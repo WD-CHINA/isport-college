@@ -45,6 +45,7 @@ const messages: MessageSchema = {
       'Discover teaching resources and share classroom practice, helping every student enjoy movement.',
     heroPrimary: 'Explore Resources',
     featuredTitle: 'Academy Picks',
+    levels: 'Level groups',
     featuredSubtitle: 'Discover ideas worth sharing',
     whyTitle: 'Why Choose Us',
     why1Title: 'Professional Coaches',
@@ -115,15 +116,11 @@ const messages: MessageSchema = {
     gateDefault: 'Sign in to continue',
   },
   academy: {
-    mock: 'Mock demo · Local data only, not a production service',
     requestFailed: 'Request failed. Please try again.',
     phone: 'Mobile number',
     phoneInvalid: 'Enter an 11-digit mainland China mobile number',
     smsCode: 'SMS verification code',
-    codeInvalid: 'Request and enter the six-digit demo code',
-    smsMock:
-      'SMS mock: no real message is sent. Demo accounts: 18800000001 (teacher), ending 02 (reviewer), 03 (operator), 04 (admin).',
-    demoCode: 'Your demo verification code: {code}',
+    codeInvalid: 'Request and enter the six-digit code',
     sendCode: 'Get code',
     retryAfter: 'Resend in {seconds}s',
     agree: 'I have read and agree to',
@@ -159,6 +156,8 @@ const messages: MessageSchema = {
     resources: 'Teaching Resources',
     research: 'Professional Learning',
     schools: 'School Stories',
+    teachers: 'Teachers',
+    news: 'Industry news',
     creation: 'Creation Centre',
     account: 'My Account',
   },
@@ -264,7 +263,7 @@ const messages: MessageSchema = {
     browse: 'Browse content',
   },
   lingyue: {
-    title: 'Lingyue Mock',
+    title: 'Lingyue',
     tools: 'AI Teaching Tools · Simulation',
     lesson: 'AI Lesson Plan',
     unit: 'Unit Design',
@@ -285,8 +284,7 @@ const messages: MessageSchema = {
     comingSoon: 'Coming soon',
     p0Notice:
       'P0 demo: all nine entries are placeholders. No works, teacher profiles or points are created.',
-    p1Notice:
-      'P1 demo: you can save drafts, upload content and submit for review. Review results are simulated by the Mock service.',
+    p1Notice: 'Drafts, uploads and review submission are not part of the public academy API.',
     process: 'Submit → Human review → Publish and share',
     declaration:
       'Only submit original or licensed work. Protect student images and personal information.',
@@ -441,14 +439,12 @@ const messages: MessageSchema = {
       replaceFile: 'Replace',
       selectFile: 'Select file',
       coverLabel: 'Click or drag to upload cover',
-      mockNotice: 'Files are saved in the local demo directory only. No cloud upload is performed.',
       invalidType: 'Unsupported file format',
       tooLarge: 'File exceeds size limit',
     },
   },
   points: {
     title: 'My Points',
-    mockNotice: 'Demo points. No real Lingyue entitlements or exchange rates apply.',
     available: 'Available',
     frozen: 'Frozen',
     entriesTitle: 'Point history',

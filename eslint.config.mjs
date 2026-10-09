@@ -1,10 +1,8 @@
 import { defineConfig } from '@isport/eslint-config'
 
 const runtimePackages = [
-  '@isport/api-client',
   '@isport/design-tokens',
   '@isport/i18n',
-  '@isport/mock-data',
   '@isport/rich-text',
   '@isport/shared',
   '@isport/ui-admin',
@@ -55,7 +53,7 @@ function packageBoundary(files, packageName, allowedPackages = [], extraPatterns
 export default [
   ...defineConfig({ vue: true, tsconfigRootDir: import.meta.dirname }),
   packageBoundary(
-    ['packages/shared/src/**/*.ts'],
+    ['packages/shared/src/**/*.ts', 'packages/shared/test/**/*.ts'],
     '@isport/shared',
     [],
     [
@@ -95,11 +93,6 @@ export default [
     ],
   ),
   packageBoundary(['packages/i18n/src/**/*.ts'], '@isport/i18n', ['@isport/shared']),
-  packageBoundary(['packages/mock-data/src/**/*.ts'], '@isport/mock-data', ['@isport/shared']),
-  packageBoundary(['packages/api-client/src/**/*.ts'], '@isport/api-client', [
-    '@isport/shared',
-    '@isport/mock-data',
-  ]),
   packageBoundary(['packages/unocss-preset/src/**/*.ts'], '@isport/unocss-preset', [
     '@isport/design-tokens',
   ]),
@@ -112,24 +105,18 @@ export default [
     '@isport/design-tokens',
     '@isport/ui-core',
   ]),
-  packageBoundary(['packages/rich-text/src/**/*.{ts,tsx,vue}'], '@isport/rich-text', [
-    '@isport/shared',
-    '@isport/design-tokens',
-    '@isport/ui-core',
-  ]),
+  packageBoundary(
+    ['packages/rich-text/src/**/*.{ts,tsx,vue}', 'packages/rich-text/test/**/*.ts'],
+    '@isport/rich-text',
+    ['@isport/shared', '@isport/design-tokens', '@isport/ui-core'],
+  ),
   {
     files: ['apps/portal/app/**/*.{ts,tsx,vue}'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
-          patterns: [
-            packagePrivateImports,
-            {
-              group: ['@isport/api-client/mock', '@isport/api-client/mock/**', '@isport/mock-data'],
-              message: '浏览器应用不得导入服务端 Mock 实现；仅 Portal server 可以使用该入口。',
-            },
-          ],
+          patterns: [packagePrivateImports],
         },
       ],
     },
