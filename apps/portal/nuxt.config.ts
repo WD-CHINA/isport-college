@@ -1,7 +1,5 @@
 import { LOCALE_COOKIE_NAME, LOCALE_URL_CODES, LOCALE_URL_PREFIXES } from '@isport/shared'
 
-/** 前台直接请求学苑 `/api/v1`。地址由 NUXT_PUBLIC_API_BASE 注入。 */
-
 /**
  * 管理端只做 CSR：不直出页面内容。
  * 禁止收录的响应头由 `server/middleware/academy-gate.ts` 按归一化路径统一输出，
@@ -17,15 +15,31 @@ const adminRouteRules = Object.fromEntries(
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-18',
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
+
+    timeline: {
+      enabled: true,
+    },
+  },
   components: false,
   modules: ['@pinia/nuxt', '@unocss/nuxt', '@nuxtjs/i18n', '@antdv-next/nuxt'],
   css: ['normalize.css', '@isport/design-tokens/css-vars', '~/assets/css/main.scss'],
+  nitro: {
+    devProxy: {
+      // h3 会去掉匹配前缀，因此把前缀放进 target，避免 /api/v1 变成 /v1。
+      '/api': { target: `${process.env.NUXT_API_BASE}/api`, changeOrigin: true },
+      '/statics': { target: `${process.env.NUXT_API_BASE}/statics`, changeOrigin: true },
+    },
+  },
   runtimeConfig: {
     public: {
       /** 部署环境：非 production 环境全站禁止收录 */
       siteEnv: 'development',
-      /** 学苑前台根地址，例如 http://10.9.0.26:8090 */
+      /**
+       * 空或 `/`：请求当前站点，开发由 devProxy 转发，生产由 Nginx 转发。
+       * 绝对地址：测试或直连时使用，不经过开发服务器代理。
+       */
       apiBase: '',
     },
   },

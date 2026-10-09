@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "nuxi dev",
-    "build": "nuxi build",
+    "dev": "nuxi dev --dotenv .env.development",
+    "build": "nuxi build --dotenv .env.production",
     "postinstall": "nuxi prepare",
     "lint": "eslint .",
     "typecheck": "nuxi typecheck",

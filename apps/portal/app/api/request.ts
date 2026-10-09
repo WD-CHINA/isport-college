@@ -62,6 +62,7 @@ export function createRequest(options: RequestOptions): ApiRequest {
       if (controller.signal.aborted) throw controller.signal.reason
       const response = await (options.fetch ?? fetch)(url, {
         method,
+        credentials: 'omit',
         // h3 event.fetch 通过对象展开合并头部；Headers 实例会丢失 Bearer 与语言。
         headers: Object.fromEntries(headers),
         body: body === undefined ? undefined : JSON.stringify(body),

@@ -1,10 +1,16 @@
 import { safeExternalUrl } from './academy'
 
+/** 学苑相对静态资源。拒绝 `..`，避免路径跳出 /statics。 */
+function isAcademyStaticPath(value: string): boolean {
+  return /^\/statics\/[a-zA-Z0-9/_\-.%]+$/.test(value) && !value.includes('..')
+}
+
 /** 站内附件路径。远程地址另由 isPublicHttpUrl 判断。 */
 export function isLocalMediaUrl(value: string): boolean {
   return (
     /^\/api\/academy\/files\/[a-zA-Z0-9-]+$/.test(value) ||
-    /^\/media\/[a-zA-Z0-9_-]+\.(?:png|jpe?g|webp|mp4|webm|wav|mp3|ogg|pdf)$/i.test(value)
+    /^\/media\/[a-zA-Z0-9_-]+\.(?:png|jpe?g|webp|mp4|webm|wav|mp3|ogg|pdf)$/i.test(value) ||
+    isAcademyStaticPath(value)
   )
 }
 

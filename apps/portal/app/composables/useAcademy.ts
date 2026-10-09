@@ -29,8 +29,12 @@ export function useAcademy() {
   const auth = useAuthStore(nuxtApp.$pinia)
   const route = nuxtApp.$router.currentRoute
 
-  const requestPath = import.meta.server ? useRequestURL().pathname : ''
-  const requestFetch = import.meta.server ? useRequestEvent()?.fetch : undefined
+  const configuredBase = useRuntimeConfig().public.apiBase
+  const directApi = /^https?:\/\//i.test(configuredBase)
+  const requestURL = import.meta.server ? useRequestURL() : undefined
+  const requestPath = requestURL?.pathname ?? ''
+  // 绝对地址直连。同源地址在开发环境进入 Nitro devProxy，生产由 Nginx 转发。
+  const requestFetch = directApi && import.meta.server ? useRequestEvent()?.fetch : undefined
   const fetchImpl = requestFetch
     ? (input: RequestInfo | URL, init?: RequestInit) =>
         requestFetch(input instanceof URL ? input.href : String(input), {
@@ -47,7 +51,9 @@ export function useAcademy() {
   const academy = createAcademyDataClient(
     createAcademyClient(
       createRequest({
-        baseURL: useRuntimeConfig().public.apiBase,
+        baseURL: directApi
+          ? configuredBase
+          : (requestURL?.origin ?? (import.meta.client ? window.location.origin : '')),
         getToken: () => auth.session?.token,
         getLocale: () => localeFromPath(import.meta.client ? route.value.path : requestPath),
         fetch: fetchImpl,

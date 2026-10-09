@@ -4,7 +4,7 @@
 
 ## 数据与部署边界
 
-浏览器与 SSR 都直连 `NUXT_PUBLIC_API_BASE` 的 `/api/v1`，响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。浏览器访问接口与媒体域需要对应 CORS 配置。生产应用没有同源业务 mock。
+开发环境由 Nuxt 开发服务器的 `nitro.devProxy` 把 `/api` 与 `/statics` 转发到 `.env.development` 的 `NUXT_API_BASE`。生产环境请求当前站点相对路径，由 Nginx 转发。`NUXT_PUBLIC_API_BASE` 为绝对地址时改为直连，供测试使用。响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。生产应用没有同源业务 mock。
 
 ```text
 pages → Feature → domain composable
@@ -17,7 +17,7 @@ pages → Feature → domain composable
                      ↓
                  api/request（HTTP、信封、鉴权、语言、超时与取消）
                      ↓
-                 外部学苑 /api/v1
+                 开发：Nitro devProxy；生产：当前站点由 Nginx 转发；测试可直连绝对地址
 ```
 
 `api/academy` 中的 TypeScript 类型描述预期协议；运行时验证由调用侧适配器负责。成功 HTTP 响应必须具有完整信封，列表、首页、枚举、计数和媒体字段通过验证后才进入展示组件。登录和资料使用 `utils/profile` 整理。
@@ -95,7 +95,8 @@ Turbo 将根 ESLint、Stylelint、Prettier 配置和架构规则列为全局缓�
 
 | 环境变量               | 用途                                                             |
 | ---------------------- | ---------------------------------------------------------------- |
-| `NUXT_PUBLIC_API_BASE` | 必填，学苑前台根地址；缺失时启动检查失败                         |
+| `NUXT_API_BASE`        | 仅开发服务器代理上游，写在 `.env.development`                    |
+| `NUXT_PUBLIC_API_BASE` | 空或 `/` 表示当前站点；绝对地址表示直连。非法绝对地址启动失败    |
 | `NUXT_PUBLIC_SITE_ENV` | 默认 development；production 启用 Secure Cookie 并允许公开页收录 |
 
 ## 验收

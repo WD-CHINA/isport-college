@@ -11,5 +11,9 @@ export function resolveApiUrl(value: unknown, baseURL: string): string {
 
 export function useApiUrl() {
   const baseURL = useRuntimeConfig().public.apiBase
-  return (value: unknown) => resolveApiUrl(value, baseURL)
+  return (value: unknown) => {
+    // 同源部署保留接口返回的 /statics 路径，由开发代理或 Nginx 转发。
+    if (!/^https?:\/\//i.test(baseURL)) return typeof value === 'string' ? value.trim() : ''
+    return resolveApiUrl(value, baseURL)
+  }
 }
