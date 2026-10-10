@@ -23,7 +23,7 @@ const kind = computed(() => {
     LINK: 'link',
     ARTICLE: 'article',
   } as const
-  return kinds[props.content.detailType] ?? 'article'
+  return kinds[props.content.detailType]
 })
 const published = computed(() => formatPublishedAt(props.content.publishedAt))
 watch(

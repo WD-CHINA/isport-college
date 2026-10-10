@@ -23,59 +23,29 @@ const secondCategories = computed(() =>
   ),
 )
 const fields = computed(() => {
-  if (!resource.value) return []
-  const all = { value: '', label: t('common.all') }
   const filters = props.resourceFilters
-  if (!filters) return []
-  const named = (items: { id: string; name: string }[]) =>
-    items.map(item => ({ value: item.id, label: item.name }))
-  return [
-    secondCategories.value.length
-      ? {
-          key: 'secondCategoryId' as const,
-          label: t('catalog.category'),
-          options: [all, ...named(secondCategories.value)],
-        }
-      : undefined,
-    filters.levelList.length
-      ? {
-          key: 'recommendedLevel' as const,
-          label: t('catalog.level'),
-          options: [all, ...named(filters.levelList)],
-        }
-      : undefined,
-    filters.typeList.length
-      ? {
-          key: 'resourceType' as const,
-          label: t('catalog.kind'),
-          options: [all, ...named(filters.typeList)],
-        }
-      : undefined,
-    filters.bodyPartList.length
-      ? {
-          key: 'bodyPartTagId' as const,
-          label: t('catalog.bodyPart'),
-          options: [all, ...named(filters.bodyPartList)],
-        }
-      : undefined,
-  ].filter(item => item !== undefined)
+  if (!resource.value || !filters) return []
+  const definitions = [
+    { key: 'secondCategoryId', label: 'category', items: secondCategories.value },
+    { key: 'recommendedLevel', label: 'level', items: filters.levelList },
+    { key: 'resourceType', label: 'kind', items: filters.typeList },
+    { key: 'bodyPartTagId', label: 'bodyPart', items: filters.bodyPartList },
+  ] as const
+  return definitions
+    .filter(field => field.items.length)
+    .map(field => ({
+      key: field.key,
+      label: t(`catalog.${field.label}`),
+      options: [
+        { value: '', label: t('common.all') },
+        ...field.items.map(item => ({ value: item.id, label: item.name })),
+      ],
+    }))
 })
-function set(field: keyof WebListQuery, value: unknown) {
-  const next: WebListQuery = { ...model.value, page: 1 }
+function set(field: Exclude<keyof WebListQuery, 'page'>, value: unknown) {
   const text = typeof value === 'string' ? value : ''
-  if (field === 'category') {
-    next.category = text || undefined
-    next.secondCategoryId = undefined
-  } else if (field === 'keyword') {
-    next.keyword = text || undefined
-  } else if (
-    field === 'secondCategoryId' ||
-    field === 'recommendedLevel' ||
-    field === 'bodyPartTagId' ||
-    field === 'resourceType'
-  ) {
-    next[field] = text || undefined
-  }
+  const next: WebListQuery = { ...model.value, [field]: text || undefined, page: 1 }
+  if (field === 'category') next.secondCategoryId = undefined
   model.value = next
 }
 function reset() {
@@ -118,7 +88,7 @@ function reset() {
       <label v-for="field in fields" :key="field.key" class="content-filters__field">
         <span>{{ field.label }}</span>
         <ASelect
-          :value="String(model[field.key] ?? '')"
+          :value="model[field.key] ?? ''"
           :options="field.options"
           :aria-label="field.label"
           @change="value => set(field.key, value)"

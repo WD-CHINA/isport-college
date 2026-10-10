@@ -40,7 +40,7 @@ function toAsset(item: WebMediaItem): MediaAsset {
 const mediaItems = computed(() => {
   const detail = data.value?.detail
   if (!detail || detail.detailType === 'ARTICLE' || detail.detailType === 'LINK') return []
-  return (detail.mediaList ?? []).map(toAsset)
+  return detail.mediaList.map(toAsset)
 })
 const externalUrl = computed(() => {
   const url = apiUrl(data.value?.detail.jumpUrl)
@@ -91,7 +91,7 @@ if (import.meta.server && notFound.value) {
         </template>
         <template #interactions>
           <InteractionBar
-            v-if="stats && data.detail.interactive !== false"
+            v-if="stats && data.detail.interactive"
             :stats="stats"
             :pending="pending || status === 'pending'"
             @change="setInteraction"

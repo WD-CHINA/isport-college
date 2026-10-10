@@ -35,6 +35,7 @@ function context(id: number) {
 function activate(value: ReturnType<typeof context>) {
   current = value
   setActivePinia(value.pinia)
+  vi.stubGlobal('fetch', value.fetch)
 }
 function deferred<T>() {
   let resolve!: (value: T) => void
@@ -54,13 +55,23 @@ beforeEach(() => {
     public: { apiBase: 'http://localhost:3200', siteEnv: 'test' },
   }))
   vi.stubGlobal('useRequestURL', () => new URL('http://localhost/en/resources'))
-  vi.stubGlobal('useRequestEvent', () => ({ fetch: current.fetch }))
   vi.stubGlobal('clearNuxtData', vi.fn())
   vi.stubGlobal('navigateTo', vi.fn())
   activate(context(1))
 })
 
 describe('请求与会话隔离', () => {
+  it.each(['', '/', 'http://api.example/'])('SSR 支持同源和绝对接口地址 %s', async apiBase => {
+    vi.stubGlobal('useRuntimeConfig', () => ({ public: { apiBase, siteEnv: 'test' } }))
+    await useAcademy().me()
+    const [url, init] = current.fetch.mock.calls[0]!
+    expect(String(url)).toBe(
+      `${apiBase.startsWith('http') ? 'http://api.example' : 'http://localhost'}/api/v1/me`,
+    )
+    expect(init?.credentials).toBe('omit')
+    expect(new Headers(init?.headers).get('cookie')).toBeNull()
+    expect(new Headers(init?.headers).get('authorization')).toBe('Bearer token-1')
+  })
   it('交错 SSR 请求的 401 只清除自己的 Pinia 会话', async () => {
     const a = current
     const delayed = deferred<Response>()
@@ -101,8 +112,18 @@ describe('请求与会话隔离', () => {
   })
   it('匿名请求的晚到 401 不清除已登录会话', () => {
     const auth = useAuthStore()
-    auth.clearSession(undefined)
+    auth.clearSessionIfTokenMatches(undefined)
     expect(auth.session?.token).toBe('token-1')
+  })
+  it('主动清理与令牌匹配清理有明确的独立行为', () => {
+    const auth = useAuthStore()
+    auth.clearSessionIfTokenMatches('old-token')
+    expect(auth.session?.token).toBe('token-1')
+    auth.clearSessionIfTokenMatches('token-1')
+    expect(auth.session).toBeNull()
+    auth.setSession(session(2))
+    auth.clearSession()
+    expect(auth.session).toBeNull()
   })
   it('令牌不进入 Pinia SSR payload', () => {
     const auth = useAuthStore()

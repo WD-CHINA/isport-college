@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import ContentCard from '~/components/features/content/ContentCard.vue'
+import AppEmpty from '~/components/app/AppEmpty.vue'
 import type { WebContentCard } from '@isport/shared'
-import { Empty as AEmpty, Skeleton as ASkeleton } from 'antdv-next'
+import { Skeleton as ASkeleton } from 'antdv-next'
 
 defineProps<{ items: WebContentCard[]; loading?: boolean }>()
 const { t } = useI18n()
@@ -12,7 +13,7 @@ const { t } = useI18n()
     <template v-if="loading"><ASkeleton v-for="index in 4" :key="index" active /></template>
     <ContentCard v-for="item in loading ? [] : items" :key="item.contentKey" :content="item" />
   </div>
-  <AEmpty v-if="!loading && !items.length" :description="t('catalog.noResults')" />
+  <AppEmpty v-if="!loading && !items.length" :description="t('catalog.noResults')" />
 </template>
 
 <style scoped>

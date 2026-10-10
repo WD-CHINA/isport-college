@@ -4,6 +4,11 @@ import { resolveApiUrl } from '../app/utils/api-url'
 import { toWebProfile } from '../app/utils/profile'
 
 describe('展示层整理学苑响应', () => {
+  it.each(['', '/'])('同源部署保留静态资源相对路径 %s', baseURL => {
+    expect(resolveApiUrl(' /statics/demo.png ', baseURL)).toBe('/statics/demo.png')
+    expect(resolveApiUrl('https://cdn.example/a.png', baseURL)).toBe('https://cdn.example/a.png')
+    expect(resolveApiUrl(undefined, baseURL)).toBe('')
+  })
   it('相对媒体地址补到接口域名', () => {
     expect(resolveApiUrl('/statics/video/learnAudio/demo.MP3', 'http://10.9.0.26:8090/')).toBe(
       'http://10.9.0.26:8090/statics/video/learnAudio/demo.MP3',

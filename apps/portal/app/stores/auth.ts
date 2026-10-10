@@ -56,13 +56,16 @@ export const useAuthStore = defineStore('auth', () => {
     sessionCookie.value = storedSession.value
     return true
   }
-  function clearSession(...args: [expectedToken?: string]) {
-    const expectedToken = args.length === 0 ? storedSession.value?.token : args[0]
-    if (!storedSession.value || storedSession.value.token !== expectedToken) return
+  function clearSession() {
+    if (!storedSession.value) return
     revision.value++
     storedSession.value = null
     sessionCookie.value = null
     invalidateData()
+  }
+  /** 只清理发起请求的会话；匿名请求和旧令牌不能影响新登录。 */
+  function clearSessionIfTokenMatches(expectedToken: string | undefined) {
+    if (storedSession.value?.token === expectedToken) clearSession()
   }
   function can(permission: Permission) {
     return hasWebPermission(user.value, permission)
@@ -76,5 +79,6 @@ export const useAuthStore = defineStore('auth', () => {
     setSession,
     updateUser,
     clearSession,
+    clearSessionIfTokenMatches,
   }
 })

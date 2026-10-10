@@ -4,7 +4,7 @@
 
 本项目是 pnpm + Turborepo Monorepo。`apps/portal` 是 Nuxt 4 应用：页面、布局、状态和组件位于 `app/`，Nitro 处理器位于 `server/`，静态资源位于 `public/`，Playwright 用例位于 `e2e/`。
 
-通用能力放在 `packages/`：`ui-core` 和 `ui-admin` 提供 Vue 组件，`design-tokens` 生成主题资源，`shared` 仅存放平台无关的 TypeScript。前台请求放在 `apps/portal/app/api`：`request.ts` 只负责地址、鉴权头、语言头和 `{status,message,data}` 信封；`academy.ts` 只声明学苑路径和参数。响应校验放在调用侧 `utils/academy-data.ts`、`web-response.ts` 和资料整理函数中。`useAcademy()` 在 setup 中为当前请求创建客户端，服务端使用这次请求的 fetch，并显式绑定当前 Nuxt 的 Pinia。新增模块前先确认 `docs/architecture.md` 中的职责与依赖方向。
+通用能力放在 `packages/`：`ui-core` 和 `ui-admin` 提供 Vue 组件，`design-tokens` 生成主题资源，`shared` 仅存放平台无关的 TypeScript。前台请求放在 `apps/portal/app/api`：`request.ts` 只负责地址、鉴权头、语言头和 `{status,message,data}` 信封；`academy.ts` 只声明学苑路径和参数。响应校验放在调用侧 `utils/academy-data.ts`、`web-response.ts` 和资料整理函数中。`useAcademy()` 在 setup 中为当前请求创建客户端，并显式绑定当前 Nuxt 的 Pinia；SSR 与浏览器统一使用标准 fetch，只发送当前会话的 Bearer，不继承入站 Cookie/Authorization。新增模块前先确认 `docs/architecture.md` 中的职责与依赖方向。
 
 ## 架构边界（强制）
 

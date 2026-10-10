@@ -1,8 +1,16 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
+
+function collectHydrationErrors(page: Page) {
+  const errors: string[] = []
+  page.on('console', message => {
+    if (/hydration.*mismatch/i.test(message.text())) errors.push(message.text())
+  })
+  return errors
+}
 
 /** C 端 SSR：首屏 HTML 应直接包含渲染内容，无需等待 JS */
 test('首页 SSR 直出课程内容', async ({ request }) => {
-  // Accept-Language 不参与语言判定：SSR 首屏恒为默认中文
+  // 明确使用中文，避免根路径的浏览器语言检测触发重定向。
   const response = await request.get('/', { headers: { 'Accept-Language': 'zh-CN' } })
   expect(response.ok()).toBeTruthy()
   const html = await response.text()
@@ -52,4 +60,54 @@ test('SSR 的英文语言头到达外部 API', async ({ request }) => {
   expect(response.status()).toBe(200)
   expect(html).toContain('Resource 1')
   expect(html).not.toContain('资源示例 1')
+})
+
+for (const [prefix, language, emptyTitle] of [
+  ['', 'zh-CN', '暂无数据'],
+  ['/en', 'en-US', 'No data'],
+] as const) {
+  for (const path of ['/resources?keyword=no-match', '/teachers?page=2', '/news?page=2']) {
+    test(`${language} ${path} 空状态的 SSR 与水合文案一致`, async ({ page }) => {
+      const hydrationErrors = collectHydrationErrors(page)
+      const response = await page.goto(`${prefix}${path}`)
+      expect(await response!.text()).toContain(`<title>${emptyTitle}</title>`)
+      await expect(page.locator('.ant-empty svg title')).toHaveText(emptyTitle)
+      await expect(page.locator('html')).toHaveAttribute('lang', language)
+      await expect(page.locator('header select')).toHaveValue(prefix ? 'en' : 'zh')
+      expect(hydrationErrors).toEqual([])
+    })
+  }
+}
+
+test('空状态切换语言及刷新后保持一致', async ({ page }) => {
+  const hydrationErrors = collectHydrationErrors(page)
+  await page.goto('/resources?keyword=no-match')
+  await expect(page.locator('.ant-empty svg title')).toHaveText('暂无数据')
+  await page.locator('header select').selectOption('en')
+  await expect(page).toHaveURL('/en/resources?keyword=no-match')
+  await expect(page.locator('.ant-empty svg title')).toHaveText('No data')
+  await expect(page.locator('h1')).toHaveText('Teaching Resources')
+  await page.reload()
+  await expect(page.locator('.ant-empty svg title')).toHaveText('No data')
+  await page.locator('header select').selectOption('zh')
+  await expect(page).toHaveURL('/resources?keyword=no-match')
+  await expect(page.locator('.ant-empty svg title')).toHaveText('暂无数据')
+  await expect(page.locator('h1')).toHaveText('教学资源')
+  expect(hydrationErrors).toEqual([])
+})
+
+test('首页多个空分区在语言切换后分别保留插图', async ({ page }) => {
+  const hydrationErrors = collectHydrationErrors(page)
+  await page.goto('/')
+  const titles = page.locator('.ant-empty svg title')
+  await expect(titles).toHaveText(['暂无数据', '暂无数据'])
+  await page.locator('header select').selectOption('en')
+  await expect(page).toHaveURL('/en')
+  await expect(titles).toHaveText(['No data', 'No data'])
+  await page.reload()
+  await expect(titles).toHaveText(['No data', 'No data'])
+  await page.locator('header select').selectOption('zh')
+  await expect(page).toHaveURL('/')
+  await expect(titles).toHaveText(['暂无数据', '暂无数据'])
+  expect(hydrationErrors).toEqual([])
 })

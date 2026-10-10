@@ -20,7 +20,7 @@ function localeFromPath(path: string) {
 
 /**
  * 当前请求的学苑客户端。在 setup 或路由中间件中调用。
- * 同一次 Nuxt 请求内复用，服务端使用这次请求自己的 fetch。
+ * 同一次 Nuxt 请求内复用；鉴权只使用当前会话的 Bearer。
  * 令牌在发送时再读取，避免和登录状态互相初始化。
  */
 export function useAcademy() {
@@ -30,37 +30,15 @@ export function useAcademy() {
   const route = nuxtApp.$router.currentRoute
 
   const configuredBase = useRuntimeConfig().public.apiBase
-  const directApi = /^https?:\/\//i.test(configuredBase)
-  const requestURL = import.meta.server ? useRequestURL() : undefined
-  const requestPath = requestURL?.pathname ?? ''
-  // 绝对地址直连。同源地址在开发环境进入 Nitro devProxy，生产由 Nginx 转发。
-  const requestFetch = directApi && import.meta.server ? useRequestEvent()?.fetch : undefined
-  const fetchImpl = requestFetch
-    ? (input: RequestInfo | URL, init?: RequestInit) =>
-        requestFetch(input instanceof URL ? input.href : String(input), {
-          ...init,
-          // 外部接口仅使用当前会话的 Bearer，不能继承入站 Cookie/Authorization。
-          headers: {
-            cookie: '',
-            authorization: '',
-            ...Object.fromEntries(new Headers(init?.headers)),
-          },
-        })
-    : undefined
-
-  const academy = createAcademyDataClient(
-    createAcademyClient(
-      createRequest({
-        baseURL: directApi
-          ? configuredBase
-          : (requestURL?.origin ?? (import.meta.client ? window.location.origin : '')),
-        getToken: () => auth.session?.token,
-        getLocale: () => localeFromPath(import.meta.client ? route.value.path : requestPath),
-        fetch: fetchImpl,
-        onUnauthorized: token => auth.clearSession(token),
-      }),
-    ),
-  )
+  const requestURL = useRequestURL()
+  // 同源地址由开发代理或 Nginx 转发；绝对地址按配置直连。
+  const request = createRequest({
+    baseURL: new URL(configuredBase || '/', requestURL).origin,
+    getToken: () => auth.session?.token,
+    getLocale: () => localeFromPath(import.meta.server ? requestURL.pathname : route.value.path),
+    onUnauthorized: token => auth.clearSessionIfTokenMatches(token),
+  })
+  const academy = createAcademyDataClient(createAcademyClient(request))
   nuxtApp.provide('academy', academy)
   return academy
 }

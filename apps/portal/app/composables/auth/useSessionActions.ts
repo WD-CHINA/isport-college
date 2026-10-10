@@ -27,7 +27,7 @@ export function useSessionActions() {
     try {
       await academy.logout()
     } finally {
-      auth.clearSession(token)
+      auth.clearSessionIfTokenMatches(token)
     }
   }
   return { login, logout }

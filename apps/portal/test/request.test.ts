@@ -44,7 +44,7 @@ describe('createRequest', () => {
     expect(onUnauthorized).toHaveBeenCalledTimes(1)
   })
 
-  it('业务错误按文案映射 NOT_FOUND', async () => {
+  it('400 保留为校验失败，请求层不解释业务文案', async () => {
     const request = createRequest({
       baseURL: 'http://10.9.0.26:8090',
       fetch: async () =>
@@ -55,7 +55,9 @@ describe('createRequest', () => {
     })
 
     await expect(request('GET', '/resources/1')).rejects.toBeInstanceOf(ApiError)
-    await expect(request('GET', '/resources/1')).rejects.toMatchObject({ code: 'NOT_FOUND' })
+    await expect(request('GET', '/resources/1')).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+    })
   })
 
   it('保留 AbortError', async () => {
@@ -70,7 +72,7 @@ describe('createRequest', () => {
         }),
     })
     const controller = new AbortController()
-    const promise = request('GET', '/home', undefined, undefined, controller.signal)
+    const promise = request('GET', '/home', { signal: controller.signal })
     const assertion = expect(promise).rejects.toMatchObject({ name: 'AbortError' })
     controller.abort()
     await assertion
@@ -78,6 +80,16 @@ describe('createRequest', () => {
 })
 
 describe('请求边界回归', () => {
+  it('已取消的请求不发送接口', async () => {
+    const fetch = vi.fn()
+    const request = createRequest({ baseURL: 'http://localhost', fetch })
+    const controller = new AbortController()
+    controller.abort()
+    await expect(request('GET', '/home', { signal: controller.signal })).rejects.toMatchObject({
+      name: 'AbortError',
+    })
+    expect(fetch).not.toHaveBeenCalled()
+  })
   it.each([
     [404, 'Not found', 'NOT_FOUND', 404],
     [503, 'Service unavailable', 'SERVICE_UNAVAILABLE', 503],
@@ -144,7 +156,7 @@ describe('请求边界回归', () => {
         }),
     })
     const controller = new AbortController()
-    const pending = request('GET', '/me', undefined, undefined, controller.signal)
+    const pending = request('GET', '/me', { signal: controller.signal })
     const assertion = expect(pending).rejects.toMatchObject({ name: 'AbortError' })
     controller.abort()
     await assertion

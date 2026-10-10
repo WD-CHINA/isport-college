@@ -214,7 +214,8 @@ const server = createServer(async (req, res) => {
     if (path === '/home')
       return send(res, {
         featuredList: [card(1, 'RESOURCE', english)],
-        hotList: [card(2, 'RESOURCE', english)],
+        // 保留多个空分区，验证首页并列空状态和语言切换的水合行为。
+        hotList: [],
         resourceGroupList: [
           { groupId: 1, groupName: '体能', itemList: [card(1, 'RESOURCE', english)] },
         ],
@@ -222,10 +223,12 @@ const server = createServer(async (req, res) => {
           { groupId: 3, groupName: '水平三', itemList: [card(3, 'RESOURCE', english)] },
         ],
         researchList: [card(1, 'RESEARCH', english)],
-        schoolList: [card(1, 'SCHOOL', english)],
+        schoolList: [],
         teacherList: [teacher],
         newsList: [news],
       })
+    if (/^\/(resources|research|schools|teachers|news)\/998$/.test(path))
+      return send(res, null, 400, '内容不存在或已下架')
     const match = /^\/(resources|research|schools)(?:\/(\d+))?$/.exec(path)
     if (match) {
       const channel = { resources: 'RESOURCE', research: 'RESEARCH', schools: 'SCHOOL' }[match[1]]

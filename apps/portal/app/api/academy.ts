@@ -24,95 +24,84 @@ const CONTENT_PATH: Record<WebChannel, string> = {
 export function createAcademyClient(request: ApiRequest) {
   return {
     sendSms(params: { phone: string }) {
-      return request('POST', '/auth/sms', params)
+      return request('POST', '/auth/sms', { body: params })
     },
     login(params: { phone: string; code: string; agreed: boolean }) {
-      return request('POST', '/auth/login', params) as Promise<WebLoginResult>
+      return request('POST', '/auth/login', { body: params }) as Promise<WebLoginResult>
     },
     logout() {
       return request('POST', '/auth/logout')
     },
     me(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request('GET', '/me', undefined, params, signal) as Promise<WebProfile>
+      return request('GET', '/me', { query: params, signal }) as Promise<WebProfile>
     },
     updateNickname(params: { nickname: string }) {
-      return request('PUT', '/me/nickname', params) as Promise<WebProfile>
+      return request('PUT', '/me/nickname', { body: params }) as Promise<WebProfile>
     },
     updateAvatar(params: { avatarCode: number }) {
-      return request('PUT', '/me/avatar', params) as Promise<WebProfile>
+      return request('PUT', '/me/avatar', { body: params }) as Promise<WebProfile>
     },
     dismissNicknamePrompt() {
       return request('POST', '/me/nickname-prompt')
     },
     avatars(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request('GET', '/avatars', undefined, params, signal) as Promise<number[]>
+      return request('GET', '/avatars', { query: params, signal }) as Promise<number[]>
     },
     home(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request('GET', '/home', undefined, params, signal) as Promise<WebHome>
+      return request('GET', '/home', { query: params, signal }) as Promise<WebHome>
     },
     resourceFilters(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request(
-        'GET',
-        '/resources/filters',
-        undefined,
-        params,
+      return request('GET', '/resources/filters', {
+        query: params,
         signal,
-      ) as Promise<WebResourceFilters>
+      }) as Promise<WebResourceFilters>
     },
     resources(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request('GET', '/resources', undefined, params, signal) as Promise<
+      return request('GET', '/resources', { query: params, signal }) as Promise<
         WebPage<WebContentCard>
       >
     },
     research(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request('GET', '/research', undefined, params, signal) as Promise<
+      return request('GET', '/research', { query: params, signal }) as Promise<
         WebPage<WebContentCard>
       >
     },
     schools(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request('GET', '/schools', undefined, params, signal) as Promise<
+      return request('GET', '/schools', { query: params, signal }) as Promise<
         WebPage<WebContentCard>
       >
     },
     content(channel: WebChannel, originId: number, signal?: AbortSignal) {
-      return request(
-        'GET',
-        `${CONTENT_PATH[channel]}/${originId}`,
-        undefined,
-        undefined,
+      return request('GET', `${CONTENT_PATH[channel]}/${originId}`, {
         signal,
-      ) as Promise<WebContentDetail>
+      }) as Promise<WebContentDetail>
     },
     recommend(query?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request('GET', '/contents/recommend', undefined, query, signal) as Promise<
-        WebContentCard[]
-      >
+      return request('GET', '/contents/recommend', { query, signal }) as Promise<WebContentCard[]>
     },
     view(body: Pick<WebContentCard, 'channel' | 'origin' | 'originId'>) {
-      return request('POST', '/contents/view', body)
+      return request('POST', '/contents/view', { body })
     },
     like(body: Pick<WebContentCard, 'channel' | 'origin' | 'originId'>) {
-      return request('POST', '/actions/like', body) as Promise<WebActionResult>
+      return request('POST', '/actions/like', { body }) as Promise<WebActionResult>
     },
     favorite(body: Pick<WebContentCard, 'channel' | 'origin' | 'originId'>) {
-      return request('POST', '/actions/favorite', body) as Promise<WebActionResult>
+      return request('POST', '/actions/favorite', { body }) as Promise<WebActionResult>
     },
     actions(query?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request('GET', '/me/actions', undefined, query, signal) as Promise<
-        WebPage<WebContentCard>
-      >
+      return request('GET', '/me/actions', { query, signal }) as Promise<WebPage<WebContentCard>>
     },
     teachers(query?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request('GET', '/teachers', undefined, query, signal) as Promise<WebPage<WebTeacher>>
+      return request('GET', '/teachers', { query, signal }) as Promise<WebPage<WebTeacher>>
     },
     teacher(id: number, signal?: AbortSignal) {
-      return request('GET', `/teachers/${id}`, undefined, undefined, signal) as Promise<WebTeacher>
+      return request('GET', `/teachers/${id}`, { signal }) as Promise<WebTeacher>
     },
     news(query?: Record<string, string | number | undefined>, signal?: AbortSignal) {
-      return request('GET', '/news', undefined, query, signal) as Promise<WebPage<WebNews>>
+      return request('GET', '/news', { query, signal }) as Promise<WebPage<WebNews>>
     },
     newsDetail(id: number, signal?: AbortSignal) {
-      return request('GET', `/news/${id}`, undefined, undefined, signal) as Promise<WebNews>
+      return request('GET', `/news/${id}`, { signal }) as Promise<WebNews>
     },
   }
 }

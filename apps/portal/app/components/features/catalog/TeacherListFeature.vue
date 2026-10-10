@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { parseListPage } from '@isport/shared'
 import AppPagination from '~/components/app/AppPagination.vue'
+import AppEmpty from '~/components/app/AppEmpty.vue'
 import { useAcademy } from '~/composables/useAcademy'
 import { isContentAssetUrl, WEB_PAGE_SIZE } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
-import { Alert as AAlert, Button as AButton, Empty as AEmpty } from 'antdv-next'
+import { Alert as AAlert, Button as AButton } from 'antdv-next'
 
 const academy = useAcademy()
 const route = useRoute()
@@ -57,7 +58,7 @@ function changePage(next: number) {
         </NuxtLink>
       </li>
     </ul>
-    <AEmpty v-else :description="t('catalog.noResults')" />
+    <AppEmpty v-else :description="t('catalog.noResults')" />
     <AppPagination
       v-if="data"
       :total="data.total"
