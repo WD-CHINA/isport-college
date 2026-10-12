@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useProfile } from '~/composables/account/useProfile'
+import { useProfile } from '../composables/useProfile'
 import { useAuthStore } from '~/stores/auth'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
 import ProfileForm from '~/components/auth/ProfileForm.vue'

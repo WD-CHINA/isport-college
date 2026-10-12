@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ContentGrid from '~/components/features/content/ContentGrid.vue'
+import ContentGrid from '~/components/content/ContentGrid.vue'
 import type { WebContentCard } from '@isport/shared'
 
 const props = defineProps<{

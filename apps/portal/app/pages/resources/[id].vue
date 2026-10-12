@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ContentDetailFeature from '~/components/features/content/ContentDetailFeature.vue'
+import ContentDetailFeature from './components/ContentDetailFeature.vue'
 const route = useRoute()
 definePageMeta({ key: route => route.path })
 </script>

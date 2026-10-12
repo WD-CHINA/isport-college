@@ -32,7 +32,7 @@ pages → Feature → domain composable
 - `stores/login-ui.ts`：登录意图、弹窗、昵称引导与退出确认。
 - `composables/auth/useSessionActions.ts`：登录和退出的接口编排，拒绝旧弹窗或旧会话产生的晚到响应。
 - `composables/auth/useSmsLogin.ts`：短信表单、校验和重发倒计时。
-- `composables/account/useProfile.ts`：资料更新；响应仅能写回发出请求时的会话。
+- `pages/account/composables/useProfile.ts`：资料更新；响应仅能写回发出请求时的会话。
 
 `useAcademy()` 创建时显式绑定当前 Nuxt 的 Pinia，并在发送时读取这个 store 的令牌。401 回调携带原请求令牌，仅使匹配会话失效；匿名或旧令牌请求不能清掉后来建立的会话。退出和资料更新遵守相同规则。会话变化只清理详情、个人记录等相关数据缓存，公开首页与列表不会因此消失。
 
@@ -58,18 +58,20 @@ Cookie 为 SameSite=Lax；`siteEnv=production` 时使用 Secure。令牌放在 s
 apps/portal/app/
   api/                 HTTP 与外部接口定义
   config/capabilities.ts  尚未接入能力的声明
-  pages/               路由、门禁与 Feature 入口
+  pages/               每个目录都有入口 *.vue，同级放 components 与 composables
+    (home)/index.vue   首页，路由 /
+    account/           个人页
+    resources/         资源列表与详情；教研、校本复用这里的列表、详情和媒体
+    research/ schools/ 教研、校本入口
+    news/ teachers/    动态与教师
+    admin/ lingyue/    管理端与灵跃入口；不可用页来自 components/app
   layouts/             公开与管理端外壳
   components/
-    app/               导航、页脚、通用分页
-    auth/              登录与资料表单展示
-    features/          home/content/catalog/account/lingyue
-                       UnavailableFeature 统一不可用页
+    app/               导航、页脚、分页、统一不可用页
+    auth/              登录、退出、昵称引导与资料表单
+    content/           跨页面内容卡片与网格
   composables/
     auth/              登录流程与登录门禁
-    account/           资料与个人互动记录
-    content/           首页、列表、详情状态
-    media/             PDF 与展开预览
     useAcademy.ts      当前请求的客户端
     useLocaleSwitch.ts / useRefreshOnFocus.ts
   stores/              auth 与 login-ui

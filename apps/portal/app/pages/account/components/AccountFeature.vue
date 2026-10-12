@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAccountActivity } from '~/composables/account/useAccountActivity'
+import { useAccountActivity } from '../composables/useAccountActivity'
 import AccountProfile from './AccountProfile.vue'
 import ActivityFilters from './ActivityFilters.vue'
 import ActivityList from './ActivityList.vue'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import UnavailableFeature from '~/components/features/UnavailableFeature.vue'
+import UnavailableFeature from '~/components/app/UnavailableFeature.vue'
 
 definePageMeta({ layout: 'admin', academyGate: { permission: 'course:manage' } })
 const { t } = useI18n()

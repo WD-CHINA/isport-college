@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TeacherDetailFeature from '~/components/features/catalog/TeacherDetailFeature.vue'
+import TeacherDetailFeature from './components/TeacherDetailFeature.vue'
 
 const route = useRoute()
 definePageMeta({ key: route => route.path })

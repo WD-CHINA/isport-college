@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ContentCard from '~/components/features/content/ContentCard.vue'
+import ContentCard from './ContentCard.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import type { WebContentCard } from '@isport/shared'
 

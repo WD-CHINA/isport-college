@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TeacherListFeature from '~/components/features/catalog/TeacherListFeature.vue'
+import TeacherListFeature from './components/TeacherListFeature.vue'
 </script>
 
 <template>

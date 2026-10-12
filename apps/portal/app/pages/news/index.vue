@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NewsListFeature from '~/components/features/catalog/NewsListFeature.vue'
+import NewsListFeature from './components/NewsListFeature.vue'
 </script>
 
 <template>

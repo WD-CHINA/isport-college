@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import NewsDetailFeature from '~/components/features/catalog/NewsDetailFeature.vue'
+import NewsDetailFeature from './components/NewsDetailFeature.vue'
 
 const route = useRoute()
 definePageMeta({ key: route => route.path })

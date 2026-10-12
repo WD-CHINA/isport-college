@@ -26,6 +26,10 @@ export default defineNuxtConfig({
   components: {
     dirs: [],
   },
+  // 页面旁的 components / composables 只是同目录代码，不生成路由。
+  pages: {
+    pattern: ['**/*.vue', '!**/components/**', '!**/composables/**', '!**/utils/**'],
+  },
   modules: ['@pinia/nuxt', '@unocss/nuxt', '@nuxtjs/i18n', '@antdv-next/nuxt'],
   css: ['normalize.css', '@isport/design-tokens/css-vars', '~/assets/css/main.scss'],
   nitro: {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LingyueButton from '~/components/features/lingyue/LingyueButton.vue'
+import LingyueButton from './LingyueButton.vue'
 defineProps<{ levels: { id: string; name: string }[] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()

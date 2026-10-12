@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { InteractionKind, WebContentCard } from '@isport/shared'
-import ContentCard from '../content/ContentCard.vue'
+import ContentCard from '~/components/content/ContentCard.vue'
 
 const props = defineProps<{
   items: WebContentCard[]

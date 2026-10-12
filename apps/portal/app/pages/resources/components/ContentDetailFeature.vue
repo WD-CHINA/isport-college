@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useContentDetail } from '~/composables/content/useContentDetail'
+import { useContentDetail } from '../composables/useContentDetail'
 import { isPublicHttpUrl, type MediaAsset, type WebMediaItem } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import { RichTextContent } from '@isport/rich-text'
 import ContentDetailShell from './ContentDetailShell.vue'
-import ContentGrid from './ContentGrid.vue'
+import ContentGrid from '~/components/content/ContentGrid.vue'
 import InteractionBar from './InteractionBar.vue'
 import MediaPreview from './MediaPreview.vue'
 

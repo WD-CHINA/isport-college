@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { effectScope, nextTick, onScopeDispose, shallowRef, watch, type EffectScope } from 'vue'
-import { useContentInteractions } from '../app/composables/content/useContentInteractions'
-import { useContentView } from '../app/composables/content/useContentView'
+import { useContentInteractions } from '../app/pages/resources/composables/useContentInteractions'
+import { useContentView } from '../app/pages/resources/composables/useContentView'
 import { parseContentDetail } from '../app/utils/web-response'
 import type { WebContentDetail } from '@isport/shared'
 
