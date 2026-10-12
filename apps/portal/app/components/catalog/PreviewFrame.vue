@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useExpandedPreview } from '../composables/useExpandedPreview'
+import { useExpandedPreview } from '~/composables/catalog/useExpandedPreview'
 
 defineProps<{ title: string }>()
 const { t } = useI18n()

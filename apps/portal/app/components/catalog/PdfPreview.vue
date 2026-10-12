@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { usePdfPreview } from '../composables/usePdfPreview'
+import { usePdfPreview } from '~/composables/catalog/usePdfPreview'
 import PreviewFrame from './PreviewFrame.vue'
 
 const props = defineProps<{ source: string; title: string }>()

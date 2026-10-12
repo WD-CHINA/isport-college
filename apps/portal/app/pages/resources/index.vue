@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ContentListFeature from './components/ContentListFeature.vue'
+import ContentListFeature from '~/components/catalog/ContentListFeature.vue'
 </script>
 
 <template>

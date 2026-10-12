@@ -22,7 +22,7 @@ portal -> unocss-preset -> design-tokens
 - 包之间只能通过目标包 `package.json` 的 `exports` 导入，禁止跨包读取 `src`。依赖必须声明在实际使用它的 workspace 中，根目录不能为业务依赖兜底。
 - `shared` 只包含领域类型、常量和纯函数；`design-tokens` 只包含平台无关令牌。两者不得引入 Vue、Nuxt、Pinia、antdv-next 或应用状态。
 - `ui-core`、`ui-admin`、`rich-text` 只负责展示与交互，不得发起业务请求、访问 Portal store 或承载路由逻辑。
-- 每个页面目录都必须包含路由入口 `*.vue`，业务组件放在同级 `components`，状态放在同级 `composables`。不允许只有组件、没有入口页的目录。首页入口是 `pages/(home)/index.vue`，地址为 `/`。资源列表、详情和媒体放在 `pages/resources`；教研和校本入口复用这些文件。导航、登录和通用分页留在 `components/app` 与 `components/auth`。跨页面的内容卡片放在 `components/content`，页面不得引用其他页面目录里的组件。`useAcademy`、语言切换、焦点刷新和登录会话留在 `composables`。跨路由客户端状态放入 `stores`。`app/api` 只放请求与接口路径，不放字段校验和业务判断。实际接口鉴权由学苑后端负责；本应用的 `server` 负责启动检查、渲染与收录控制。
+- 每个页面目录都必须包含路由入口 `*.vue`，业务组件放在同级 `components`，状态放在同级 `composables`。不允许只有组件、没有入口页的目录。首页入口是 `pages/(home)/index.vue`，地址为 `/`。资源、教研、校本入口只传频道。列表、筛选、详情和媒体放在 `components/catalog` 与 `composables/catalog`。导航、登录和通用分页留在 `components/app` 与 `components/auth`。跨页面的内容卡片放在 `components/content`，页面不得引用其他页面目录里的组件。`useAcademy`、语言切换、焦点刷新和登录会话留在 `composables`。跨路由客户端状态放入 `stores`。`app/api` 只放请求与接口路径，不放字段校验和业务判断。实际接口鉴权由学苑后端负责；本应用的 `server` 负责启动检查、渲染与收录控制。
 - 业务组件、store 与 composable 必须显式导入；Nuxt/Vue 内置 API 可自动导入。`auth` store 不负责接口、弹窗或导航；请求和资料更新必须防止旧响应覆盖新会话。公开 SSR 不等待 `/me`，推荐不得阻塞正文。
 - 未接入能力由 `app/config/capabilities.ts` 声明，保留门禁和不可用页，不得恢复伪成功状态或无对应接口的表单。
 - 前端菜单与路由统一调用 `auth.can(permission)`，但客户端判断不代替服务端授权。新增权限先在 `shared` 的权限模型中声明。

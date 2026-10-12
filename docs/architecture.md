@@ -61,16 +61,17 @@ apps/portal/app/
   pages/               每个目录都有入口 *.vue，同级放 components 与 composables
     (home)/index.vue   首页，路由 /
     account/           个人页
-    resources/         资源列表与详情；教研、校本复用这里的列表、详情和媒体
-    research/ schools/ 教研、校本入口
+    resources/ research/ schools/  三个频道入口，只传入频道
     news/ teachers/    动态与教师
     admin/ lingyue/    管理端与灵跃入口；不可用页来自 components/app
   layouts/             公开与管理端外壳
   components/
     app/               导航、页脚、分页、统一不可用页
     auth/              登录、退出、昵称引导与资料表单
+    catalog/           三频道共用的列表、筛选、详情和媒体
     content/           跨页面内容卡片与网格
   composables/
+    catalog/           三频道列表、详情、互动与媒体状态
     auth/              登录流程与登录门禁
     useAcademy.ts      当前请求的客户端
     useProfile.ts      资料更新，供个人页与昵称引导共用

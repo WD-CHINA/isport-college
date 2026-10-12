@@ -2,7 +2,7 @@
 import AppPagination from '~/components/app/AppPagination.vue'
 import ContentFilters from './ContentFilters.vue'
 import ContentGrid from '~/components/content/ContentGrid.vue'
-import { useContentList } from '~/pages/resources/composables/useContentList'
+import { useContentList } from '~/composables/catalog/useContentList'
 import type { ContentChannel } from '@isport/shared'
 
 const props = defineProps<{ channel: ContentChannel }>()

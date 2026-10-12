@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useContentDetail } from '../composables/useContentDetail'
+import { useContentDetail } from '~/composables/catalog/useContentDetail'
 import { isPublicHttpUrl, type MediaAsset, type WebMediaItem } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import { RichTextContent } from '@isport/rich-text'
