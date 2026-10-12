@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useSessionActions } from '~/composables/auth/useSessionActions'
 import { useLoginUiStore } from '~/stores/login-ui'
-import { App, Modal as AModal } from 'antdv-next'
+import { App } from 'antdv-next'
 const loginUi = useLoginUiStore()
 const { logout } = useSessionActions()
 const { t } = useI18n()

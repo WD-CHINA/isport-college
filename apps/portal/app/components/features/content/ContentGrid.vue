@@ -2,7 +2,6 @@
 import ContentCard from '~/components/features/content/ContentCard.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import type { WebContentCard } from '@isport/shared'
-import { Skeleton as ASkeleton } from 'antdv-next'
 
 defineProps<{ items: WebContentCard[]; loading?: boolean }>()
 const { t } = useI18n()

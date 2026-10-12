@@ -22,7 +22,10 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
-  components: false,
+  // 本地业务组件仍显式导入。空 dirs 让组件模块保持启用，@antdv-next/nuxt 才能把组件注册为 A 前缀。
+  components: {
+    dirs: [],
+  },
   modules: ['@pinia/nuxt', '@unocss/nuxt', '@nuxtjs/i18n', '@antdv-next/nuxt'],
   css: ['normalize.css', '@isport/design-tokens/css-vars', '~/assets/css/main.scss'],
   nitro: {
@@ -78,6 +81,7 @@ export default defineNuxtConfig({
   antd: {
     // 项目未使用 @antdv-next/icons 图标组件，不开启自动注册
     icon: false,
+    prefix: 'A',
   },
   imports: {
     // 业务 composable/store 使用显式导入；保留 Nuxt/Vue 内置自动导入。

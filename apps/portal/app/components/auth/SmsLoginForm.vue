@@ -1,11 +1,4 @@
 <script setup lang="ts">
-import {
-  Alert as AAlert,
-  Button as AButton,
-  Checkbox as ACheckbox,
-  Input as AInput,
-} from 'antdv-next'
-
 defineProps<{
   sending: boolean
   submitting: boolean

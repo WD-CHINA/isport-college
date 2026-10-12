@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { Button as AButton } from 'antdv-next'
-
 const { t } = useI18n()
 const localePath = useLocalePath()
 

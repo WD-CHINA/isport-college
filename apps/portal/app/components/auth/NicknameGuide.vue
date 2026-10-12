@@ -3,7 +3,6 @@ import ProfileForm from '~/components/auth/ProfileForm.vue'
 import { useProfile } from '~/composables/account/useProfile'
 import { useLoginUiStore } from '~/stores/login-ui'
 import { useAuthStore } from '~/stores/auth'
-import { Button as AButton, Modal as AModal } from 'antdv-next'
 const auth = useAuthStore()
 const loginUi = useLoginUiStore()
 const { t } = useI18n()

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { WebListQuery, WebResourceFilters } from '@isport/shared'
-import { Button as AButton, Input as AInput, Select as ASelect } from 'antdv-next'
 
 const props = defineProps<{
   channel: 'resource' | 'research' | 'school'

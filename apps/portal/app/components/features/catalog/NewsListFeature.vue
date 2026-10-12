@@ -10,7 +10,6 @@ import {
   WEB_PAGE_SIZE,
 } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
-import { Alert as AAlert, Button as AButton } from 'antdv-next'
 
 const academy = useAcademy()
 const route = useRoute()

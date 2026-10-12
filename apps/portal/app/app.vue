@@ -5,7 +5,6 @@ import LogoutConfirm from '~/components/auth/LogoutConfirm.vue'
 import NicknameGuide from '~/components/auth/NicknameGuide.vue'
 import { antdvThemeToken } from '@isport/design-tokens/antdv-theme'
 import { resolveDataLocale } from '@isport/shared'
-import { App as AApp, ConfigProvider as AConfigProvider } from 'antdv-next'
 import enUS from 'antdv-next/locale/en_US'
 import zhCN from 'antdv-next/locale/zh_CN'
 

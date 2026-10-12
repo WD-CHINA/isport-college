@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { NuxtError } from '#app'
-import { Button as AButton, Result as AResult } from 'antdv-next'
 
 const props = defineProps<{
   error: NuxtError

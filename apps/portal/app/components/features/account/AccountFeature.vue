@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useAccountActivity } from '~/composables/account/useAccountActivity'
-import { Alert as AAlert, Button as AButton } from 'antdv-next'
 import AccountProfile from './AccountProfile.vue'
 import ActivityFilters from './ActivityFilters.vue'
 import ActivityList from './ActivityList.vue'

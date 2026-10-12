@@ -44,7 +44,7 @@ portal -> unocss-preset -> design-tokens
 
 Prettier 统一使用两空格缩进、单引号、无分号、尾逗号和 100 字符行宽。Vue 使用 TypeScript、Composition API 和 `<script setup>`。组件使用 PascalCase，组合式函数命名为 `useFeatureName.ts`，测试文件使用 `*.test.ts` 或 `*.spec.ts`。
 
-`antdv-next` 必须按组件显式导入，禁止全量注册，组件 API 以 `.agents/skills/antdv-next` 技能文档为准。根目录 `eslint.config.mjs` 是唯一 ESLint 入口，不得在包内新增配置。`shared` 禁止依赖 Vue、Nuxt、Pinia 或浏览器专属 API。
+`apps/portal` 的 `antdv-next` 组件由 `@antdv-next/nuxt` 自动注册，模板使用 `A` 前缀（如 `<AButton>`），不要再手写组件 import。`useBreakpoint`、`App.useApp()`、组件静态属性（如 `Empty.PRESENTED_IMAGE_DEFAULT`）和 `antdv-next/locale/*` 仍显式导入。`packages/*` 不经过该模块，展示包继续按组件显式导入。组件 API 以 `.agents/skills/antdv-next` 技能文档为准。根目录 `eslint.config.mjs` 是唯一 ESLint 入口，不得在包内新增配置。`shared` 禁止依赖 Vue、Nuxt、Pinia 或浏览器专属 API。
 
 ## 测试要求
 

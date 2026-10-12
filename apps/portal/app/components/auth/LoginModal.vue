@@ -2,7 +2,6 @@
 import SmsLoginForm from '~/components/auth/SmsLoginForm.vue'
 import { useSmsLogin } from '~/composables/auth/useSmsLogin'
 import { useLoginUiStore } from '~/stores/login-ui'
-import { Modal as AModal } from 'antdv-next'
 
 const loginUi = useLoginUiStore()
 const { t } = useI18n()

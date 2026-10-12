@@ -4,7 +4,6 @@ import ContentFilters from '~/components/features/content/ContentFilters.vue'
 import ContentGrid from '~/components/features/content/ContentGrid.vue'
 import { useContentList } from '~/composables/content/useContentList'
 import type { ContentChannel } from '@isport/shared'
-import { Alert as AAlert, Button as AButton } from 'antdv-next'
 
 const props = defineProps<{ channel: ContentChannel }>()
 const { t } = useI18n()

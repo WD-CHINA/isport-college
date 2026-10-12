@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import ContentGrid from '~/components/features/content/ContentGrid.vue'
 import type { WebContentCard } from '@isport/shared'
-import { Button as AButton } from 'antdv-next'
 
 const props = defineProps<{
   title: string

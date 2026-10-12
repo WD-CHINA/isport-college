@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { CONTENT_CHANNELS, type ContentChannel, type InteractionKind } from '@isport/shared'
-import { Button as AButton } from 'antdv-next'
 
 defineProps<{
   kind: InteractionKind

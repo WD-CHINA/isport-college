@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useProfile } from '~/composables/account/useProfile'
 import { useAuthStore } from '~/stores/auth'
-import { Button as AButton, Alert as AAlert } from 'antdv-next'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
 import ProfileForm from '~/components/auth/ProfileForm.vue'
 

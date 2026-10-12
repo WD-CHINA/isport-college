@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ContentStats, InteractionKind } from '@isport/shared'
-import { Button as AButton } from 'antdv-next'
 
 defineProps<{ stats: ContentStats; pending: boolean }>()
 const emit = defineEmits<{ change: [kind: InteractionKind, active: boolean] }>()

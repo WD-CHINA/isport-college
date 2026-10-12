@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { isContentAssetUrl, type MediaAsset } from '@isport/shared'
-import { Alert as AAlert, Button as AButton } from 'antdv-next'
 import PdfPreview from './PdfPreview.vue'
 import PreviewFrame from './PreviewFrame.vue'
 

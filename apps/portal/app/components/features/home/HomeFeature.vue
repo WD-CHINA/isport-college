@@ -6,7 +6,6 @@ import HomeLearningEntries from '~/components/features/home/HomeLearningEntries.
 import HomeNews from '~/components/features/home/HomeNews.vue'
 import HomePeople from '~/components/features/home/HomePeople.vue'
 import { useAcademyHome } from '~/composables/content/useAcademyHome'
-import { Alert as AAlert, Button as AButton } from 'antdv-next'
 
 const { t } = useI18n()
 const {

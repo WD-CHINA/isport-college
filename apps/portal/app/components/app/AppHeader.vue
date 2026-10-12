@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { useLocaleSwitch } from '~/composables/useLocaleSwitch'
 import { useLoginUiStore } from '~/stores/login-ui'
 import { useAuthStore } from '~/stores/auth'
-import { UiBrandLogo, UiLocaleSelect } from '@isport/ui-core'
-import { Button as AButton } from 'antdv-next'
+import { UiBrandLogo } from '@isport/ui-core'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
+import AppLocaleMenu from '~/components/app/AppLocaleMenu.vue'
 
 const auth = useAuthStore()
 const loginUi = useLoginUiStore()
 const route = useRoute()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { localeModel, localeOptions } = useLocaleSwitch()
 
 const menuOpen = shallowRef(false)
 
@@ -72,11 +70,7 @@ function handleLogout() {
       </nav>
 
       <div class="app-header__actions">
-        <UiLocaleSelect
-          v-model="localeModel"
-          :options="localeOptions"
-          :label="t('common.language')"
-        />
+        <AppLocaleMenu />
         <!-- Cookie 会话可由 SSR 读取，首屏与客户端使用同一登录态 -->
         <template v-if="auth.isLoggedIn">
           <NuxtLink :to="localePath('/account')" class="app-header__user">

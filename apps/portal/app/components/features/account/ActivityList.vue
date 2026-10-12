@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { InteractionKind, WebContentCard } from '@isport/shared'
-import { Button as AButton, Skeleton as ASkeleton } from 'antdv-next'
 import ContentCard from '../content/ContentCard.vue'
 
 const props = defineProps<{

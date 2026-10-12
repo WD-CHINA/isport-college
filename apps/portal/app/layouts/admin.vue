@@ -1,26 +1,15 @@
 <script setup lang="ts">
-import { useLocaleSwitch } from '~/composables/useLocaleSwitch'
 import { useLoginUiStore } from '~/stores/login-ui'
 import { useAuthStore } from '~/stores/auth'
-import { UiBrandLogo, UiLocaleSelect } from '@isport/ui-core'
-import {
-  Button as AButton,
-  Drawer as ADrawer,
-  Dropdown as ADropdown,
-  Layout as ALayout,
-  LayoutContent as ALayoutContent,
-  LayoutHeader as ALayoutHeader,
-  LayoutSider as ALayoutSider,
-  Menu as AMenu,
-  useBreakpoint,
-} from 'antdv-next'
+import { UiBrandLogo } from '@isport/ui-core'
+import { useBreakpoint } from 'antdv-next'
+import AppLocaleMenu from '~/components/app/AppLocaleMenu.vue'
 
 const auth = useAuthStore()
 const loginUi = useLoginUiStore()
 const route = useRoute()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { localeModel, localeOptions } = useLocaleSwitch()
 const screens = useBreakpoint()
 
 // 第二层禁止收录措施：后台式布局输出等价 robots Meta（第一层为 Route Rules Header）
@@ -181,11 +170,7 @@ function goHome() {
         <span class="admin-header__divider" aria-hidden="true"></span>
         <span class="admin-header__title">{{ t('seo.adminTitle') }}</span>
         <div class="admin-header__right">
-          <UiLocaleSelect
-            v-model="localeModel"
-            :options="localeOptions"
-            :label="t('common.language')"
-          />
+          <AppLocaleMenu />
           <ADropdown
             v-if="auth.isLoggedIn"
             :trigger="['click']"

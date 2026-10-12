@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Result as AResult } from 'antdv-next'
 import { ACADEMY_CAPABILITIES, type AcademyCapability } from '~/config/capabilities'
 
 const props = defineProps<{ capability: AcademyCapability }>()

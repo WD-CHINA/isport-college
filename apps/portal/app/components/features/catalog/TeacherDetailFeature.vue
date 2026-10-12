@@ -4,7 +4,6 @@ import { apiErrorCode } from '~/api/errors'
 import { isContentAssetUrl } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import { RichTextContent } from '@isport/rich-text'
-import { Alert as AAlert, Button as AButton } from 'antdv-next'
 
 const props = defineProps<{ id: string }>()
 const academy = useAcademy()

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Button as AButton } from 'antdv-next'
 import { ACADEMY_CAPABILITIES } from '~/config/capabilities'
 
 defineProps<{ label?: string }>()
