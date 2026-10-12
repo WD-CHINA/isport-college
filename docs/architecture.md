@@ -32,7 +32,7 @@ pages → Feature → domain composable
 - `stores/login-ui.ts`：登录意图、弹窗、昵称引导与退出确认。
 - `composables/auth/useSessionActions.ts`：登录和退出的接口编排，拒绝旧弹窗或旧会话产生的晚到响应。
 - `composables/auth/useSmsLogin.ts`：短信表单、校验和重发倒计时。
-- `pages/account/composables/useProfile.ts`：资料更新；响应仅能写回发出请求时的会话。
+- `composables/useProfile.ts`：资料更新；响应仅能写回发出请求时的会话。
 
 `useAcademy()` 创建时显式绑定当前 Nuxt 的 Pinia，并在发送时读取这个 store 的令牌。401 回调携带原请求令牌，仅使匹配会话失效；匿名或旧令牌请求不能清掉后来建立的会话。退出和资料更新遵守相同规则。会话变化只清理详情、个人记录等相关数据缓存，公开首页与列表不会因此消失。
 
@@ -73,6 +73,7 @@ apps/portal/app/
   composables/
     auth/              登录流程与登录门禁
     useAcademy.ts      当前请求的客户端
+    useProfile.ts      资料更新，供个人页与昵称引导共用
     useLocaleSwitch.ts / useRefreshOnFocus.ts
   stores/              auth 与 login-ui
   utils/               调用侧响应验证、资料与 URL 整理

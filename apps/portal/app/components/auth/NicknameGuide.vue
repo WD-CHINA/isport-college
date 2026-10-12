@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ProfileForm from '~/components/auth/ProfileForm.vue'
-import { useProfile } from '~/pages/account/composables/useProfile'
+import { useProfile } from '~/composables/useProfile'
 import { useLoginUiStore } from '~/stores/login-ui'
 import { useAuthStore } from '~/stores/auth'
 const auth = useAuthStore()
