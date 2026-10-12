@@ -1,4 +1,4 @@
-import { expect, test } from './academy.fixture'
+import { expect, test, waitForHydration } from './academy.fixture'
 
 test('推荐服务失败不影响 SSR 正文，HTML 脚本被过滤', async ({ page }) => {
   const response = await page.goto('/resources/8')
@@ -14,6 +14,7 @@ for (const [id, kind] of [
 ] as const) {
   test(`${kind} 媒体加载并可调整播放速度`, async ({ page }) => {
     await page.goto(`/resources/${id}`)
+    await waitForHydration(page)
     const player = page.locator(kind)
     await expect(player).toBeVisible()
     await expect
@@ -25,6 +26,7 @@ for (const [id, kind] of [
 }
 test('PDF 可渲染和缩放', async ({ page }) => {
   await page.goto('/resources/4')
+  await waitForHydration(page)
   const canvas = page.locator('.pdf-preview canvas')
   await expect(canvas).toBeVisible()
   await expect
@@ -38,6 +40,7 @@ test('图片展开降级与 Esc 退出', async ({ page }) => {
     Element.prototype.requestFullscreen = () => Promise.reject(new Error('unsupported'))
   })
   await page.goto('/resources/5')
+  await waitForHydration(page)
   await expect
     .poll(() =>
       page
@@ -54,6 +57,7 @@ test('PPT 使用明确占位，失效媒体可重试', async ({ page }) => {
   await page.goto('/resources/6')
   await expect(page.locator('.media-preview__placeholder')).toContainText('PPT')
   await page.goto('/resources/9')
+  await waitForHydration(page)
   await expect(page.getByRole('button', { name: /重\s*试/, exact: true })).toBeVisible()
   await page.getByRole('button', { name: /重\s*试/, exact: true }).click()
   await expect(page.getByRole('button', { name: /重\s*试/, exact: true })).toBeVisible()

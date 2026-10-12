@@ -2,7 +2,7 @@ import { createAcademyClient, type AcademyClient } from '~/api/academy'
 import { createRequest } from '~/api/request'
 import { toWebProfile } from '~/utils/profile'
 import { useAuthStore } from '~/stores/auth'
-import { LOCALE_URL_CODES } from '@isport/shared'
+import { LOCALE_URL_CODES, resolveDataLocale } from '@isport/shared'
 import { createAcademyDataClient } from '~/utils/academy-data'
 declare module '#app' {
   interface NuxtApp {
@@ -10,7 +10,7 @@ declare module '#app' {
   }
 }
 
-/** 界面语言以路由为准：`/en` 为英文，其余路径为中文。不读取语言 cookie。 */
+/** SSR 数据语言以路由为准：`/en` 为英文，其余路径为中文。不读取语言 cookie。 */
 function localeFromPath(path: string) {
   return (
     LOCALE_URL_CODES[path.split('/')[1]?.toLowerCase() as keyof typeof LOCALE_URL_CODES] ??
@@ -27,15 +27,20 @@ export function useAcademy() {
   const nuxtApp = useNuxtApp()
   if (nuxtApp.$academy) return nuxtApp.$academy
   const auth = useAuthStore(nuxtApp.$pinia)
-  const route = nuxtApp.$router.currentRoute
 
-  const configuredBase = useRuntimeConfig().public.apiBase
+  const config = useRuntimeConfig()
   const requestURL = useRequestURL()
-  // 同源地址由开发代理或 Nginx 转发；绝对地址按配置直连。
+  // SSR 上游只能来自环境配置；浏览器同源请求仍由开发代理或 Nginx 转发。
   const request = createRequest({
-    baseURL: new URL(configuredBase || '/', requestURL).origin,
+    baseURL: import.meta.server
+      ? config.apiBase
+      : new URL(config.public.apiBase || '/', requestURL).origin,
     getToken: () => auth.session?.token,
-    getLocale: () => localeFromPath(import.meta.server ? requestURL.pathname : route.value.path),
+    // 客户端语言先于 currentRoute 完成切换；与 useAsyncData 的语言键读取同一来源。
+    getLocale: () =>
+      import.meta.server
+        ? localeFromPath(requestURL.pathname)
+        : resolveDataLocale(unref(nuxtApp.$i18n.locale)),
     onUnauthorized: token => auth.clearSessionIfTokenMatches(token),
   })
   const academy = createAcademyDataClient(createAcademyClient(request))

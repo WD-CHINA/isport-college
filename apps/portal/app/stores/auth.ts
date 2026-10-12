@@ -8,6 +8,18 @@ import {
 } from '@isport/shared'
 import { toWebProfile } from '~/utils/profile'
 
+function toSession(candidate: WebSession | null | undefined): WebSession | null {
+  const profile = toWebProfile(candidate?.profile)
+  if (
+    !profile ||
+    typeof candidate?.token !== 'string' ||
+    !candidate.token ||
+    candidate.token.length > 3072
+  )
+    return null
+  return { token: candidate.token, profile, newUser: candidate.newUser === true }
+}
+
 /** 仅管理会话与权限；接口调用、弹窗和导航由调用侧编排。 */
 export const useAuthStore = defineStore('auth', () => {
   const nuxt = useNuxtApp()
@@ -19,16 +31,8 @@ export const useAuthStore = defineStore('auth', () => {
     secure: config.public.siteEnv === 'production',
   })
   const candidate = sessionCookie.value
-  const profile = toWebProfile(candidate?.profile)
-  const valid =
-    profile &&
-    typeof candidate?.token === 'string' &&
-    candidate.token.length > 0 &&
-    candidate.token.length <= 3072
-  const storedSession = shallowRef<WebSession | null>(
-    valid ? { token: candidate!.token, profile, newUser: candidate!.newUser === true } : null,
-  )
-  if (candidate && !valid) sessionCookie.value = null
+  const storedSession = shallowRef<WebSession | null>(toSession(candidate))
+  if (candidate && !storedSession.value) sessionCookie.value = null
   const revision = shallowRef(0)
   // 令牌仍由直连接口所需的 Cookie 提供；computed 不进入 Pinia 的 SSR state。
   const session = computed(() => storedSession.value)
@@ -42,6 +46,20 @@ export const useAuthStore = defineStore('auth', () => {
       ),
     )
   }
+  // useCookie 同步其他标签页的变化；资料更新不使相同会话的缓存失效。
+  watch(
+    sessionCookie,
+    candidate => {
+      const next = toSession(candidate)
+      const previous = storedSession.value
+      storedSession.value = next
+      if (previous?.token !== next?.token || previous?.profile.id !== next?.profile.id) {
+        revision.value++
+        invalidateData()
+      }
+    },
+    { flush: 'sync' },
+  )
   function setSession(value: WebSession) {
     revision.value++
     storedSession.value = value

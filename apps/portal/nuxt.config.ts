@@ -40,6 +40,8 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    /** SSR 的固定学苑上游；开发由 .env 注入，生产由部署环境注入。 */
+    apiBase: process.env.NUXT_API_BASE ?? '',
     public: {
       /** 部署环境：非 production 环境全站禁止收录 */
       siteEnv: 'development',

@@ -7,6 +7,7 @@ import { toWebChannel } from '~/utils/web-channel'
 export function useAccountActivity() {
   const academy = useAcademy()
   const auth = useAuthStore()
+  const { locale } = useI18n()
   const kind = shallowRef<InteractionKind>('favorite')
   const channel = shallowRef<'resource' | 'research' | 'school' | ''>('')
   const page = shallowRef(1)
@@ -17,7 +18,7 @@ export function useAccountActivity() {
   )
   const key = computed(
     () =>
-      `academy:activity:${auth.user?.id}:${auth.revision}:${kind.value}:${channel.value}:${page.value}`,
+      `academy:activity:${locale.value}:${auth.user?.id}:${auth.revision}:${kind.value}:${channel.value}:${page.value}`,
   )
   const request = useAsyncData(key, async (_app, { signal }) => {
     const action = kind.value === 'like' ? 'LIKE' : 'FAVORITE'

@@ -1,10 +1,10 @@
 # isport-academy 当前架构
 
-更新日期：2026-10-09。当前只有一个 Nuxt 4 应用与 Nitro 发布产物。门户采用 SSR；管理端采用 CSR，并统一禁止收录。
+更新日期：2026-10-12。当前只有一个 Nuxt 4 应用与 Nitro 发布产物。门户采用 SSR；管理端采用 CSR，并统一禁止收录。
 
 ## 数据与部署边界
 
-开发环境由 Nuxt 开发服务器的 `nitro.devProxy` 把 `/api` 与 `/statics` 转发到 `.env.development` 的 `NUXT_API_BASE`。生产环境请求当前站点相对路径，由 Nginx 转发。`NUXT_PUBLIC_API_BASE` 为绝对地址时改为直连，供测试使用。响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。生产应用没有同源业务 mock。
+SSR 始终请求私有 Runtime Config 的 `apiBase`，不使用入站 Host 决定上游。开发环境由 `.env.development` 提供 `NUXT_API_BASE`，生产由部署环境注入；未配置固定 HTTP/HTTPS 根地址时服务启动失败。浏览器默认请求同源相对路径：开发由 `nitro.devProxy` 转发，生产由 Nginx 转发。`NUXT_PUBLIC_API_BASE` 为绝对地址时浏览器改为直连，供测试使用；它不影响 SSR 上游。响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。生产应用没有同源业务 mock。
 
 SSR 与浏览器统一使用标准 `fetch`，只携带当前会话的 Bearer，不继承入站 Cookie/Authorization。接口地址在 Nitro 启动时检查；接口信封和响应数据各在其边界校验一次，展示层直接使用整理后的类型。
 
@@ -19,7 +19,7 @@ pages → Feature → domain composable
                      ↓
                  api/request（HTTP、信封、鉴权、语言、超时与取消）
                      ↓
-                 开发：Nitro devProxy；生产：当前站点由 Nginx 转发；测试可直连绝对地址
+                 SSR：NUXT_API_BASE 固定上游；浏览器：devProxy / Nginx / 测试直连地址
 ```
 
 `api/academy` 中的 TypeScript 类型描述预期协议；运行时验证由调用侧适配器负责。成功 HTTP 响应必须具有完整信封，列表、首页、枚举、计数和媒体字段通过验证后才进入展示组件。登录和资料使用 `utils/profile` 整理。
@@ -39,6 +39,8 @@ pages → Feature → domain composable
 `auth.clearSession()` 主动清理当前会话；`auth.clearSessionIfTokenMatches(token)` 仅在原请求令牌仍匹配时清理，供 401 和退出响应使用。
 
 Cookie 为 SameSite=Lax；`siteEnv=production` 时使用 Secure。令牌放在 store 的私有引用中，暴露的计算属性不会进入 Pinia SSR state。由于保留浏览器直连 Bearer 协议，Cookie 仍需被 JavaScript 读取；本轮没有实现 HttpOnly。若改为 HttpOnly，需要单独设计同源认证代理及部署边界。
+
+`auth` 监听 `useCookie` 同步的外部变化，其他标签页退出或切换账号时同步内存会话、递增会话版本并清理私有数据；相同会话的资料变化仅更新资料，不反复写入 Cookie。个人记录缓存键包含语言、用户和会话版本，语言切换会重新请求对应语言的内容。
 
 当前 `/me` 不返回角色或权限，因此 `hasWebPermission()` 只向有效前台会话开放 `account:view`。菜单和路由使用相同判断；客户端权限判断不能替代学苑后端授权。
 
@@ -95,19 +97,21 @@ apps/portal/app/
 
 根 `eslint.config.mjs` 是唯一入口。既有规则约束分层方向，`packages/eslint-config/boundaries.mjs` 补充解析后的 workspace 路径、exports、实际依赖声明与循环依赖检查。展示包禁止请求、store 和路由运行时，并检查直接/别名网络调用。包内相对路径也不能绕过应用与跨包边界。规则的行为由 Node 测试覆盖。
 
-Turbo 将根 ESLint、Stylelint、Prettier 配置和架构规则列为全局缓存输入，规则变化会使旧任务缓存失效。
+Turbo 将根 ESLint、Stylelint、Prettier 配置和架构规则列为全局缓存输入，规则变化会使旧任务缓存失效。构建任务显式传递并缓存区分 `NUXT_API_BASE`、`NUXT_PUBLIC_API_BASE` 和 `NUXT_PUBLIC_SITE_ENV`，避免环境配置变化后复用旧产物。
 
 ## 国际化、收录与发布
 
-默认中文无前缀，英文使用 `/en`；根路径按语言 Cookie 或浏览器偏好重定向，具体业务路由以 URL 为准。学苑语言头不依赖异步 i18n composable。
+默认中文无前缀，英文使用 `/en`；根路径按语言 Cookie 或浏览器偏好重定向，具体业务路由以 URL 为准。SSR 学苑语言头读取请求路径；客户端同步读取当前 Nuxt 注入的 i18n 语言，与数据缓存键使用同一语言来源，避免导航中语言已切换但 currentRoute 仍为旧路径。不依赖异步 i18n composable。
 
 管理端在 Nuxt routeRules 和 HTTP 中间件中强制 CSR，后者使用归一化路径处理大小写变体。管理及个人路由输出 `noindex, nofollow, noarchive`；非生产环境全站禁止收录。发布只启动一个 `.output/server/index.mjs`。
 
-| 环境变量               | 用途                                                             |
-| ---------------------- | ---------------------------------------------------------------- |
-| `NUXT_API_BASE`        | 仅开发服务器代理上游，写在 `.env.development`                    |
-| `NUXT_PUBLIC_API_BASE` | 空或 `/` 表示当前站点；绝对地址表示直连。非法绝对地址启动失败    |
-| `NUXT_PUBLIC_SITE_ENV` | 默认 development；production 启用 Secure Cookie 并允许公开页收录 |
+| 环境变量               | 用途                                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- |
+| `NUXT_API_BASE`        | SSR 固定上游及开发代理上游；开发由 `.env.development` 提供，生产部署时注入；必须为 HTTP/HTTPS 根地址 |
+| `NUXT_PUBLIC_API_BASE` | 浏览器接口地址；空或 `/` 表示当前站点，绝对根地址表示直连；不决定 SSR 目标                           |
+| `NUXT_PUBLIC_SITE_ENV` | 默认 development；production 启用 Secure Cookie 并允许公开页收录                                     |
+
+生产启动时设置 `NUXT_API_BASE`，例如 `NUXT_API_BASE=https://api.example.com node .output/server/index.mjs`（地址由部署环境提供）。Nuxt 的 `--dotenv` 在开发与构建时加载 `.env`，生产 Node 进程不自动加载 `.env.production`。公开页收录及 Secure Cookie 仍由实际部署环境的 `NUXT_PUBLIC_SITE_ENV` 决定。
 
 ## 验收
 

@@ -29,6 +29,7 @@ export default defineConfig({
       command: `sh -c "${buildPrefix}PORT=${port} node .output/server/index.mjs"`,
       env: {
         NUXT_PUBLIC_SITE_ENV: 'test',
+        NUXT_API_BASE: `http://127.0.0.1:${apiPort}`,
         NUXT_PUBLIC_API_BASE: `http://127.0.0.1:${apiPort}`,
       },
       port,

@@ -52,6 +52,7 @@ beforeEach(() => {
   vi.stubGlobal('useCookie', () => current.cookie)
   vi.stubGlobal('useNuxtApp', () => current.nuxt)
   vi.stubGlobal('useRuntimeConfig', () => ({
+    apiBase: 'http://localhost:3200',
     public: { apiBase: 'http://localhost:3200', siteEnv: 'test' },
   }))
   vi.stubGlobal('useRequestURL', () => new URL('http://localhost/en/resources'))
@@ -61,17 +62,22 @@ beforeEach(() => {
 })
 
 describe('请求与会话隔离', () => {
-  it.each(['', '/', 'http://api.example/'])('SSR 支持同源和绝对接口地址 %s', async apiBase => {
-    vi.stubGlobal('useRuntimeConfig', () => ({ public: { apiBase, siteEnv: 'test' } }))
-    await useAcademy().me()
-    const [url, init] = current.fetch.mock.calls[0]!
-    expect(String(url)).toBe(
-      `${apiBase.startsWith('http') ? 'http://api.example' : 'http://localhost'}/api/v1/me`,
-    )
-    expect(init?.credentials).toBe('omit')
-    expect(new Headers(init?.headers).get('cookie')).toBeNull()
-    expect(new Headers(init?.headers).get('authorization')).toBe('Bearer token-1')
-  })
+  it.each(['', '/', 'http://browser-api.example/'])(
+    'SSR 始终使用固定上游，不受浏览器配置 %s 或入站 Host 影响',
+    async apiBase => {
+      vi.stubGlobal('useRuntimeConfig', () => ({
+        apiBase: 'http://server-api.example',
+        public: { apiBase, siteEnv: 'test' },
+      }))
+      vi.stubGlobal('useRequestURL', () => new URL('https://untrusted.example/en/resources'))
+      await useAcademy().me()
+      const [url, init] = current.fetch.mock.calls[0]!
+      expect(String(url)).toBe('http://server-api.example/api/v1/me')
+      expect(init?.credentials).toBe('omit')
+      expect(new Headers(init?.headers).get('cookie')).toBeNull()
+      expect(new Headers(init?.headers).get('authorization')).toBe('Bearer token-1')
+    },
+  )
   it('交错 SSR 请求的 401 只清除自己的 Pinia 会话', async () => {
     const a = current
     const delayed = deferred<Response>()
@@ -136,6 +142,43 @@ describe('请求与会话隔离', () => {
     expect(auth.can('account:view')).toBe(true)
     expect(auth.can('admin:view')).toBe(false)
     expect(auth.can('creation:use')).toBe(false)
+  })
+  it('其他标签页退出后立即清理内存会话与私有数据', () => {
+    const auth = useAuthStore()
+    current.cookie.value = null
+    expect(auth.session).toBeNull()
+    expect(auth.isLoggedIn).toBe(false)
+    expect(auth.revision).toBe(1)
+    expect(clearNuxtData).toHaveBeenCalledTimes(1)
+  })
+  it('其他标签页切换账号后，请求使用新令牌并拒绝旧资料响应', async () => {
+    const auth = useAuthStore()
+    const client = useAcademy()
+    current.cookie.value = session(2)
+    expect(auth.user?.id).toBe(2)
+    expect(auth.revision).toBe(1)
+    expect(auth.updateUser(profile(1), 'token-1')).toBe(false)
+    await client.me()
+    expect(new Headers(current.fetch.mock.calls[0]?.[1]?.headers).get('authorization')).toBe(
+      'Bearer token-2',
+    )
+  })
+  it('其他标签页更新相同会话的资料，不清理数据或反复写 Cookie', () => {
+    const auth = useAuthStore()
+    const next = { ...session(1), profile: { ...profile(1), nickname: '新昵称' } }
+    current.cookie.value = next
+    expect(auth.user?.nickname).toBe('新昵称')
+    expect(auth.revision).toBe(0)
+    expect(clearNuxtData).not.toHaveBeenCalled()
+    expect(current.cookie.value).toEqual(next)
+    auth.updateUser(profile(1), 'token-1')
+    expect(auth.revision).toBe(0)
+  })
+  it('其他标签页写入无效 Cookie 后，不保留旧令牌', () => {
+    const auth = useAuthStore()
+    current.cookie.value = { token: 'invalid', profile: { id: -1 } }
+    expect(auth.session).toBeNull()
+    expect(auth.revision).toBe(1)
   })
   it('关闭登录弹窗后晚到的登录响应不能建立会话', async () => {
     const auth = useAuthStore()
