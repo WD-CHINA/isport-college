@@ -17,7 +17,7 @@ export function presetIsport(): Preset[] {
       name: '@isport/unocss-preset',
       theme: unoTheme,
       shortcuts: {
-        'container-page': 'mx-auto w-full max-w-screen-xl px-4 md:px-6',
+        'container-page': 'mx-auto w-full max-w-[var(--ic-layout-content)]',
         btn: `inline-flex items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-colors duration-fast cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed ${TOUCH_MIN}`,
         'btn-primary': 'btn bg-primary text-content-inverse hover:bg-brand-600 active:bg-brand-700',
         'btn-ghost': 'btn bg-transparent text-content hover:bg-surface-page',

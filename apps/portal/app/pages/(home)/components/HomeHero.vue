@@ -1,62 +1,80 @@
 <script setup lang="ts">
 const { t } = useI18n()
-const localePath = useLocalePath()
-
-function viewResources() {
-  void navigateTo(localePath('/resources'))
-}
 </script>
 
 <template>
   <section class="home-hero">
     <div class="container-page home-hero__inner">
+      <p class="home-hero__eyebrow">{{ t('home.heroEyebrow') }}</p>
       <h1 class="home-hero__title">{{ t('home.heroTitle') }}</h1>
-      <p class="home-hero__subtitle">{{ t('home.heroSubtitle') }}</p>
-      <AButton size="large" class="home-hero__cta" @click="viewResources">
-        {{ t('home.heroPrimary') }}
-      </AButton>
+      <p class="home-hero__lead">{{ t('home.heroLead') }}</p>
     </div>
   </section>
 </template>
 
 <style scoped>
 .home-hero {
-  background-image:
-    radial-gradient(60% 120% at 85% 10%, rgb(249 115 22 / 18%), transparent),
-    linear-gradient(160deg, var(--ic-color-brand-800, #1e3a8a), var(--ic-color-brand-500, #2563eb));
-  color: var(--ic-color-text-inverse, #fff);
+  position: relative;
+  min-height: 480px;
+  background: #14508f url('/home/hero.jpg') center / cover no-repeat;
+  color: #fff;
+}
+
+.home-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgb(16 78 150 / 88%) 0%,
+    rgb(22 102 186 / 55%) 38%,
+    rgb(70 150 220 / 12%) 100%
+  );
 }
 
 .home-hero__inner {
+  position: relative;
   display: flex;
+  min-height: 480px;
   flex-direction: column;
-  align-items: flex-start;
-  gap: var(--ic-spacing-4, 16px);
-  padding-top: var(--ic-spacing-16, 64px);
-  padding-bottom: var(--ic-spacing-16, 64px);
+  justify-content: center;
+  gap: 20px;
+}
+
+.home-hero__eyebrow {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
 }
 
 .home-hero__title {
-  max-width: 40rem;
-  font-size: var(--ic-font-size-3xl, 30px);
-  font-weight: var(--ic-font-weight-bold, 700);
-  line-height: var(--ic-line-height-tight, 1.25);
+  max-width: 650px;
+  margin: 0;
+  font-size: 46px;
+  font-weight: 600;
+  line-height: 72px;
+  white-space: pre-line;
 }
 
-.home-hero__subtitle {
-  max-width: 34rem;
-  font-size: var(--ic-font-size-base, 16px);
-  color: rgb(255 255 255 / 85%);
+.home-hero__lead {
+  max-width: 500px;
+  margin: 0;
+  color: #d5e1ee;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
 }
 
-.home-hero__cta {
-  margin-top: var(--ic-spacing-2, 8px);
-  color: var(--ic-color-brand-600, #1d4ed8);
-}
+@media (max-width: 767px) {
+  .home-hero,
+  .home-hero__inner {
+    min-height: 360px;
+  }
 
-@media (min-width: 768px) {
   .home-hero__title {
-    font-size: var(--ic-font-size-4xl, 36px);
+    font-size: 32px;
+    line-height: 44px;
   }
 }
 </style>

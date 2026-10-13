@@ -79,6 +79,8 @@
   --ic-z-index-overlay: 500;
   --ic-z-index-modal: 1000;
   --ic-z-index-toast: 1100;
+  --ic-layout-canvas: 1440px;
+  --ic-layout-content: 1200px;
   --ic-breakpoints-xs: 0px;
   --ic-breakpoints-sm: 640px;
   --ic-breakpoints-md: 768px;

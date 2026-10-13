@@ -49,11 +49,7 @@ export function useAcademyHome() {
     },
   })
   const levelCategory = computed({
-    get: () =>
-      pick(
-        selectedLevel.value,
-        levelGroups.value.map(item => String(item.groupId)),
-      ),
+    get: () => selectedLevel.value,
     set: value => {
       selectedLevel.value = value
     },

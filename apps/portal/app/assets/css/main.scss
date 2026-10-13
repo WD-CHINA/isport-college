@@ -25,17 +25,29 @@ body {
   background-color: $selection-bg;
 }
 
-// 页面级内容容器：约束最大宽度、水平居中并随视口收紧内边距。
-// 创作中心、我的账号、作品详情等页面统一以 .ic-container 复用该布局。
+// 页面级内容容器。设计稿 1440，内容区 1200；更窄时两侧留白，到设计宽度后不再内缩。
+// .container-page 与 .ic-container 共用这一规则。
 .ic-container {
   width: 100%;
-  max-width: 1280px;
+  max-width: var(--ic-layout-content);
   margin-inline: auto;
+}
+
+.container-page,
+.ic-container {
   padding-inline: 16px;
 }
 
 @media (min-width: 768px) {
+  .container-page,
   .ic-container {
     padding-inline: 24px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .container-page,
+  .ic-container {
+    padding-inline: 0;
   }
 }

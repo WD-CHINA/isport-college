@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useLoginUiStore } from '~/stores/login-ui'
 import { useAuthStore } from '~/stores/auth'
-import { UiBrandLogo } from '@isport/ui-core'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
 import AppLocaleMenu from '~/components/app/AppLocaleMenu.vue'
 
@@ -20,16 +19,16 @@ watch(
   },
 )
 
-const navItems = computed(() => [
+const mainNav = computed(() => [
   { to: localePath('/'), label: t('nav.home'), exact: true },
   { to: localePath('/resources'), label: t('academy.resources'), exact: false },
-  { to: localePath('/research'), label: t('academy.research'), exact: false },
+  { to: localePath('/research'), label: t('nav.research'), exact: false },
   { to: localePath('/schools'), label: t('academy.schools'), exact: false },
+])
+
+const moreNav = computed(() => [
   { to: localePath('/teachers'), label: t('academy.teachers'), exact: false },
   { to: localePath('/news'), label: t('academy.news'), exact: false },
-  ...(auth.can('creation:use')
-    ? [{ to: localePath('/admin/creation'), label: t('academy.creation'), exact: false }]
-    : []),
   { to: localePath('/account'), label: t('academy.account'), exact: false },
   ...(auth.can('admin:view')
     ? [{ to: localePath('/admin'), label: t('nav.adminEntry'), exact: false }]
@@ -52,52 +51,51 @@ function handleLogout() {
 <template>
   <header class="app-header">
     <div class="container-page app-header__inner">
-      <NuxtLink :to="localePath('/')" class="app-header__brand" :aria-label="t('seo.siteName')">
-        <UiBrandLogo :name="t('seo.siteName')" />
-      </NuxtLink>
-
-      <!-- 桌面导航 -->
-      <nav class="app-header__nav" :aria-label="t('nav.home')">
-        <NuxtLink
-          v-for="item in navItems"
-          :key="item.to"
-          :to="item.to"
-          class="app-header__link"
-          :class="{ 'app-header__link--active': isActive(item.to, item.exact) }"
-        >
-          {{ item.label }}
+      <div class="app-header__leading">
+        <NuxtLink :to="localePath('/')" class="app-header__brand">
+          {{ t('nav.brand') }}
         </NuxtLink>
-      </nav>
+        <nav class="app-header__nav" :aria-label="t('nav.home')">
+          <NuxtLink
+            v-for="item in mainNav"
+            :key="item.to"
+            :to="item.to"
+            class="app-header__link"
+            :class="{ 'app-header__link--active': isActive(item.to, item.exact) }"
+          >
+            {{ item.label }}
+          </NuxtLink>
+        </nav>
+      </div>
 
       <div class="app-header__actions">
+        <NuxtLink :to="localePath('/lingyue/simulation')" class="app-header__cta-lingyue">
+          {{ t('nav.lingyue') }}
+        </NuxtLink>
+        <span class="app-header__cta-creation" :title="t('academy.unavailable')">
+          {{ t('nav.creation') }}
+        </span>
         <AppLocaleMenu />
-        <!-- Cookie 会话可由 SSR 读取，首屏与客户端使用同一登录态 -->
         <template v-if="auth.isLoggedIn">
           <NuxtLink :to="localePath('/account')" class="app-header__user">
             <AccountAvatar v-if="auth.user" :avatar-code="auth.user.avatarCode" />
             <span>{{ auth.user?.nickname || t('academy.account') }}</span>
           </NuxtLink>
-          <AButton type="text" @click="handleLogout">
+          <button type="button" class="app-header__login" @click="handleLogout">
             {{ t('common.logout') }}
-          </AButton>
+          </button>
         </template>
-        <AButton v-else type="primary" @click="openLogin">
+        <button v-else type="button" class="app-header__login" @click="openLogin">
           {{ t('common.login') }}
-        </AButton>
-        <!-- 移动端菜单按钮 -->
-        <AButton
-          type="text"
+        </button>
+        <button
+          type="button"
           class="app-header__burger"
           :aria-expanded="menuOpen"
           :aria-label="t('common.menu')"
           @click="menuOpen = !menuOpen"
         >
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path
               v-if="!menuOpen"
               d="M3 5h14M3 10h14M3 15h14"
@@ -113,14 +111,13 @@ function handleLogout() {
               stroke-linecap="round"
             />
           </svg>
-        </AButton>
+        </button>
       </div>
     </div>
 
-    <!-- 移动端导航面板 -->
     <nav v-if="menuOpen" class="app-header__panel">
       <NuxtLink
-        v-for="item in navItems"
+        v-for="item in [...mainNav, ...moreNav]"
         :key="item.to"
         :to="item.to"
         class="app-header__panel-link"
@@ -128,15 +125,17 @@ function handleLogout() {
       >
         {{ item.label }}
       </NuxtLink>
-      <AButton
+      <NuxtLink :to="localePath('/lingyue/simulation')" class="app-header__panel-link">
+        {{ t('nav.lingyue') }}
+      </NuxtLink>
+      <button
         v-if="auth.isLoggedIn"
-        type="text"
-        block
-        class="app-header__panel-action"
+        type="button"
+        class="app-header__panel-link"
         @click="handleLogout"
       >
         {{ t('common.logout') }}（{{ auth.user?.nickname }}）
-      </AButton>
+      </button>
     </nav>
   </header>
 </template>
@@ -146,65 +145,103 @@ function handleLogout() {
   position: sticky;
   top: 0;
   z-index: var(--ic-z-index-sticky, 100);
-  border-bottom: 1px solid var(--ic-color-border-base, #e2e8f0);
-  background-color: rgb(255 255 255 / 92%);
-  backdrop-filter: blur(8px);
+  background: #fff;
 }
 
 .app-header__inner {
   display: flex;
   align-items: center;
-  gap: var(--ic-spacing-4, 16px);
-  height: 60px;
+  justify-content: space-between;
+  gap: 32px;
+  height: 66px;
+}
+
+.app-header__leading {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+  min-width: 0;
 }
 
 .app-header__brand {
-  flex-shrink: 0;
-}
-
-/* 窄屏仅显示 logo 图标：品牌文字与右侧操作区（语言/登录/菜单）争抢宽度会溢出视口 */
-.app-header__brand :deep(.ui-brand-logo__name) {
-  display: none;
+  flex: none;
+  color: #1c1f23;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 35px;
+  white-space: nowrap;
 }
 
 .app-header__nav {
   display: none;
   align-items: center;
-  gap: var(--ic-spacing-2, 8px);
-  margin-inline-start: var(--ic-spacing-6, 24px);
+  gap: 24px;
 }
 
 .app-header__link {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
-  padding: 0 var(--ic-spacing-3, 12px);
-  border-radius: var(--ic-border-radius-md, 8px);
-  font-size: var(--ic-font-size-sm, 14px);
-  color: var(--ic-color-text-secondary, #475569);
-  transition: color var(--ic-motion-duration-fast, 150ms);
-}
-
-.app-header__link:hover {
-  color: var(--ic-color-brand-500, #2563eb);
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 3px;
+  color: #1c1f23;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .app-header__link--active {
-  color: var(--ic-color-brand-500, #2563eb);
-  font-weight: var(--ic-font-weight-semibold, 600);
+  color: #0077fa;
+  font-weight: 500;
 }
 
 .app-header__actions {
   display: flex;
   align-items: center;
-  gap: var(--ic-spacing-2, 8px);
+  gap: 20px;
   margin-inline-start: auto;
+}
+
+.app-header__cta-lingyue,
+.app-header__cta-creation {
+  display: none;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.app-header__cta-lingyue {
+  background: linear-gradient(90deg, #0079ff 0%, #a348f3 100%);
+  color: #fff;
+}
+
+.app-header__cta-creation {
+  background: #eaf5ff;
+  color: #0077fa;
+  cursor: default;
+}
+
+.app-header__login {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #1c1f23;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
 }
 
 .app-header__user {
   display: none;
-  font-size: var(--ic-font-size-sm, 14px);
-  color: var(--ic-color-text-secondary, #475569);
+  align-items: center;
+  gap: 8px;
+  color: #1c1f23;
+  font-size: 14px;
 }
 
 .app-header__burger {
@@ -213,7 +250,10 @@ function handleLogout() {
   justify-content: center;
   width: 44px;
   height: 44px;
-  color: var(--ic-color-text-primary, #0f172a);
+  border: 0;
+  background: transparent;
+  color: #1c1f23;
+  cursor: pointer;
 }
 
 .app-header__burger svg {
@@ -224,38 +264,31 @@ function handleLogout() {
 .app-header__panel {
   display: flex;
   flex-direction: column;
-  padding: var(--ic-spacing-2, 8px) var(--ic-spacing-4, 16px);
-  border-top: 1px solid var(--ic-color-border-base, #e2e8f0);
-  background-color: var(--ic-color-background-container, #fff);
+  padding: 8px 16px 16px;
+  border-top: 1px solid #e2e8f0;
+  background: #fff;
 }
 
 .app-header__panel-link {
   display: flex;
   align-items: center;
   min-height: 44px;
-  border-radius: var(--ic-border-radius-md, 8px);
-  padding: 0 var(--ic-spacing-3, 12px);
-  font-size: var(--ic-font-size-base, 16px);
-  color: var(--ic-color-text-primary, #0f172a);
-}
-
-.app-header__panel-action {
-  min-height: 44px;
-  justify-content: flex-start;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #1c1f23;
+  font-size: 16px;
   text-align: left;
+  cursor: pointer;
 }
 
 @media (min-width: 1280px) {
-  .app-header__brand :deep(.ui-brand-logo__name) {
-    display: inline;
-  }
-
-  .app-header__nav {
-    display: flex;
-  }
-
+  .app-header__nav,
+  .app-header__cta-lingyue,
+  .app-header__cta-creation,
   .app-header__user {
-    display: inline;
+    display: inline-flex;
   }
 
   .app-header__burger,

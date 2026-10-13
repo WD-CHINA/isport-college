@@ -139,6 +139,12 @@ export const zIndex = {
   toast: 1100,
 } as const
 
+/** 版式。设计稿宽 1440，内容区宽 1200，两侧各留 120。 */
+export const layout = {
+  canvas: '1440px',
+  content: '1200px',
+} as const
+
 /** 响应式断点（min-width） */
 export const breakpoints = {
   xs: '0px',
@@ -179,6 +185,7 @@ export const tokens = {
   borderRadius,
   boxShadow,
   zIndex,
+  layout,
   breakpoints,
   motion,
 } as const

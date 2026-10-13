@@ -1,101 +1,164 @@
 <script setup lang="ts">
 import { isContentAssetUrl, type WebTeacher } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import HomeSectionTitle from './HomeSectionTitle.vue'
 
-defineProps<{ title: string; people: WebTeacher[]; to: string }>()
+const props = defineProps<{ people: WebTeacher[] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
+const page = shallowRef(0)
+const pages = computed(() => Math.max(1, Math.ceil(props.people.length / 3)))
+const visible = computed(() => props.people.slice(page.value * 3, page.value * 3 + 3))
+
+watch(
+  () => props.people.length,
+  () => {
+    page.value = 0
+  },
+)
 </script>
 
 <template>
   <section class="home-people">
-    <div class="home-people__heading">
-      <h2>{{ title }}</h2>
-      <NuxtLink :to="localePath(to)">{{ t('common.viewMore') }} →</NuxtLink>
+    <div class="container-page">
+      <HomeSectionTitle :title="t('home.teachersTitle')" :subtitle="t('home.teachersSubtitle')" />
+      <ul>
+        <li v-for="person in visible" :key="person.id">
+          <NuxtLink :to="localePath(`/teachers/${person.id}`)">
+            <p>{{ person.story || person.honorTitle }}</p>
+            <span class="home-people__who">
+              <img
+                v-if="isContentAssetUrl(apiUrl(person.avatarUrl))"
+                :src="apiUrl(person.avatarUrl)"
+                alt=""
+              />
+              <i v-else aria-hidden="true" />
+              <span>
+                <strong>{{ person.name }}</strong>
+                <em v-if="person.jobTitle || person.honorTitle">{{
+                  person.honorTitle || person.jobTitle
+                }}</em>
+                <small>{{ person.schoolOrg }}</small>
+              </span>
+            </span>
+          </NuxtLink>
+        </li>
+      </ul>
+      <div v-if="pages > 1" class="home-people__dots">
+        <button
+          v-for="dot in pages"
+          :key="dot"
+          type="button"
+          :class="{ 'is-active': dot - 1 === page }"
+          :aria-label="String(dot)"
+          @click="page = dot - 1"
+        />
+      </div>
     </div>
-    <ul v-if="people.length" class="home-people__list">
-      <li v-for="person in people" :key="person.id">
-        <NuxtLink :to="localePath(`/teachers/${person.id}`)" class="home-people__card">
-          <img
-            v-if="isContentAssetUrl(apiUrl(person.avatarUrl))"
-            :src="apiUrl(person.avatarUrl)"
-            alt=""
-            width="72"
-            height="72"
-          />
-          <span v-else class="home-people__fallback" aria-hidden="true">{{
-            person.name.slice(0, 1)
-          }}</span>
-          <strong>{{ person.name }}</strong>
-          <span>{{ person.honorTitle || person.jobTitle }}</span>
-          <span>{{ person.schoolOrg }}</span>
-        </NuxtLink>
-      </li>
-    </ul>
-    <p v-else class="home-people__empty">{{ t('catalog.noResults') }}</p>
   </section>
 </template>
 
 <style scoped>
 .home-people {
+  padding: 48px 0;
+  background: #fbfdff;
+}
+
+.home-people ul {
   display: grid;
-  gap: 20px;
-}
-
-.home-people__heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.home-people__heading h2 {
-  margin: 0;
-  font-size: 24px;
-}
-
-.home-people__heading a {
-  color: var(--ic-color-brand-500);
-}
-
-.home-people__list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  margin: 0;
-  padding: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: 36px 0 0;
   list-style: none;
 }
 
-.home-people__card {
-  display: grid;
-  gap: 4px;
-  padding: 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  color: inherit;
-  background: #fff;
+.home-people a {
+  display: flex;
+  min-height: 220px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+  border-radius: 12px;
+  background: #edf3ff;
+  color: #1c1f23;
 }
 
-.home-people__card img,
-.home-people__fallback {
-  width: 72px;
-  height: 72px;
+.home-people p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.home-people p::before {
+  content: '“';
+  display: block;
+  margin-bottom: 12px;
+  color: #0077fa;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.home-people__who {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgb(104 120 140 / 25%);
+}
+
+.home-people img,
+.home-people i {
+  width: 48px;
+  height: 48px;
+  flex: none;
   border-radius: 50%;
+  background: #68788c;
   object-fit: cover;
 }
 
-.home-people__fallback {
-  display: grid;
-  place-items: center;
-  background: var(--ic-color-brand-100);
-  color: var(--ic-color-brand-600);
-  font-size: 24px;
+.home-people strong,
+.home-people em,
+.home-people small {
+  display: block;
 }
 
-.home-people__empty {
-  margin: 0;
-  color: #64748b;
+.home-people em {
+  color: #0077fa;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.home-people small {
+  color: #68788c;
+  font-size: 12px;
+}
+
+.home-people__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.home-people__dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: #cbe7fe;
+}
+
+.home-people__dots .is-active {
+  width: 16px;
+  background: #0077fa;
+}
+
+@media (max-width: 900px) {
+  .home-people ul {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
