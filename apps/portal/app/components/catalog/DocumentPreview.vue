@@ -1,0 +1,43 @@
+<script setup lang="ts">
+import { isContentAssetUrl } from '@isport/shared'
+import { toDocumentPreviewUrl } from '~/utils/document-preview'
+import PreviewFrame from './PreviewFrame.vue'
+
+const props = defineProps<{ url: string; title: string }>()
+const emit = defineEmits<{ error: [] }>()
+const { t } = useI18n()
+const runtimeConfig = useRuntimeConfig()
+const safeSource = computed(() => isContentAssetUrl(props.url))
+const previewUrl = computed(() => {
+  if (!safeSource.value) return ''
+  return toDocumentPreviewUrl(props.url, String(runtimeConfig.public.documentPreviewBase ?? ''))
+})
+watch(safeSource, value => {
+  if (!value) emit('error')
+})
+</script>
+
+<template>
+  <PreviewFrame :title="title">
+    <AAlert v-if="!safeSource" type="error" :title="t('media.missing')" show-icon />
+    <iframe
+      v-else
+      class="document-preview__frame"
+      data-testid="document-preview"
+      :src="previewUrl"
+      :title="title"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+    />
+  </PreviewFrame>
+</template>
+
+<style scoped>
+.document-preview__frame {
+  display: block;
+  width: 100%;
+  min-height: 70vh;
+  border: 0;
+  background: #fff;
+}
+</style>

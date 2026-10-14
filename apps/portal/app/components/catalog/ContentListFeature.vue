@@ -3,14 +3,12 @@ import AppPagination from '~/components/app/AppPagination.vue'
 import ContentFilters from './ContentFilters.vue'
 import ContentGrid from '~/components/content/ContentGrid.vue'
 import CatalogHero from './CatalogHero.vue'
-import ResourcePreviewDialog from './ResourcePreviewDialog.vue'
 import { useContentList } from '~/composables/catalog/useContentList'
-import { contentQueryToUrl, type ContentChannel, type WebContentCard } from '@isport/shared'
+import { contentQueryToUrl, type ContentChannel } from '@isport/shared'
 
 const props = defineProps<{ channel: ContentChannel }>()
-const route = useRoute()
 const { t } = useI18n()
-const { query, request, filterRequest, categories, update, search, recordView, changePage, retry } =
+const { query, request, filterRequest, categories, update, search, changePage, retry } =
   useContentList(props.channel)
 const { data, status, error } = request
 const { data: resourceFilters, error: filterError } = filterRequest
@@ -21,30 +19,11 @@ const sectionTitle = computed(
     t(props.channel === 'school' ? 'catalog.allCases' : `catalog.channels.${props.channel}`),
 )
 const listStart = useTemplateRef<HTMLElement>('listStart')
-const preview = shallowRef<WebContentCard | null>(null)
-const previewOpen = shallowRef(false)
-function openPreview(content: WebContentCard) {
-  preview.value = content
-  previewOpen.value = true
-}
-function closePreview() {
-  if (!previewOpen.value) preview.value = null
-}
-function viewed(contentKey: string, count: number) {
-  if (previewOpen.value && preview.value?.contentKey === contentKey) recordView(contentKey, count)
-}
 watch(
   () => JSON.stringify(contentQueryToUrl(query.value)),
   async () => {
-    previewOpen.value = false
     await nextTick()
     if (props.channel === 'resource') listStart.value?.scrollIntoView({ block: 'start' })
-  },
-)
-watch(
-  () => route.path,
-  () => {
-    previewOpen.value = false
   },
 )
 useSeoMeta({ title: () => title.value, description: () => t('catalog.description') })
@@ -87,8 +66,6 @@ await request
           :loading="status === 'pending'"
           variant="catalog"
           :channel="channel"
-          :preview-resources="channel === 'resource'"
-          @preview="openPreview"
         />
         <AppPagination
           v-if="data"
@@ -99,14 +76,6 @@ await request
         />
       </template>
     </div>
-    <ResourcePreviewDialog
-      v-if="preview"
-      :key="preview.contentKey"
-      v-model:open="previewOpen"
-      :content="preview"
-      @viewed="viewed"
-      @closed="closePreview"
-    />
   </div>
 </template>
 

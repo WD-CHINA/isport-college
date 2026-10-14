@@ -91,14 +91,6 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
         : { ...query.value, keyword: normalized }
     return update(filters)
   }
-  function recordView(contentKey: string, viewCount: number) {
-    const page = request.data.value
-    if (!page) return
-    request.data.value = {
-      ...page,
-      list: page.list.map(item => (item.contentKey === contentKey ? { ...item, viewCount } : item)),
-    }
-  }
   function changePage(page: number) {
     return router.push({ path: route.path, query: contentQueryToUrl({ ...query.value, page }) })
   }
@@ -114,7 +106,6 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
     categories,
     update,
     search,
-    recordView,
     changePage,
     retry,
   }

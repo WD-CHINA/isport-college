@@ -50,6 +50,13 @@ export default defineNuxtConfig({
        * 绝对地址：测试或直连时使用，不经过开发服务器代理。
        */
       apiBase: '',
+      /**
+       * 文档预览服务根地址；文件 URL 以 encode 后的 url 参数拼接。
+       * 可用 NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE 覆盖。
+       */
+      documentPreviewBase:
+        process.env.NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE ??
+        'http://8.133.231.181:11001/?showHeader=0&showImport=0&showUrlImport=0&showToolbar=1&showErrors=0',
     },
   },
   app: {

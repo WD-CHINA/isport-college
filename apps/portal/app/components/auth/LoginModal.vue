@@ -27,6 +27,7 @@ const visible = computed({
     :footer="null"
     centered
     destroy-on-hidden
+    closable
   >
     <SmsLoginForm
       v-model:phone="form.phone"

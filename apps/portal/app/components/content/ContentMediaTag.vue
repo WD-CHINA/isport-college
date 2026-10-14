@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import type { WebDetailType } from '@isport/shared'
+import { contentMediaIcon } from './content-media'
+
 const props = defineProps<{ type: WebDetailType }>()
 const { t } = useI18n()
-const media = computed(
-  () =>
-    ({
-      VIDEO: { key: 'video', icon: 'ee3bb.svg' },
-      AUDIO: { key: 'audio', icon: '5b8fd.svg' },
-      DOCUMENT: { key: 'courseware', icon: '4f72c.svg' },
-      IMAGE: { key: 'image', icon: 'e2df2.svg' },
-      LINK: { key: 'link', icon: '4f72c.svg' },
-      ARTICLE: { key: 'article', icon: '4f72c.svg' },
-    })[props.type],
-)
+const labels: Record<WebDetailType, string> = {
+  VIDEO: 'video',
+  AUDIO: 'audio',
+  DOCUMENT: 'courseware',
+  IMAGE: 'image',
+  LINK: 'link',
+  ARTICLE: 'article',
+}
+const label = computed(() => labels[props.type])
 </script>
 <template>
   <span class="content-media-tag"
-    ><img :src="`/home/figma/${media.icon}`" alt="" />{{ t(`catalog.media.${media.key}`) }}</span
+    ><img :src="contentMediaIcon(type)" alt="" />{{ t(`catalog.media.${label}`) }}</span
   >
 </template>
 <style scoped>

@@ -9,7 +9,7 @@ test('资源仍支持新窗口打开详情，其他栏目卡片保持路由导�
     .click({ modifiers: ['ControlOrMeta'] })
   const detail = await newTab
   await detail.waitForURL(/\/resources\/2$/)
-  await expect(detail.locator('video')).toBeVisible()
+  await expect(detail.getByTestId('video-preview')).toBeVisible()
   await expect(page).toHaveURL(/\/resources\?category=1$/)
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await detail.close()
@@ -73,39 +73,33 @@ test('每页 60 条，翻页和刷新保持查询，筛选回到第一页', asyn
   await expect(page.locator('.content-card')).toHaveCount(60)
 })
 
-test('列表资源页内预览，关闭保留条件，上报一次浏览并停掉播放器', async ({ page }) => {
+test('列表资源点击进入详情页，上报一次浏览', async ({ page }) => {
   let reports = 0
-  let recommendations = 0
   page.on('request', request => {
     if (request.url().includes('/api/v1/contents/view')) reports++
-    if (request.url().includes('/api/v1/contents/recommend')) recommendations++
   })
   await page.goto('/resources?category=1&recommendedLevel=3')
   await waitForHydration(page)
-  const originalUrl = page.url()
   await page.locator('[data-content-id="RESOURCE:2"] .content-card__link').click()
-  const dialog = page.getByRole('dialog')
-  await expect(dialog.locator('video')).toBeVisible()
-  await expect(dialog.getByTestId('view-count')).toContainText('11')
-  expect(reports).toBe(1)
-  expect(recommendations).toBe(0)
-  await expect(page).toHaveURL(originalUrl)
-  await page.keyboard.press('Escape')
-  await expect(dialog).toBeHidden()
-  await expect(page.locator('video')).toHaveCount(0)
-  await expect(page).toHaveURL(originalUrl)
+  await expect(page).toHaveURL(/\/resources\/2$/)
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page.getByTestId('video-preview')).toBeVisible()
+  await expect(page.getByTestId('view-count')).toContainText('11')
+  await expect.poll(() => reports).toBe(1)
+  await page.goto('/resources?category=1&recommendedLevel=3')
   await page.locator('[data-content-id="RESOURCE:3"] .content-card__link').click()
-  await expect(page.getByRole('dialog').locator('audio')).toBeVisible()
+  await expect(page).toHaveURL(/\/resources\/3$/)
+  await expect(page.getByTestId('audio-preview')).toBeVisible()
   await expect.poll(() => reports).toBe(2)
 })
 
-test('弹窗收藏要求登录，登录后回放，图片和 PDF 使用现有预览', async ({ page }) => {
+test('详情页收藏要求登录，登录后回放，图片和文档在详情页预览', async ({ page }) => {
   await page.goto('/resources?category=1')
   await waitForHydration(page)
   await page.locator('[data-content-id="RESOURCE:5"] .content-card__link').click()
-  const preview = page.getByRole('dialog').filter({ has: page.locator('.resource-preview-dialog') })
-  await expect(preview.locator('.media-preview__image')).toBeVisible()
-  await preview.getByRole('button', { name: /^收藏/ }).click()
+  await expect(page).toHaveURL(/\/resources\/5$/)
+  await expect(page.getByTestId('image-carousel')).toBeVisible()
+  await page.getByRole('button', { name: /^收藏/ }).click()
   const login = page.getByRole('dialog').filter({ has: page.locator('#login-phone') })
   await expect(login).toBeVisible()
   await login.locator('#login-phone').fill('13800138000')
@@ -115,17 +109,17 @@ test('弹窗收藏要求登录，登录后回放，图片和 PDF 使用现有预
   await login.getByRole('checkbox').check()
   await login.getByRole('button', { name: /登\s*录/, exact: true }).click()
   await expect(login).toBeHidden()
-  await expect(preview.getByRole('button', { name: /^取消收藏/ })).toHaveAttribute(
+  await expect(page.getByRole('button', { name: /^取消收藏/ })).toHaveAttribute(
     'aria-pressed',
     'true',
   )
-  await page.keyboard.press('Escape')
-  await expect(preview).toBeHidden()
+  await page.goto('/resources?category=1')
   await page.locator('[data-content-id="RESOURCE:4"] .content-card__link').click()
-  await expect(page.getByRole('dialog').locator('.pdf-preview canvas')).toBeVisible()
+  await expect(page).toHaveURL(/\/resources\/4$/)
+  await expect(page.getByTestId('document-preview')).toBeVisible()
 })
 
-test('弹窗失败可重试，关闭慢响应后不会覆盖新的预览', async ({ page }) => {
+test('慢响应的旧详情不会覆盖后打开的资源', async ({ page }) => {
   await page.route('**/api/v1/resources/2', async route => {
     await new Promise(resolve => setTimeout(resolve, 800))
     await route.continue()
@@ -133,14 +127,10 @@ test('弹窗失败可重试，关闭慢响应后不会覆盖新的预览', async
   await page.goto('/resources?category=1')
   await waitForHydration(page)
   await page.locator('[data-content-id="RESOURCE:2"] .content-card__link').click()
-  await expect(page.getByRole('dialog')).toBeVisible()
-  await page.keyboard.press('Escape')
-  await expect(page.getByRole('dialog')).toBeHidden()
-  await page.locator('[data-content-id="RESOURCE:9"] .content-card__link').click()
-  const dialog = page.getByRole('dialog')
-  await expect(dialog).toContainText('资源示例 9')
-  await expect(dialog.getByRole('alert')).toContainText('媒体加载失败')
-  await dialog.getByRole('button', { name: /重\s*试/, exact: true }).click()
-  await expect(dialog.getByRole('alert')).toContainText('媒体加载失败')
-  await expect(dialog).not.toContainText('资源示例 2')
+  await page.goto('/resources/9')
+  await expect(page.getByRole('heading', { name: '资源示例 9', exact: true })).toBeVisible()
+  await expect(page.getByRole('alert')).toContainText('媒体加载失败')
+  await page.getByRole('button', { name: /重\s*试/, exact: true }).click()
+  await expect(page.getByRole('alert')).toContainText('媒体加载失败')
+  await expect(page.getByRole('heading', { name: '资源示例 2', exact: true })).toHaveCount(0)
 })

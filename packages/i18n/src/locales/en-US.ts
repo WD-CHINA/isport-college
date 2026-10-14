@@ -314,9 +314,9 @@ const messages: MessageSchema = {
     exitFullscreen: 'Exit fullscreen',
     fallback:
       'Fullscreen is unavailable. Expanded page view is active; use Exit or press Esc to close.',
-    pdfLoading: 'Loading PDF reader…',
-    pdfFailed: 'Unable to load or parse this PDF. Check the file and retry.',
-    pdfControls: 'PDF reading controls',
+    pdfLoading: 'Loading document preview…',
+    pdfFailed: 'Unable to load document preview. Check the file and retry.',
+    pdfControls: 'Document preview controls',
     previous: 'Previous page',
     next: 'Next page',
     page: 'Page number',
@@ -324,8 +324,7 @@ const messages: MessageSchema = {
     pdfPage: '{title}, page {page}',
     zoomIn: 'Zoom in',
     zoomOut: 'Zoom out',
-    pptNotice:
-      'PPT preview is not supported in this release. File information only; no slides, animations or embedded videos.',
+    pptNotice: 'Document preview is provided by the online viewer.',
     failed: 'Unable to load media. The file may be missing or unsupported.',
     missing: 'No valid media source is available.',
     playing: 'Playing',

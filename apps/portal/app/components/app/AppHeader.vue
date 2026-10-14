@@ -26,15 +26,6 @@ const mainNav = computed(() => [
   { to: localePath('/schools'), label: t('academy.schools'), exact: false },
 ])
 
-const moreNav = computed(() => [
-  { to: localePath('/teachers'), label: t('academy.teachers'), exact: false },
-  { to: localePath('/news'), label: t('academy.news'), exact: false },
-  { to: localePath('/account'), label: t('academy.account'), exact: false },
-  ...(auth.can('admin:view')
-    ? [{ to: localePath('/admin'), label: t('nav.adminEntry'), exact: false }]
-    : []),
-])
-
 function isActive(to: string, exact: boolean): boolean {
   return exact ? route.path === to : route.path.startsWith(to)
 }
@@ -119,7 +110,7 @@ function handleLogout() {
 
     <nav v-if="menuOpen" class="app-header__panel">
       <NuxtLink
-        v-for="item in [...mainNav, ...moreNav]"
+        v-for="item in mainNav"
         :key="item.to"
         :to="item.to"
         class="app-header__panel-link"
@@ -127,8 +118,21 @@ function handleLogout() {
       >
         {{ item.label }}
       </NuxtLink>
-      <NuxtLink :to="localePath('/lingyue/simulation')" class="app-header__panel-link">
+      <NuxtLink
+        :to="localePath('/lingyue/simulation')"
+        class="app-header__panel-link app-header__panel-lingyue"
+      >
         {{ t('nav.lingyue') }}
+      </NuxtLink>
+      <span
+        class="app-header__panel-link app-header__panel-creation"
+        :title="t('academy.unavailable')"
+      >
+        {{ t('nav.creation') }}
+      </span>
+      <NuxtLink v-if="auth.isLoggedIn" :to="localePath('/account')" class="app-header__panel-link">
+        <AccountAvatar v-if="auth.user" :avatar-code="auth.user.avatarCode" />
+        <span>{{ auth.user?.nickname || t('academy.account') }}</span>
       </NuxtLink>
       <button
         v-if="auth.isLoggedIn"
@@ -136,7 +140,7 @@ function handleLogout() {
         class="app-header__panel-link"
         @click="handleLogout"
       >
-        {{ t('common.logout') }}（{{ auth.user?.nickname }}）
+        {{ t('common.logout') }}
       </button>
     </nav>
   </header>
@@ -291,6 +295,7 @@ function handleLogout() {
 .app-header__panel-link {
   display: flex;
   align-items: center;
+  gap: 8px;
   min-height: 44px;
   padding: 0 12px;
   border: 0;
@@ -300,6 +305,30 @@ function handleLogout() {
   font-size: 16px;
   text-align: left;
   cursor: pointer;
+}
+
+.app-header__panel-lingyue,
+.app-header__panel-creation {
+  align-self: flex-start;
+  height: 32px;
+  min-height: 32px;
+  margin: 6px 12px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.app-header__panel-lingyue {
+  background: linear-gradient(109deg, #0079ff 0%, #a348f3 100%);
+  color: #fff;
+}
+
+.app-header__panel-creation {
+  background: #eaf5ff;
+  color: #0077fa;
+  cursor: default;
 }
 
 @media (max-width: 767px) {

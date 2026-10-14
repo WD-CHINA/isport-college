@@ -1,5 +1,4 @@
 <script setup lang="ts">
-defineProps<{ compact?: boolean }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const year = new Date().getFullYear()
@@ -15,8 +14,8 @@ const links = computed(() => [
 ])
 </script>
 <template>
-  <footer class="app-footer" :class="{ 'app-footer--compact': compact }">
-    <div v-if="!compact" class="app-footer__inner">
+  <footer class="app-footer">
+    <div class="app-footer__inner">
       <section class="app-footer__contact" :aria-label="t('footer.contact')">
         <NuxtLink class="app-footer__brand" :to="localePath('/')">
           <strong>{{ t('footer.brand') }}</strong>
@@ -70,14 +69,6 @@ const links = computed(() => [
   padding-top: 15px;
   background: #fbfdff;
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-}
-
-.app-footer--compact {
-  padding-top: 0;
-}
-
-.app-footer--compact .app-footer__copy {
-  padding-block: 28px;
 }
 
 .app-footer__inner {

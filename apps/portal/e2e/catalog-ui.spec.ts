@@ -49,7 +49,7 @@ for (const width of [320, 390]) {
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
           true,
         )
-        await expect(page.locator('.app-footer__inner')).toHaveCount(0)
+        await expect(page.locator('.app-footer__inner')).toBeVisible()
       }
       await page
         .locator('.app-header__actions')

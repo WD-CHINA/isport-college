@@ -34,8 +34,8 @@ test('手机导航无横向溢出', async ({ page }) => {
   ).toBeVisible()
   await waitForHydration(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.locator('.app-header__panel').getByRole('link', { name: 'Teachers' }).click()
-  await expect(page).toHaveURL(/\/en\/teachers$/)
+  await page.locator('.app-header__panel').getByRole('link', { name: 'School Stories' }).click()
+  await expect(page).toHaveURL(/\/en\/schools$/)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
   )

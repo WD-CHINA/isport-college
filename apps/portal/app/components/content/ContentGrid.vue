@@ -8,9 +8,7 @@ defineProps<{
   loading?: boolean
   variant?: 'default' | 'catalog'
   channel?: ContentChannel
-  previewResources?: boolean
 }>()
-const emit = defineEmits<{ preview: [content: WebContentCard] }>()
 const { t } = useI18n()
 </script>
 
@@ -29,8 +27,6 @@ const { t } = useI18n()
       :key="item.contentKey"
       :content="item"
       :variant="variant"
-      :preview="previewResources && item.channel === 'RESOURCE'"
-      @preview="emit('preview', $event)"
     />
   </div>
   <AppEmpty v-if="!loading && !items.length" :description="t('catalog.noResults')" />

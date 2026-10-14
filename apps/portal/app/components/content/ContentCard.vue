@@ -6,27 +6,13 @@ import {
   type WebContentCard,
 } from '@isport/shared'
 import ContentMediaTag from './ContentMediaTag.vue'
+import ContentTypeIcon from './ContentTypeIcon.vue'
 import { useApiUrl } from '~/utils/api-url'
 
 const props = defineProps<{
   content: WebContentCard
   variant?: 'default' | 'catalog'
-  preview?: boolean
 }>()
-const emit = defineEmits<{ preview: [content: WebContentCard] }>()
-function activate(event: MouseEvent, navigate: (event: MouseEvent) => unknown) {
-  if (
-    !props.preview ||
-    event.button !== 0 ||
-    event.metaKey ||
-    event.ctrlKey ||
-    event.shiftKey ||
-    event.altKey
-  )
-    return navigate(event)
-  event.preventDefault()
-  emit('preview', props.content)
-}
 const { t } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
@@ -62,61 +48,52 @@ watch(
     ]"
     :data-content-id="content.contentKey"
   >
-    <NuxtLink v-slot="{ href: linkHref, navigate }" :to="href" custom>
-      <a
-        :href="linkHref ?? href"
-        class="content-card__link"
-        :aria-haspopup="preview ? 'dialog' : undefined"
-        @click="activate($event, navigate)"
-      >
-        <div class="content-card__cover">
-          <img
-            v-if="isContentAssetUrl(coverUrl) && !imageFailed"
-            :src="coverUrl"
-            alt=""
-            loading="lazy"
-            width="640"
-            height="360"
-            @error="imageFailed = true"
-          />
-          <span v-else>{{ t('catalog.noCover') }}</span>
-          <span v-if="variant !== 'catalog'" class="content-card__kind">{{
-            t(`catalog.media.${kind}`)
-          }}</span>
+    <NuxtLink :to="href" class="content-card__link">
+      <div class="content-card__cover">
+        <img
+          v-if="isContentAssetUrl(coverUrl) && !imageFailed"
+          class="content-card__photo"
+          :src="coverUrl"
+          alt=""
+          loading="lazy"
+          width="640"
+          height="360"
+          @error="imageFailed = true"
+        />
+        <ContentTypeIcon v-else :type="content.detailType" :size="40" />
+        <span v-if="variant !== 'catalog'" class="content-card__kind">{{
+          t(`catalog.media.${kind}`)
+        }}</span>
+      </div>
+      <div class="content-card__body">
+        <ContentMediaTag
+          v-if="variant === 'catalog' && content.channel === 'RESOURCE'"
+          :type="content.detailType"
+        />
+        <span
+          v-if="variant === 'catalog' && content.channel === 'SCHOOL' && content.categoryName"
+          class="content-card__category"
+          >{{ content.categoryName }}</span
+        >
+        <h3>{{ content.title }}</h3>
+        <p v-if="variant !== 'catalog'">{{ content.summary }}</p>
+        <div v-if="variant !== 'catalog'" class="content-card__meta">
+          <span v-if="content.categoryName">{{ content.categoryName }}</span>
+          <span v-if="content.channel === 'SCHOOL' && (content.provinceName || content.schoolName)"
+            >{{ content.provinceName }} · {{ content.schoolName }}</span
+          >
+          <span>{{ t('catalog.views', { count: content.viewCount }) }}</span>
+          <time v-if="published" :datetime="published">{{ published }}</time>
         </div>
-        <div class="content-card__body">
-          <ContentMediaTag
-            v-if="variant === 'catalog' && content.channel === 'RESOURCE'"
-            :type="content.detailType"
-          />
-          <span
-            v-if="variant === 'catalog' && content.channel === 'SCHOOL' && content.categoryName"
-            class="content-card__category"
-            >{{ content.categoryName }}</span
-          >
-          <h3>{{ content.title }}</h3>
-          <p v-if="variant !== 'catalog'">{{ content.summary }}</p>
-          <div v-if="variant !== 'catalog'" class="content-card__meta">
-            <span v-if="content.categoryName">{{ content.categoryName }}</span>
-            <span
-              v-if="content.channel === 'SCHOOL' && (content.provinceName || content.schoolName)"
-              >{{ content.provinceName }} · {{ content.schoolName }}</span
-            >
-            <span>{{ t('catalog.views', { count: content.viewCount }) }}</span>
-            <time v-if="published" :datetime="published">{{ published }}</time>
-          </div>
-          <span
-            v-if="variant === 'catalog' && content.channel === 'RESOURCE'"
-            class="content-card__author"
-            >{{ content.authorName || content.schoolName }}</span
-          >
-          <span
-            v-if="variant === 'catalog' && content.channel === 'SCHOOL'"
-            class="content-card__cta"
-            >{{ t('catalog.viewCase') }} →</span
-          >
-        </div>
-      </a>
+        <span
+          v-if="variant === 'catalog' && content.channel === 'RESOURCE'"
+          class="content-card__author"
+          >{{ content.authorName || content.schoolName }}</span
+        >
+        <span v-if="variant === 'catalog' && content.channel === 'SCHOOL'" class="content-card__cta"
+          >{{ t('catalog.viewCase') }} →</span
+        >
+      </div>
     </NuxtLink>
     <slot />
   </article>
@@ -163,14 +140,14 @@ watch(
   font-size: var(--ic-font-size-sm, 14px);
 }
 
-.content-card__cover img {
+.content-card__photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform var(--ic-motion-duration-slow, 400ms) var(--ic-motion-easing-standard);
 }
 
-.content-card:hover .content-card__cover img {
+.content-card:hover .content-card__photo {
   transform: scale(1.04);
 }
 
@@ -236,7 +213,7 @@ watch(
   overflow: hidden;
 }
 
-.content-card--catalog .content-card__cover img {
+.content-card--catalog .content-card__photo {
   position: absolute;
   inset: 0;
 }

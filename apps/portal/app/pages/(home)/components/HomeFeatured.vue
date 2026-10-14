@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { isContentAssetUrl, webContentPath, type WebContentCard } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import ContentTypeIcon from '~/components/content/ContentTypeIcon.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
 
@@ -74,7 +75,9 @@ const hotIcons = {
                   :src="apiUrl(item.coverUrl)"
                   alt=""
                 />
-                <span v-else class="home-featured__thumb" />
+                <span v-else class="home-featured__thumb">
+                  <ContentTypeIcon :type="item.detailType" :size="24" />
+                </span>
                 <span class="home-featured__hot-copy">
                   <strong>{{ item.title }}</strong>
                   <em v-if="item.categoryName"
@@ -284,6 +287,11 @@ const hotIcons = {
   width: 66px;
   height: 48px;
   flex: none;
+}
+
+.home-featured__thumb {
+  display: grid;
+  place-items: center;
 }
 
 .home-featured__hot-copy {

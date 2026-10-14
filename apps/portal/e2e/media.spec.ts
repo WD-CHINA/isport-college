@@ -8,43 +8,40 @@ test('推荐服务失败不影响 SSR 正文，HTML 脚本被过滤', async ({ p
   await expect(page.locator('.content-detail__recommendations')).toHaveCount(0)
   await expect(page.locator('article script')).toHaveCount(0)
 })
-for (const [id, kind] of [
-  [2, 'video'],
-  [3, 'audio'],
-] as const) {
-  test(`${kind} 媒体加载并可调整播放速度`, async ({ page }) => {
-    await page.goto(`/resources/${id}`)
-    await waitForHydration(page)
-    const player = page.locator(kind)
-    await expect(player).toBeVisible()
-    await expect
-      .poll(() => player.evaluate((element: HTMLMediaElement) => element.readyState))
-      .toBeGreaterThan(0)
-    await page.locator('.media-preview__speed select').selectOption('1.5')
-    expect(await player.evaluate((element: HTMLMediaElement) => element.playbackRate)).toBe(1.5)
-  })
-}
-test('PDF 可渲染和缩放', async ({ page }) => {
+test('video 使用 xgplayer 加载', async ({ page }) => {
+  await page.goto('/resources/2')
+  await waitForHydration(page)
+  const host = page.getByTestId('video-preview')
+  await expect(host).toBeVisible()
+  await expect(host.locator('.xgplayer, video').first()).toBeVisible({ timeout: 15_000 })
+})
+test('audio 使用 vue-wave-player 加载', async ({ page }) => {
+  await page.goto('/resources/3')
+  await waitForHydration(page)
+  await expect(page.getByTestId('audio-preview')).toBeVisible({ timeout: 15_000 })
+})
+test('文档通过预览服务 iframe 接入', async ({ page }) => {
   await page.goto('/resources/4')
   await waitForHydration(page)
-  const canvas = page.locator('.pdf-preview canvas')
-  await expect(canvas).toBeVisible()
-  await expect
-    .poll(() => canvas.evaluate((element: HTMLCanvasElement) => element.width))
-    .toBeGreaterThan(300)
-  await page.getByRole('button', { name: '放大', exact: true }).click()
-  await expect(page.locator('.pdf-preview output')).toContainText('125%')
+  const frame = page.getByTestId('document-preview')
+  await expect(frame).toBeVisible()
+  const src = await frame.getAttribute('src')
+  expect(src).toContain('8.133.231.181:11001')
+  expect(src).toContain('showImport=0')
+  expect(src).toMatch(/[?&]url=/)
+  expect(decodeURIComponent(src!)).toContain('/media/sample.pdf')
 })
-test('图片展开降级与 Esc 退出', async ({ page }) => {
+test('图片使用轮播展示，展开降级与 Esc 退出', async ({ page }) => {
   await page.addInitScript(() => {
     Element.prototype.requestFullscreen = () => Promise.reject(new Error('unsupported'))
   })
   await page.goto('/resources/5')
   await waitForHydration(page)
+  await expect(page.getByTestId('image-carousel')).toBeVisible()
   await expect
     .poll(() =>
       page
-        .locator('.media-preview__image')
+        .locator('.image-carousel__image')
         .evaluate((element: HTMLImageElement) => element.naturalWidth),
     )
     .toBeGreaterThan(0)
@@ -53,12 +50,17 @@ test('图片展开降级与 Esc 退出', async ({ page }) => {
   await page.keyboard.press('Escape')
   await expect(page.locator('.preview-frame--expanded')).toHaveCount(0)
 })
-test('PPT 使用明确占位，失效媒体可重试', async ({ page }) => {
+test('PPT 走文档预览服务，失效媒体可重试', async ({ page }) => {
   await page.goto('/resources/6')
-  await expect(page.locator('.media-preview__placeholder')).toContainText('PPT')
+  await waitForHydration(page)
+  const frame = page.getByTestId('document-preview')
+  await expect(frame).toBeVisible()
+  expect(decodeURIComponent((await frame.getAttribute('src'))!)).toContain('/media/slides.pptx')
   await page.goto('/resources/9')
   await waitForHydration(page)
-  await expect(page.getByRole('button', { name: /重\s*试/, exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: /重\s*试/, exact: true })).toBeVisible({
+    timeout: 15_000,
+  })
   await page.getByRole('button', { name: /重\s*试/, exact: true }).click()
   await expect(page.getByRole('button', { name: /重\s*试/, exact: true })).toBeVisible()
 })

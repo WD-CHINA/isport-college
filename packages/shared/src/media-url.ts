@@ -9,7 +9,7 @@ function isAcademyStaticPath(value: string): boolean {
 export function isLocalMediaUrl(value: string): boolean {
   return (
     /^\/api\/academy\/files\/[a-zA-Z0-9-]+$/.test(value) ||
-    /^\/media\/[a-zA-Z0-9_-]+\.(?:png|jpe?g|webp|mp4|webm|wav|mp3|ogg|pdf)$/i.test(value) ||
+    /^\/media\/[a-zA-Z0-9_-]+\.(?:png|jpe?g|webp|mp4|webm|wav|mp3|ogg|pdf|pptx?)$/i.test(value) ||
     isAcademyStaticPath(value)
   )
 }

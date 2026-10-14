@@ -2,6 +2,7 @@
 import { isContentAssetUrl, webContentPath, type WebContentCard } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import ContentMediaTag from '~/components/content/ContentMediaTag.vue'
+import ContentTypeIcon from '~/components/content/ContentTypeIcon.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
 
@@ -78,9 +79,11 @@ function setLevel(value: unknown) {
             <span class="home-resources__cover">
               <img
                 v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
+                class="home-resources__photo"
                 :src="apiUrl(item.coverUrl)"
                 alt=""
               />
+              <ContentTypeIcon v-else :type="item.detailType" :size="40" />
             </span>
             <span class="home-resources__body">
               <ContentMediaTag :type="item.detailType" />
@@ -163,12 +166,13 @@ function setLevel(value: unknown) {
 }
 
 .home-resources__cover {
-  display: block;
+  display: grid;
+  place-items: center;
   height: 158px;
   background: #dce7f5;
 }
 
-.home-resources__cover img {
+.home-resources__photo {
   width: 100%;
   height: 100%;
   object-fit: cover;

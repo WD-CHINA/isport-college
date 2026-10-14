@@ -71,14 +71,7 @@ if (import.meta.server && notFound.value) {
             t('catalog.external')
           }}</a>
         </p>
-        <template v-else>
-          <MediaPreview
-            v-for="(item, index) in mediaItems"
-            :key="`${item.url}-${index}`"
-            :media="item"
-            :title="data.detail.title"
-          />
-        </template>
+        <MediaPreview v-else :items="mediaItems" :title="data.detail.title" />
         <template #interactions>
           <InteractionBar
             v-if="stats && data.detail.interactive"
