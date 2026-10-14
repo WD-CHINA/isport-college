@@ -151,6 +151,7 @@ const title = computed(() =>
   border: 0;
   color: var(--catalog-text);
   font-size: 14px;
+  outline: none;
 }
 
 .catalog-hero__search button {

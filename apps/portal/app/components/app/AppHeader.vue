@@ -195,6 +195,10 @@ function handleLogout() {
   gap: 24px;
 }
 
+.app-header__nav:lang(en-US) {
+  gap: 0;
+}
+
 .app-header__link {
   display: inline-flex;
   align-items: center;
@@ -206,6 +210,7 @@ function handleLogout() {
   color: #1c1f23;
   font-size: 14px;
   line-height: 20px;
+  white-space: nowrap;
 }
 
 .app-header__link--active {

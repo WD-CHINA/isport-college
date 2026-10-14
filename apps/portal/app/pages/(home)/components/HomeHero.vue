@@ -58,6 +58,10 @@ const { t } = useI18n()
   white-space: pre-line;
 }
 
+.home-hero__title:lang(en-US) {
+  line-height: 55px;
+}
+
 .home-hero__lead {
   max-width: 500px;
   margin: 0;
