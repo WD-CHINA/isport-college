@@ -9,6 +9,25 @@ function collectHydrationErrors(page: Page) {
   return errors
 }
 
+test('SSR 加载失败在水合后显示 hook 消息，保留重试入口', async ({ page }) => {
+  const hydrationErrors = collectHydrationErrors(page)
+  const response = await page.goto('/resources/997')
+  expect(await response!.text()).not.toContain('ant-alert')
+  await waitForHydration(page)
+  await expect(page.locator('.ant-message-notice-error')).toContainText('请求失败，请重试')
+  await expect(page.getByRole('button', { name: /重\s*试/, exact: true })).toBeVisible()
+  await page.route('**/api/v1/resources/997', async route => {
+    const result = await route.fetch({ url: route.request().url().replace('/997', '/1') })
+    await route.fulfill({ response: result })
+  })
+  await page.getByRole('button', { name: /重\s*试/, exact: true }).click()
+  await expect(
+    page.getByRole('heading', { level: 1, name: '资源示例 1', exact: true }),
+  ).toBeVisible()
+  await expect(page.locator('.ant-message-notice-error')).toHaveCount(0)
+  expect(hydrationErrors).toEqual([])
+})
+
 for (const cached of [false, true]) {
   test(`首页布局延迟加载时，${cached ? '恢复资料缓存' : '快速 /me 响应'}不会抢先改变水合内容`, async ({
     page,

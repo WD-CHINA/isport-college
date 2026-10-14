@@ -2,7 +2,7 @@ import { useRefreshOnFocus } from '~/composables/useRefreshOnFocus'
 import { useAcademy } from '~/composables/useAcademy'
 import { useAuthStore } from '~/stores/auth'
 import { apiErrorCode } from '~/api/errors'
-import type { ContentStats, WebContentDetail } from '@isport/shared'
+import type { ContentStats, InteractionKind, WebContentDetail } from '@isport/shared'
 import { toWebChannel } from '~/utils/web-channel'
 import { useContentInteractions } from './useContentInteractions'
 import { useContentView } from './useContentView'
@@ -10,7 +10,10 @@ import { useContentView } from './useContentView'
 export function useContentDetail(
   id: string,
   channel: 'resource' | 'research' | 'school',
-  options: { recommendations?: boolean } = {},
+  options: {
+    recommendations?: boolean
+    onInteractionSuccess?: (kind: InteractionKind, active: boolean) => void
+  } = {},
 ) {
   const academy = useAcademy()
   const auth = useAuthStore()
@@ -30,7 +33,12 @@ export function useContentDetail(
   function update(detail: WebContentDetail) {
     request.data.value = { detail }
   }
-  const interactions = useContentInteractions({ detail, update, refresh: () => request.refresh() })
+  const interactions = useContentInteractions({
+    detail,
+    update,
+    refresh: () => request.refresh(),
+    onSuccess: options.onInteractionSuccess,
+  })
   const views = useContentView({ detail, update, status: request.status, error: request.error })
 
   // 推荐在浏览器独立加载，失败或超时都不影响正文 SSR。

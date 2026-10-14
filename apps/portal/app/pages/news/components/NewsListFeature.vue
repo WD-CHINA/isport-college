@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { parseListPage } from '@isport/shared'
 import AppPagination from '~/components/app/AppPagination.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
@@ -24,6 +26,8 @@ const request = useAsyncData(
 )
 const { data, error, refresh } = request
 useSeoMeta({ title: () => t('academy.news') })
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))
 await request
 function changePage(next: number) {
   return router.push({ path: route.path, query: next > 1 ? { page: String(next) } : {} })
@@ -36,12 +40,9 @@ function href(id: number, detailType: string, jumpUrl: string) {
 
 <template>
   <main class="container-page catalog-page">
+    <ContextHolder />
     <h1>{{ t('academy.news') }}</h1>
-    <AAlert v-if="error" type="error" show-icon :title="t('academy.requestFailed')">
-      <template #action
-        ><AButton @click="refresh()">{{ t('catalog.retry') }}</AButton></template
-      >
-    </AAlert>
+    <AButton v-if="error" @click="refresh()">{{ t('catalog.retry') }}</AButton>
     <ul v-else-if="data?.list.length" class="catalog-page__news">
       <li v-for="item in data.list" :key="item.id">
         <NuxtLink

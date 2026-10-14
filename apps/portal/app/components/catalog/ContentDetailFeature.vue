@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { useContentDetail } from '~/composables/catalog/useContentDetail'
 import { isPublicHttpUrl } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
@@ -13,6 +15,7 @@ const props = defineProps<{ id: string; channel: 'resource' | 'research' | 'scho
 const { t } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
+const [messageApi, ContextHolder] = message.useMessage()
 const {
   request,
   recommendations: recommendationsRequest,
@@ -24,7 +27,19 @@ const {
   setInteraction,
   reportView,
   refresh,
-} = useContentDetail(props.id, props.channel)
+} = useContentDetail(props.id, props.channel, {
+  onInteractionSuccess: (kind, active) => {
+    const key =
+      kind === 'like'
+        ? active
+          ? 'detail.likeSuccess'
+          : 'detail.unlikeSuccess'
+        : active
+          ? 'detail.favoriteSuccess'
+          : 'detail.unfavoriteSuccess'
+    messageApi.success(t(key))
+  },
+})
 const { data, error, status } = request
 const { data: recommendations } = recommendationsRequest
 const mediaItems = computed(() => {
@@ -40,6 +55,13 @@ useSeoMeta({
   title: () => data.value?.detail.title || t('detail.notFound'),
   description: () => data.value?.detail.summary || '',
 })
+useMessageFeedback(
+  messageApi,
+  () => error.value && !notFound.value,
+  () => t('academy.requestFailed'),
+)
+useMessageFeedback(messageApi, interactionFailed, () => t('detail.interactionFailed'))
+useMessageFeedback(messageApi, viewFailed, () => t('detail.viewFailed'), 'warning')
 await request
 if (import.meta.server && notFound.value) {
   const event = useRequestEvent()
@@ -49,13 +71,10 @@ if (import.meta.server && notFound.value) {
 
 <template>
   <main class="content-detail ic-container">
+    <ContextHolder />
     <template v-if="error">
       <h1 v-if="notFound">{{ t('detail.notFound') }}</h1>
-      <AAlert v-else type="error" :title="t('academy.requestFailed')" show-icon>
-        <template #action
-          ><AButton @click="refresh">{{ t('catalog.retry') }}</AButton></template
-        >
-      </AAlert>
+      <AButton v-else @click="refresh">{{ t('catalog.retry') }}</AButton>
       <NuxtLink :to="localePath('/')">{{ t('common.backHome') }}</NuxtLink>
     </template>
     <template v-else-if="data">
@@ -79,17 +98,7 @@ if (import.meta.server && notFound.value) {
             :pending="pending || status === 'pending'"
             @change="setInteraction"
           />
-          <AAlert
-            v-if="interactionFailed"
-            type="error"
-            :title="t('detail.interactionFailed')"
-            show-icon
-          />
-          <AAlert v-if="viewFailed" type="warning" :title="t('detail.viewFailed')" show-icon>
-            <template #action
-              ><AButton @click="reportView">{{ t('catalog.retry') }}</AButton></template
-            >
-          </AAlert>
+          <AButton v-if="viewFailed" @click="reportView">{{ t('catalog.retry') }}</AButton>
         </template>
       </ContentDetailShell>
       <section v-if="recommendations.length" class="content-detail__recommendations">

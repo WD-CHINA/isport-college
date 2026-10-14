@@ -3,7 +3,7 @@ import { useSessionActions } from '~/composables/auth/useSessionActions'
 import { useLoginUiStore } from '~/stores/login-ui'
 import { isApiError } from '~/api/errors'
 
-export function useSmsLogin() {
+export function useSmsLogin(options: { onSent?: () => void; onSuccess?: () => void } = {}) {
   const loginUi = useLoginUiStore()
   const academy = useAcademy()
   const { login } = useSessionActions()
@@ -73,6 +73,7 @@ export function useSmsLogin() {
       if (id !== requestId) return
       sent.value = true
       startCooldown()
+      options.onSent?.()
     } catch (cause) {
       if (id === requestId) fail(cause)
     } finally {
@@ -103,7 +104,10 @@ export function useSmsLogin() {
         code: form.code,
         agreed: form.agreed,
       })
-      if (session && id === requestId) await loginUi.resolveLoginSuccess()
+      if (session && id === requestId) {
+        options.onSuccess?.()
+        await loginUi.resolveLoginSuccess()
+      }
     } catch (cause) {
       if (id === requestId) fail(cause)
     } finally {

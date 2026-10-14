@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import ContentGrid from '~/components/content/ContentGrid.vue'
 import HomeCapabilities from './HomeCapabilities.vue'
 import HomeCreation from './HomeCreation.vue'
@@ -28,6 +30,8 @@ const {
   levelItems,
 } = useAcademyHome()
 const { data, error, status, refresh } = request
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))
 await request
 
 function selectResource(id: string) {
@@ -38,15 +42,12 @@ function selectResource(id: string) {
 
 <template>
   <div class="academy-home">
+    <ContextHolder />
     <HomeHero />
     <HomeCapabilities />
     <HomePartners />
     <div v-if="error" class="container-page academy-home__status">
-      <AAlert type="error" :title="t('academy.requestFailed')">
-        <template #action
-          ><AButton @click="refresh()">{{ t('catalog.retry') }}</AButton></template
-        >
-      </AAlert>
+      <AButton @click="refresh()">{{ t('catalog.retry') }}</AButton>
     </div>
     <div v-else-if="status === 'pending'" class="container-page academy-home__status">
       <ContentGrid :items="[]" loading />

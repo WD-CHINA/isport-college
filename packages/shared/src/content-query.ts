@@ -31,6 +31,7 @@ export function normalizeContentQuery(
   if (channel !== 'resource') {
     const categories = channel === 'research' ? RESEARCH_CATEGORIES : SCHOOL_CATEGORIES
     if (categories.some(item => item.id === category)) query.category = category
+    if (channel === 'research' && !query.category) query.category = RESEARCH_CATEGORIES[0]?.id
     return query
   }
   if (id(category) && (!filters || filters.categoryList.some(item => item.id === category))) {

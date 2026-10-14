@@ -31,10 +31,7 @@ test('文档通过预览服务 iframe 接入', async ({ page }) => {
   expect(src).toMatch(/[?&]url=/)
   expect(decodeURIComponent(src!)).toContain('/media/sample.pdf')
 })
-test('图片使用轮播展示，展开降级与 Esc 退出', async ({ page }) => {
-  await page.addInitScript(() => {
-    Element.prototype.requestFullscreen = () => Promise.reject(new Error('unsupported'))
-  })
+test('图片使用轮播展示，预览工具栏不再提供全屏查看', async ({ page }) => {
   await page.goto('/resources/5')
   await waitForHydration(page)
   await expect(page.getByTestId('image-carousel')).toBeVisible()
@@ -45,10 +42,7 @@ test('图片使用轮播展示，展开降级与 Esc 退出', async ({ page }) =
         .evaluate((element: HTMLImageElement) => element.naturalWidth),
     )
     .toBeGreaterThan(0)
-  await page.getByRole('button', { name: '全屏查看', exact: true }).click()
-  await expect(page.locator('.preview-frame--expanded')).toBeVisible()
-  await page.keyboard.press('Escape')
-  await expect(page.locator('.preview-frame--expanded')).toHaveCount(0)
+  await expect(page.locator('.preview-frame__toolbar').getByRole('button')).toHaveCount(0)
 })
 test('PPT 走文档预览服务，失效媒体可重试', async ({ page }) => {
   await page.goto('/resources/6')

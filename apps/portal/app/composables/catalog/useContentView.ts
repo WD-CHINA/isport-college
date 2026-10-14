@@ -23,6 +23,7 @@ export function useContentView(options: ContentViewOptions) {
     const detail = options.detail.value
     if (reported || !detail || options.error.value || disposed) return
     reported = true
+    viewFailed.value = false
     const revision = auth.revision
     try {
       await academy.view({

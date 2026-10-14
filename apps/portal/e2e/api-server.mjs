@@ -232,6 +232,8 @@ const server = createServer(async (req, res) => {
         teacherList: [teacher],
         newsList: [news],
       })
+    if (/^\/(resources|research|schools|teachers|news)\/997$/.test(path))
+      return send(res, null, 503, 'Service unavailable')
     if (/^\/(resources|research|schools|teachers|news)\/998$/.test(path))
       return send(res, null, 400, '内容不存在或已下架')
     const match = /^\/(resources|research|schools)(?:\/(\d+))?$/.exec(path)

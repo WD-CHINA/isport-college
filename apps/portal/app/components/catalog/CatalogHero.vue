@@ -61,23 +61,17 @@ const title = computed(() =>
         </form>
         <p v-else class="catalog-hero__description">{{ t(`catalog.intro.${channel}`) }}</p>
       </div>
-      <img
-        v-if="!resource"
-        class="catalog-hero__image"
-        :src="`/catalog/ardot/${channel === 'research' ? 'research-hero.png' : 'schools-hero.jpg'}`"
-        alt=""
-        width="538"
-        height="290"
-      />
     </div>
   </header>
 </template>
 
 <style scoped>
 .catalog-hero {
-  height: 290px;
-  background: #f4f7fb;
-  color: var(--catalog-text);
+  height: 400px;
+  background-color: #1683ff;
+  background-position: center;
+  background-size: cover;
+  color: #fff;
 }
 
 .catalog-hero__inner {
@@ -101,18 +95,34 @@ const title = computed(() =>
 }
 
 .catalog-hero__description {
-  max-width: 540px;
-  margin: 22px 0 0;
-  color: var(--catalog-muted);
-  font-size: 14px;
-  line-height: 27px;
+  max-width: 450px;
+  margin: 24px 0 0;
+  color: rgb(255 255 255 / 90%);
+  font-size: 16px;
+  line-height: 30px;
 }
 
-.catalog-hero__image {
-  width: 44.842%;
-  height: 100%;
-  margin-left: 70px;
-  object-fit: cover;
+.catalog-hero--research {
+  background-image: url('/catalog/ardot/research-hero.png');
+}
+
+.catalog-hero--school {
+  background-image: url('/catalog/ardot/schools-hero.png');
+}
+
+.catalog-hero:not(.catalog-hero--resource) .catalog-hero__inner {
+  align-items: flex-start;
+  padding-top: 140px;
+}
+
+.catalog-hero:not(.catalog-hero--resource) .catalog-hero__copy {
+  width: 470px;
+  max-width: 100%;
+}
+
+.catalog-hero:not(.catalog-hero--resource) h1 {
+  font-size: 44px;
+  line-height: 62px;
 }
 
 .catalog-hero--resource {
@@ -193,10 +203,40 @@ const title = computed(() =>
     line-height: 40px;
   }
 
-  .catalog-hero__image {
+  .catalog-hero:not(.catalog-hero--resource) {
+    min-height: 320px;
+    background-position: 30% center;
+  }
+
+  .catalog-hero--research {
+    background-image:
+      linear-gradient(90deg, rgb(0 76 188 / 20%), rgb(0 76 188 / 50%)),
+      url('/catalog/ardot/research-hero.png');
+  }
+
+  .catalog-hero--school {
+    background-image:
+      linear-gradient(90deg, rgb(0 76 188 / 20%), rgb(0 76 188 / 50%)),
+      url('/catalog/ardot/schools-hero.png');
+  }
+
+  .catalog-hero:not(.catalog-hero--resource) .catalog-hero__inner {
+    padding-top: 0;
+  }
+
+  .catalog-hero:not(.catalog-hero--resource) .catalog-hero__copy {
     width: 100%;
-    height: 210px;
-    margin: 0;
+    padding: 64px 24px 56px;
+  }
+
+  .catalog-hero:not(.catalog-hero--resource) h1 {
+    font-size: 32px;
+    line-height: 44px;
+  }
+
+  .catalog-hero__description {
+    font-size: 14px;
+    line-height: 26px;
   }
 
   .catalog-hero--resource {

@@ -30,10 +30,11 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
   const query = computed(() =>
     normalizeContentQuery(route.query, channel, filterRequest.data.value),
   )
+  // 初始键不依赖尚未加载的字典，保证 SSR 与水合一致。
+  // 补齐默认分类等 URL 整理不改变实际查询，因此继续复用当前键。
+  const keyQuery = shallowRef(contentQueryToUrl(normalizeContentQuery(route.query, channel)))
   const key = computed(
-    () =>
-      // SSR 尚未取得分类字典时也必须与浏览器使用同一键。
-      `academy:list:${locale.value}:${channel}:${JSON.stringify(contentQueryToUrl(normalizeContentQuery(route.query, channel)))}`,
+    () => `academy:list:${locale.value}:${channel}:${JSON.stringify(keyQuery.value)}`,
   )
   const request = useAsyncData(key, async (_app, { signal }) => {
     if (channel === 'resource') await filterRequest
@@ -61,6 +62,19 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
       ? academy.research(listed, signal)
       : academy.schools(listed, signal)
   })
+  watch(
+    () => route.query,
+    (next, previous) => {
+      const normalize = (raw: Record<string, unknown>) =>
+        JSON.stringify(
+          contentQueryToUrl(normalizeContentQuery(raw, channel, filterRequest.data.value)),
+        )
+      if (normalize(next) !== normalize(previous)) {
+        keyQuery.value = contentQueryToUrl(normalizeContentQuery(next, channel))
+      }
+    },
+    { flush: 'sync' },
+  )
   function normalizeUrl() {
     const normalized = contentQueryToUrl(query.value)
     const keys = Object.keys(route.query)

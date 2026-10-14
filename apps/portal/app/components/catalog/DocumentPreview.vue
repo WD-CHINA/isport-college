@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { isContentAssetUrl } from '@isport/shared'
 import { toDocumentPreviewUrl } from '~/utils/document-preview'
 import PreviewFrame from './PreviewFrame.vue'
@@ -15,13 +17,20 @@ const previewUrl = computed(() => {
 watch(safeSource, value => {
   if (!value) emit('error')
 })
+
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(
+  messageApi,
+  () => !safeSource.value,
+  () => t('media.missing'),
+)
 </script>
 
 <template>
   <PreviewFrame :title="title">
-    <AAlert v-if="!safeSource" type="error" :title="t('media.missing')" show-icon />
+    <ContextHolder />
     <iframe
-      v-else
+      v-if="safeSource"
       class="document-preview__frame"
       data-testid="document-preview"
       :src="previewUrl"

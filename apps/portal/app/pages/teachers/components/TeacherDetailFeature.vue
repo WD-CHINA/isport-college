@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { useAcademy } from '~/composables/useAcademy'
 import { apiErrorCode } from '~/api/errors'
 import { isContentAssetUrl } from '@isport/shared'
@@ -23,6 +25,12 @@ const notFound = computed(
   () => error.value?.statusCode === 404 || apiErrorCode(error.value) === 'NOT_FOUND',
 )
 useSeoMeta({ title: () => data.value?.name || t('detail.notFound') })
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(
+  messageApi,
+  () => error.value && !notFound.value,
+  () => t('academy.requestFailed'),
+)
 await request
 if (import.meta.server && notFound.value) {
   const event = useRequestEvent()
@@ -32,13 +40,10 @@ if (import.meta.server && notFound.value) {
 
 <template>
   <main class="container-page teacher-detail">
+    <ContextHolder />
     <template v-if="error">
       <h1 v-if="notFound">{{ t('detail.notFound') }}</h1>
-      <AAlert v-else type="error" show-icon :title="t('academy.requestFailed')">
-        <template #action
-          ><AButton @click="refresh()">{{ t('catalog.retry') }}</AButton></template
-        >
-      </AAlert>
+      <AButton v-else @click="refresh()">{{ t('catalog.retry') }}</AButton>
     </template>
     <article v-else-if="data">
       <NuxtLink :to="localePath('/teachers')">{{ t('academy.teachers') }}</NuxtLink>

@@ -1,11 +1,16 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
 import SmsLoginForm from '~/components/auth/SmsLoginForm.vue'
 import { useSmsLogin } from '~/composables/auth/useSmsLogin'
 import { useLoginUiStore } from '~/stores/login-ui'
 
 const loginUi = useLoginUiStore()
 const { t } = useI18n()
-const { form, sending, submitting, error, remaining, send, submit } = useSmsLogin()
+const [messageApi, ContextHolder] = message.useMessage()
+const { form, sending, submitting, error, remaining, send, submit } = useSmsLogin({
+  onSent: () => messageApi.success(t('academy.codeSent')),
+  onSuccess: () => messageApi.success(t('auth.success')),
+})
 const visible = computed({
   get: () => loginUi.loginModalVisible,
   set: value => {
@@ -15,6 +20,7 @@ const visible = computed({
 </script>
 
 <template>
+  <ContextHolder />
   <AModal
     v-model:open="visible"
     :title="t('auth.designWelcome')"

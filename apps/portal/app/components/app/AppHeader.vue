@@ -3,6 +3,7 @@ import { useLoginUiStore } from '~/stores/login-ui'
 import { useAuthStore } from '~/stores/auth'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
 import AppLocaleMenu from '~/components/app/AppLocaleMenu.vue'
+import AppHeaderPanel from '~/components/app/AppHeaderPanel.vue'
 
 const auth = useAuthStore()
 const loginUi = useLoginUiStore()
@@ -11,6 +12,9 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 
 const menuOpen = shallowRef(false)
+const header = useTemplateRef<HTMLElement>('header')
+const menuToggle = useTemplateRef<HTMLButtonElement>('menuToggle')
+const menuId = useId()
 
 watch(
   () => route.fullPath,
@@ -20,27 +24,69 @@ watch(
 )
 
 const mainNav = computed(() => [
-  { to: localePath('/'), label: t('nav.home'), exact: true },
-  { to: localePath('/resources'), label: t('academy.resources'), exact: false },
-  { to: localePath('/research'), label: t('nav.research'), exact: false },
-  { to: localePath('/schools'), label: t('academy.schools'), exact: false },
+  {
+    to: localePath('/'),
+    label: t('nav.home'),
+    exact: true,
+    icon: 'm3 10 9-7 9 7M5 9v11h5v-6h4v6h5V9',
+  },
+  {
+    to: localePath('/resources'),
+    label: t('academy.resources'),
+    exact: false,
+    icon: 'M12 6v15M12 6C9 4 5 4 3 5v14c3-1 6-1 9 2 3-3 6-3 9-2V5c-2-1-6-1-9 1Z',
+  },
+  {
+    to: localePath('/research'),
+    label: t('nav.research'),
+    exact: false,
+    icon: 'M9 18h6M9 21h6M8 14a6 6 0 1 1 8 0c-1 1-1 2-1 4H9c0-2 0-3-1-4Z',
+  },
+  {
+    to: localePath('/schools'),
+    label: t('academy.schools'),
+    exact: false,
+    icon: 'M3 21h18M5 21V7l7-4 7 4v14M9 21v-5h6v5M9 9h.01M15 9h.01M9 12h.01M15 12h.01',
+  },
 ])
+const panelNav = computed(() =>
+  mainNav.value.map(item => ({ ...item, active: isActive(item.to, item.exact) })),
+)
 
 function isActive(to: string, exact: boolean): boolean {
   return exact ? route.path === to : route.path.startsWith(to)
 }
 
 function openLogin() {
+  menuOpen.value = false
   loginUi.openLoginModal({ reason: 'default' })
 }
 
 function handleLogout() {
+  menuOpen.value = false
   loginUi.logoutConfirmVisible = true
 }
+
+function closeMenu() {
+  if (!menuOpen.value) return
+  menuOpen.value = false
+  menuToggle.value?.focus()
+}
+
+function handleOutsidePointer(event: PointerEvent) {
+  if (menuOpen.value && event.target instanceof Node && !header.value?.contains(event.target)) {
+    menuOpen.value = false
+  }
+}
+
+onMounted(() => document.addEventListener('pointerdown', handleOutsidePointer))
+onScopeDispose(() => {
+  if (import.meta.client) document.removeEventListener('pointerdown', handleOutsidePointer)
+})
 </script>
 
 <template>
-  <header class="app-header">
+  <header ref="header" class="app-header" @keydown.esc="closeMenu">
     <div class="container-page app-header__inner">
       <div class="app-header__leading">
         <NuxtLink :to="localePath('/')" class="app-header__brand" :aria-label="t('nav.brand')">
@@ -82,9 +128,11 @@ function handleLogout() {
           {{ t('common.login') }}
         </button>
         <button
+          ref="menuToggle"
           type="button"
           class="app-header__burger"
           :aria-expanded="menuOpen"
+          :aria-controls="menuId"
           :aria-label="t('common.menu')"
           @click="menuOpen = !menuOpen"
         >
@@ -108,41 +156,19 @@ function handleLogout() {
       </div>
     </div>
 
-    <nav v-if="menuOpen" class="app-header__panel">
-      <NuxtLink
-        v-for="item in mainNav"
-        :key="item.to"
-        :to="item.to"
-        class="app-header__panel-link"
-        :class="{ 'app-header__link--active': isActive(item.to, item.exact) }"
-      >
-        {{ item.label }}
-      </NuxtLink>
-      <NuxtLink
-        :to="localePath('/lingyue/simulation')"
-        class="app-header__panel-link app-header__panel-lingyue"
-      >
-        {{ t('nav.lingyue') }}
-      </NuxtLink>
-      <span
-        class="app-header__panel-link app-header__panel-creation"
-        :title="t('academy.unavailable')"
-      >
-        {{ t('nav.creation') }}
-      </span>
-      <NuxtLink v-if="auth.isLoggedIn" :to="localePath('/account')" class="app-header__panel-link">
-        <AccountAvatar v-if="auth.user" :avatar-code="auth.user.avatarCode" />
-        <span>{{ auth.user?.nickname || t('academy.account') }}</span>
-      </NuxtLink>
-      <button
-        v-if="auth.isLoggedIn"
-        type="button"
-        class="app-header__panel-link"
-        @click="handleLogout"
-      >
-        {{ t('common.logout') }}
-      </button>
-    </nav>
+    <Transition name="header-panel">
+      <AppHeaderPanel
+        v-if="menuOpen"
+        :id="menuId"
+        :items="panelNav"
+        :logged-in="auth.isLoggedIn"
+        :nickname="auth.user?.nickname"
+        :avatar-code="auth.user?.avatarCode"
+        @close="menuOpen = false"
+        @login="openLogin"
+        @logout="handleLogout"
+      />
+    </Transition>
   </header>
 </template>
 
@@ -289,51 +315,22 @@ function handleLogout() {
   height: 20px;
 }
 
-.app-header__panel {
-  display: flex;
-  flex-direction: column;
-  padding: 8px 16px 16px;
-  border-top: 1px solid #e2e8f0;
-  background: #fff;
+.header-panel-enter-active,
+.header-panel-leave-active {
+  transition:
+    opacity var(--ic-motion-duration-fast, 150ms),
+    transform var(--ic-motion-duration-fast, 150ms);
 }
 
-.app-header__panel-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: #1c1f23;
-  font-size: 16px;
-  text-align: left;
-  cursor: pointer;
+.header-panel-enter-from,
+.header-panel-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 
-.app-header__panel-lingyue,
-.app-header__panel-creation {
-  align-self: flex-start;
-  height: 32px;
-  min-height: 32px;
-  margin: 6px 12px;
-  padding: 0 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 20px;
-}
-
-.app-header__panel-lingyue {
-  background: linear-gradient(109deg, #0079ff 0%, #a348f3 100%);
-  color: #fff;
-}
-
-.app-header__panel-creation {
-  background: #eaf5ff;
-  color: #0077fa;
-  cursor: default;
+.app-header__burger:focus-visible {
+  outline: 2px solid var(--ic-color-brand-500, #2563eb);
+  outline-offset: 2px;
 }
 
 @media (max-width: 767px) {
@@ -362,9 +359,15 @@ function handleLogout() {
     display: inline-flex;
   }
 
-  .app-header__burger,
-  .app-header__panel {
+  .app-header__burger {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-panel-enter-active,
+  .header-panel-leave-active {
+    transition: none;
   }
 }
 </style>

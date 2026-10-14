@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { isContentAssetUrl, type MediaAsset } from '@isport/shared'
 import AudioPreview from './AudioPreview.vue'
 import DocumentPreview from './DocumentPreview.vue'
@@ -10,10 +12,18 @@ const emit = defineEmits<{ error: [] }>()
 const { t } = useI18n()
 const images = computed(() => props.items.filter(item => item.kind === 'image'))
 const others = computed(() => props.items.filter(item => item.kind !== 'image'))
+
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(
+  messageApi,
+  () => !props.items.length || others.value.some(item => !isContentAssetUrl(item.url)),
+  () => t('media.missing'),
+)
 </script>
 
 <template>
   <div class="media-preview">
+    <ContextHolder />
     <ImageCarouselPreview
       v-if="images.length"
       :images="images"
@@ -38,9 +48,7 @@ const others = computed(() => props.items.filter(item => item.kind !== 'image'))
         :title="title"
         @error="emit('error')"
       />
-      <AAlert v-else type="error" :title="t('media.missing')" show-icon />
     </template>
-    <p v-if="!items.length">{{ t('media.missing') }}</p>
   </div>
 </template>
 

@@ -80,6 +80,16 @@ describe('学苑 URL 查询的唯一规则', () => {
       category: 'DIGITAL',
     })
   })
+  it('教研默认教学实践，未指定、未知或重复分类均使用同一默认值', () => {
+    for (const raw of [{}, { category: 'invalid' }, { category: ['SERIES', 'TOPICS'] }]) {
+      expect(normalizeContentQuery(raw, 'research')).toEqual({ page: 1, category: 'SERIES' })
+    }
+    expect(normalizeContentQuery({ category: 'TOPICS' }, 'research')).toEqual({
+      page: 1,
+      category: 'TOPICS',
+    })
+    expect(normalizeContentQuery({}, 'school')).toEqual({ page: 1 })
+  })
   it('页码严格为 1..9999，不能用科学计数法、小数或重复参数', () => {
     for (const raw of ['0', '-1', '1.2', '1e2', '99999', '01', ['2'], undefined])
       expect(parseListPage(raw)).toBe(1)

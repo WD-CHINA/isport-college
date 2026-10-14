@@ -1,5 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
+const props = defineProps<{
   sending: boolean
   submitting: boolean
   remaining: number
@@ -14,11 +16,18 @@ const localePath = useLocalePath()
 const ready = computed(
   () => /^1\d{10}$/.test(phone.value) && /^\d{6}$/.test(code.value) && agreed.value,
 )
+
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(
+  messageApi,
+  () => props.error,
+  () => props.error,
+)
 </script>
 
 <template>
   <form class="sms-form" novalidate @submit.prevent="$emit('submit')">
-    <AAlert v-if="error" type="error" :title="error" role="alert" show-icon />
+    <ContextHolder />
     <div class="sms-form__field">
       <label for="login-phone">{{ t('academy.phone') }}</label>
       <AInput

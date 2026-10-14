@@ -82,7 +82,7 @@ watch(
           :type="content.detailType"
         />
         <span
-          v-if="variant === 'catalog' && content.channel === 'SCHOOL' && content.categoryName"
+          v-if="variant === 'catalog' && content.channel !== 'RESOURCE' && content.categoryName"
           class="content-card__category"
           >{{ content.categoryName }}</span
         >
@@ -105,7 +105,9 @@ watch(
           <span>{{ t('catalog.views', { count: content.viewCount }) }}</span>
           <time v-if="published" :datetime="published">{{ published }}</time>
         </div>
-        <span v-if="variant === 'catalog' && content.channel === 'SCHOOL'" class="content-card__cta"
+        <span
+          v-if="variant === 'catalog' && content.channel !== 'RESOURCE'"
+          class="content-card__cta"
           >{{ t('catalog.viewCase') }} →</span
         >
       </div>
@@ -280,51 +282,42 @@ watch(
   line-height: 20px;
 }
 
-.content-card--catalog.content-card--research .content-card__cover {
-  aspect-ratio: 588 / 250;
+.content-card--catalog:not(.content-card--resource) {
+  border: 1px solid var(--catalog-border);
+  box-shadow: none;
 }
 
-.content-card--catalog.content-card--research .content-card__body {
-  min-height: 79px;
-  padding: 26px;
+.content-card--catalog:not(.content-card--resource) .content-card__cover {
+  aspect-ratio: 585 / 300;
 }
 
-.content-card--catalog.content-card--research h3 {
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 27px;
+.content-card--catalog:not(.content-card--resource) .content-card__body {
+  min-height: 171.5px;
+  gap: 12px;
+  padding: 23px 25px 25px;
 }
 
-.content-card--catalog.content-card--school .content-card__cover {
-  aspect-ratio: 587 / 300;
-}
-
-.content-card--catalog.content-card--school .content-card__body {
-  gap: 16px;
-  padding: 24px 26px 26px;
-}
-
-.content-card--catalog.content-card--school h3 {
+.content-card--catalog:not(.content-card--resource) h3 {
   font-size: 20px;
-  font-weight: 600;
-  line-height: 30px;
+  font-weight: 500;
+  line-height: 32px;
 }
 
 .content-card__category {
   width: fit-content;
-  padding: 4px 8px;
+  padding: 5px 8px;
   border-radius: 3px;
   background: #eaf5ff;
   color: var(--catalog-primary);
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 11px;
+  line-height: 13px;
 }
 
 .content-card__cta {
   width: fit-content;
-  margin-top: 8px;
-  padding: 10px 12px;
-  border-radius: 3px;
+  margin-top: 12px;
+  padding: 9px 12px;
+  border-radius: 4px;
   background: #eaf5ff;
   color: var(--catalog-primary);
   font-size: 12px;
@@ -332,7 +325,7 @@ watch(
 }
 
 @media (max-width: 767px) {
-  .content-card--catalog.content-card--school h3 {
+  .content-card--catalog:not(.content-card--resource) h3 {
     font-size: 18px;
   }
 }

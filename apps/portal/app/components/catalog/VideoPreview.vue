@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import PreviewFrame from './PreviewFrame.vue'
 
 const props = defineProps<{ url: string; title: string }>()
@@ -48,15 +50,15 @@ onBeforeUnmount(() => {
   player?.destroy()
   player = null
 })
+
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(messageApi, failed, () => t('media.failed'))
 </script>
 
 <template>
   <PreviewFrame :title="title">
-    <AAlert v-if="failed" type="error" :title="t('media.failed')" show-icon>
-      <template #action
-        ><AButton @click="retry">{{ t('catalog.retry') }}</AButton></template
-      >
-    </AAlert>
+    <ContextHolder />
+    <AButton v-if="failed" @click="retry">{{ t('catalog.retry') }}</AButton>
     <div
       v-show="!failed"
       :key="attempt"

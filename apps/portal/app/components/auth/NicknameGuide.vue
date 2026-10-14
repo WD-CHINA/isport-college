@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { normalizeNickname } from '@isport/shared'
 import { useProfile } from '~/composables/useProfile'
 import { useLoginUiStore } from '~/stores/login-ui'
@@ -21,16 +23,26 @@ watch(
 async function submit() {
   const value = normalizeNickname(nickname.value)
   if (!value || !auth.user) return
-  if (await save({ nickname: value, avatarCode: auth.user.avatarCode }))
+  if (await save({ nickname: value, avatarCode: auth.user.avatarCode })) {
     loginUi.nicknameGuideVisible = false
+    messageApi.success(t('account.saved'))
+  }
 }
 
 async function skip() {
   if (await skipNickname()) loginUi.nicknameGuideVisible = false
 }
+
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(
+  messageApi,
+  () => loginUi.nicknameGuideVisible && error.value,
+  () => error.value,
+)
 </script>
 
 <template>
+  <ContextHolder />
   <AModal
     v-model:open="loginUi.nicknameGuideVisible"
     :title="t('academy.nicknameGuide')"
@@ -46,7 +58,6 @@ async function skip() {
     closable
   >
     <form v-if="auth.user" class="nickname-guide" @submit.prevent="submit">
-      <AAlert v-if="error" type="error" :title="error" show-icon />
       <div class="nickname-guide__field">
         <label for="nickname-guide-name">{{ t('academy.nickname') }}</label>
         <AInput

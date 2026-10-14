@@ -1,29 +1,12 @@
 <script setup lang="ts">
-import { useExpandedPreview } from '~/composables/catalog/useExpandedPreview'
-
 defineProps<{ title: string }>()
-const { t } = useI18n()
-const target = useTemplateRef<HTMLElement>('target')
-const { expanded, fallback, toggle } = useExpandedPreview(target)
 </script>
 
 <template>
-  <section
-    ref="target"
-    tabindex="-1"
-    class="preview-frame"
-    :class="{ 'preview-frame--expanded': fallback }"
-    :aria-label="title"
-    :role="fallback ? 'dialog' : undefined"
-    :aria-modal="fallback || undefined"
-  >
+  <section class="preview-frame" :aria-label="title">
     <div class="preview-frame__toolbar">
       <span>{{ title }}</span>
-      <AButton @click="toggle">{{
-        t(expanded ? 'media.exitFullscreen' : 'media.fullscreen')
-      }}</AButton>
     </div>
-    <p v-if="fallback" class="preview-frame__notice" role="status">{{ t('media.fallback') }}</p>
     <div class="preview-frame__content"><slot /></div>
   </section>
 </template>
@@ -46,32 +29,9 @@ const { expanded, fallback, toggle } = useExpandedPreview(target)
   background: #fff;
 }
 
-.preview-frame__notice {
-  padding: 0 12px;
-  color: #475569;
-}
-
 .preview-frame__content {
   min-width: 0;
   overflow: auto;
   padding: 12px;
-}
-
-.preview-frame--expanded,
-.preview-frame:fullscreen {
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  inset: 0;
-  z-index: 1100;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  border-radius: 0;
-}
-
-.preview-frame--expanded .preview-frame__content,
-.preview-frame:fullscreen .preview-frame__content {
-  flex: 1;
 }
 </style>

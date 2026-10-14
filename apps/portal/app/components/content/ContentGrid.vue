@@ -45,6 +45,8 @@ const { t } = useI18n()
 
 .content-grid--wide {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px;
+  margin-top: 24px;
 }
 
 @media (max-width: 1023px) {

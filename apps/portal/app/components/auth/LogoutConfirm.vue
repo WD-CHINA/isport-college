@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { useSessionActions } from '~/composables/auth/useSessionActions'
 import { useLoginUiStore } from '~/stores/login-ui'
-import { App } from 'antdv-next'
+import { useAuthStore } from '~/stores/auth'
+import { message } from 'antdv-next'
 const loginUi = useLoginUiStore()
+const auth = useAuthStore()
 const { logout } = useSessionActions()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { message } = App.useApp()
+const [messageApi, ContextHolder] = message.useMessage()
 const pending = ref(false)
 async function confirm() {
   if (pending.value) return
   pending.value = true
   try {
     await logout()
+    if (!auth.isLoggedIn) messageApi.success(t('auth.logoutSuccess'))
   } catch {
-    message.warning(t('academy.logoutLocal'))
+    messageApi.warning(t('academy.logoutLocal'))
   } finally {
     pending.value = false
     await navigateTo(localePath('/'))
@@ -23,6 +26,7 @@ async function confirm() {
 </script>
 
 <template>
+  <ContextHolder />
   <AModal
     v-model:open="loginUi.logoutConfirmVisible"
     :title="t('common.logout')"

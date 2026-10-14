@@ -4,7 +4,7 @@ import { useAuthStore } from '~/stores/auth'
 import type { InteractionKind, WebChannel, WebContentCard } from '@isport/shared'
 import { toWebChannel } from '~/utils/web-channel'
 
-export function useAccountActivity() {
+export function useAccountActivity(options: { onRemoved?: (kind: InteractionKind) => void } = {}) {
   const academy = useAcademy()
   const auth = useAuthStore()
   const { locale } = useI18n()
@@ -13,6 +13,10 @@ export function useAccountActivity() {
   const page = shallowRef(1)
   const removing = shallowRef('')
   const failed = shallowRef(false)
+  let disposed = false
+  onScopeDispose(() => {
+    disposed = true
+  })
   const remoteChannel = computed<WebChannel | undefined>(() =>
     channel.value ? toWebChannel(channel.value) : undefined,
   )
@@ -43,21 +47,24 @@ export function useAccountActivity() {
     failed.value = false
   }
   async function remove(contentKey: string) {
-    if (removing.value) return
+    if (removing.value || disposed) return
     const item = request.data.value?.list.find(row => row.contentKey === contentKey)
     if (!item) return
     const revision = auth.revision
+    const removedKind = kind.value
     removing.value = contentKey
     failed.value = false
     try {
       const target = { channel: item.channel, origin: item.origin, originId: item.originId }
-      if (kind.value === 'like') await academy.like(target)
-      else await academy.favorite(target)
-      if (revision !== auth.revision) return
+      const result =
+        removedKind === 'like' ? await academy.like(target) : await academy.favorite(target)
+      if (disposed || revision !== auth.revision) return
+      if (!result.active) options.onRemoved?.(removedKind)
       await request.refresh()
+      if (disposed || revision !== auth.revision) return
       if (request.data.value?.list.length === 0 && page.value > 1) page.value--
     } catch {
-      if (revision === auth.revision) failed.value = true
+      if (!disposed && revision === auth.revision) failed.value = true
     } finally {
       removing.value = ''
     }

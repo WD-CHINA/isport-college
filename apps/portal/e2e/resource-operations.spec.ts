@@ -22,7 +22,7 @@ test('资源仍支持新窗口打开详情，其他栏目卡片保持路由导�
 test('默认分类及一级切换清除下级条件，搜索保留水平并清除其他条件', async ({ page }) => {
   await page.goto('/resources')
   await waitForHydration(page)
-  await expect(page.locator('.content-list-feature__main > .ant-alert-warning')).toHaveCount(0)
+  await expect(page.locator('.ant-message-notice-warning')).toHaveCount(0)
   await expect(page.getByRole('button', { name: '体能', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true',
@@ -129,8 +129,8 @@ test('慢响应的旧详情不会覆盖后打开的资源', async ({ page }) => 
   await page.locator('[data-content-id="RESOURCE:2"] .content-card__link').click()
   await page.goto('/resources/9')
   await expect(page.getByRole('heading', { name: '资源示例 9', exact: true })).toBeVisible()
-  await expect(page.getByRole('alert')).toContainText('媒体加载失败')
+  await expect(page.locator('.ant-message-notice-error')).toContainText('媒体加载失败')
   await page.getByRole('button', { name: /重\s*试/, exact: true }).click()
-  await expect(page.getByRole('alert')).toContainText('媒体加载失败')
+  await expect(page.locator('.ant-message-notice-error')).toContainText('媒体加载失败')
   await expect(page.getByRole('heading', { name: '资源示例 2', exact: true })).toHaveCount(0)
 })

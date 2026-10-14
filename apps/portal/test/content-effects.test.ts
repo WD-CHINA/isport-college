@@ -58,11 +58,14 @@ function harness() {
     detail.value = value
   })
   const refresh = vi.fn(async () => {})
+  const onSuccess = vi.fn()
   const status = shallowRef<'idle' | 'pending' | 'success' | 'error'>('success')
   const error = shallowRef<unknown>(undefined)
-  const interactions = scope.run(() => useContentInteractions({ detail, update, refresh }))!
+  const interactions = scope.run(() =>
+    useContentInteractions({ detail, update, refresh, onSuccess }),
+  )!
   const views = scope.run(() => useContentView({ detail, update, status, error }))!
-  return { scope, detail, update, refresh, interactions, views }
+  return { scope, detail, update, refresh, onSuccess, interactions, views }
 }
 
 function deferred<T>() {
@@ -75,12 +78,14 @@ function deferred<T>() {
 
 describe('内容互动', () => {
   it('采用服务端返回的计数，并忽略已达到目标状态的重复操作', async () => {
-    const { detail, interactions } = harness()
+    const { detail, onSuccess, interactions } = harness()
     await interactions.setInteraction('like', true)
     expect(detail.value).toMatchObject({ liked: true, likeCount: 4 })
     expect(clearCache).toHaveBeenCalledTimes(1)
+    expect(onSuccess).toHaveBeenCalledExactlyOnceWith('like', true)
     await interactions.setInteraction('like', true)
     expect(mocks.academy.like).toHaveBeenCalledTimes(1)
+    expect(onSuccess).toHaveBeenCalledTimes(1)
     expect(interactions.pending.value).toBe(false)
   })
 
@@ -93,17 +98,18 @@ describe('内容互动', () => {
         await onSuccess()
       },
     )
-    const { detail, refresh, interactions } = harness()
+    const { detail, refresh, onSuccess, interactions } = harness()
     await interactions.setInteraction('favorite', true)
     expect(refresh).toHaveBeenCalledTimes(1)
     expect(mocks.academy.favorite).toHaveBeenCalledTimes(1)
     expect(detail.value).toMatchObject({ favorited: true, favoriteCount: 3 })
+    expect(onSuccess).toHaveBeenCalledExactlyOnceWith('favorite', true)
   })
 
   it('旧会话的晚到互动结果不能覆盖新会话或清理其缓存', async () => {
     const delayed = deferred<{ active: boolean; count: number }>()
     mocks.academy.like.mockReturnValue(delayed.promise)
-    const { detail, update, interactions } = harness()
+    const { detail, update, onSuccess, interactions } = harness()
     const pending = interactions.setInteraction('like', true)
     mocks.auth.revision++
     delayed.resolve({ active: true, count: 99 })
@@ -111,13 +117,15 @@ describe('内容互动', () => {
     expect(detail.value?.liked).toBe(false)
     expect(update).not.toHaveBeenCalled()
     expect(clearCache).not.toHaveBeenCalled()
+    expect(onSuccess).not.toHaveBeenCalled()
   })
 
   it('互动失败显示错误，重试成功后恢复', async () => {
     mocks.academy.like.mockRejectedValueOnce(new Error('offline'))
-    const { interactions } = harness()
+    const { onSuccess, interactions } = harness()
     await interactions.setInteraction('like', true)
     expect(interactions.interactionFailed.value).toBe(true)
+    expect(onSuccess).not.toHaveBeenCalled()
     await interactions.setInteraction('like', true)
     expect(interactions.interactionFailed.value).toBe(false)
   })
@@ -152,7 +160,7 @@ describe('浏览统计', () => {
     const like = deferred<{ active: boolean; count: number }>()
     mocks.academy.view.mockReturnValue(view.promise)
     mocks.academy.like.mockReturnValue(like.promise)
-    const { scope, update, views, interactions } = harness()
+    const { scope, update, onSuccess, views, interactions } = harness()
     const pendingView = views.reportView()
     const pendingLike = interactions.setInteraction('like', true)
     scope.stop()
@@ -161,5 +169,6 @@ describe('浏览统计', () => {
     await Promise.all([pendingView, pendingLike])
     expect(update).not.toHaveBeenCalled()
     expect(clearCache).not.toHaveBeenCalled()
+    expect(onSuccess).not.toHaveBeenCalled()
   })
 })

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import AppPagination from '~/components/app/AppPagination.vue'
 import ContentFilters from './ContentFilters.vue'
 import ContentGrid from '~/components/content/ContentGrid.vue'
@@ -27,11 +29,15 @@ watch(
   },
 )
 useSeoMeta({ title: () => title.value, description: () => t('catalog.description') })
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(messageApi, filterError, () => t('academy.requestFailed'), 'warning')
+useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))
 await request
 </script>
 
 <template>
   <div class="content-list-feature" :class="`content-list-feature--${channel}`">
+    <ContextHolder />
     <CatalogHero :channel="channel" :keyword="query.keyword" @search="search" />
     <div ref="listStart" class="content-list-feature__main">
       <ContentFilters
@@ -41,12 +47,7 @@ await request
         :resource-filters="resourceFilters"
         @update:model-value="update"
       />
-      <AAlert v-if="filterError" type="warning" show-icon :title="t('academy.requestFailed')" />
-      <AAlert v-if="error" type="error" show-icon :title="t('academy.requestFailed')">
-        <template #action
-          ><AButton @click="retry">{{ t('catalog.retry') }}</AButton></template
-        >
-      </AAlert>
+      <AButton v-if="error" @click="retry">{{ t('catalog.retry') }}</AButton>
       <template v-else>
         <header class="content-list-feature__heading">
           <h2>{{ sectionTitle }}</h2>
@@ -99,6 +100,11 @@ await request
   padding: 32px 0 50px;
 }
 
+.content-list-feature:not(.content-list-feature--resource) .content-list-feature__main {
+  min-width: 0;
+  gap: 0;
+}
+
 .content-list-feature--resource .content-list-feature__main {
   gap: 18px;
   padding-top: 26px;
@@ -114,6 +120,26 @@ await request
 
 .content-list-feature--resource .content-list-feature__heading {
   padding-top: 30px;
+}
+
+.content-list-feature:not(.content-list-feature--resource) .content-list-feature__heading {
+  display: grid;
+  gap: 12px;
+  padding-top: 32px;
+  padding-right: 64px;
+}
+
+.content-list-feature:not(.content-list-feature--resource) .content-list-feature__count {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.content-list-feature:not(.content-list-feature--resource) .content-list-feature__description {
+  line-height: 16px;
 }
 
 .content-list-feature__heading h2 {

@@ -21,6 +21,24 @@ test('刷新个人中心不再在浏览器重复请求 /me', async ({ page, cont
   await page.waitForTimeout(500)
   expect(meRequests).toEqual([])
 })
+
+test('资料校验失败和保存成功使用 hook 消息', async ({ page, context, baseURL }) => {
+  await setSession(context, testSession(), baseURL!)
+  await page.goto('/account')
+  await waitForHydration(page)
+  await page.getByRole('button', { name: /编\s*辑/, exact: true }).click()
+  const form = page.locator('.profile-form')
+  await form.getByRole('textbox').fill('!')
+  await form.getByRole('button', { name: /保\s*存/, exact: true }).click()
+  await expect(page.locator('.ant-message-notice-error')).toBeVisible()
+  await expect(form).toBeVisible()
+  await form.getByRole('textbox').fill('新昵称')
+  await form.getByRole('button', { name: /保\s*存/, exact: true }).click()
+  await expect(page.locator('.ant-message-notice-success')).toContainText('资料已保存')
+  await expect(page.getByRole('heading', { name: '新昵称', exact: true })).toBeVisible()
+  await expect(form).toHaveCount(0)
+})
+
 test('短信登录、会话恢复与退出', async ({ page, context }) => {
   await page.goto('/resources')
   await waitForHydration(page)
@@ -39,6 +57,9 @@ test('短信登录、会话恢复与退出', async ({ page, context }) => {
     .getByRole('button', { name: /确\s*定/ })
     .click()
   await expect(page.locator('.app-header__user')).toHaveCount(0)
+  await expect(
+    page.locator('.ant-message-notice-success').filter({ hasText: '已退出登录' }),
+  ).toBeVisible()
   await expect
     .poll(async () => (await context.cookies()).some(cookie => cookie.name === AUTH_COOKIE_NAME))
     .toBe(false)
@@ -65,7 +86,7 @@ test('验证码错误可纠正，未同意协议不能登录', async ({ page }) 
   await expect(submit).toBeDisabled()
   await dialog.getByRole('checkbox').check()
   await dialog.getByRole('button', { name: /登\s*录/, exact: true }).click()
-  await expect(dialog.getByRole('alert')).toContainText('验证码错误')
+  await expect(page.locator('.ant-message-notice-error')).toContainText('验证码错误')
   await dialog.locator('#login-code').fill('123456')
   await dialog.getByRole('button', { name: /登\s*录/, exact: true }).click()
   await expect(dialog).toBeHidden()
@@ -90,13 +111,56 @@ test('登录后点赞回放与个人记录移除', async ({ page }) => {
     'aria-pressed',
     'true',
   )
+  await expect(
+    page.locator('.ant-message-notice-success').filter({ hasText: '点赞成功' }),
+  ).toBeVisible()
   await page.locator('.app-header__user').click()
   await expect(page).toHaveURL(/\/account$/)
   await page.getByRole('button', { name: /^我的点赞/ }).click()
   await expect(page.locator('.activity-list')).toContainText('资源示例 1')
   await page.locator('.activity-list').getByRole('button').click()
+  await expect(
+    page.locator('.ant-message-notice-success').filter({ hasText: '已取消点赞' }),
+  ).toBeVisible()
   await expect(page.locator('.activity-list')).toHaveCount(0)
   await expect(page.locator('.activity-list__empty')).toBeVisible()
+})
+
+test('英文点赞、取消点赞、收藏和取消收藏显示对应成功消息', async ({ page, context, baseURL }) => {
+  await setSession(context, testSession(), baseURL!)
+  await page.goto('/en/resources/1')
+  await waitForHydration(page)
+  const bar = page.locator('.interaction-bar')
+  for (const [name, feedback] of [
+    [/^Like/, 'Liked'],
+    [/^Unlike/, 'Like removed'],
+    [/^Save/, 'Saved'],
+    [/^Unsave/, 'Removed from saved items'],
+  ] as const) {
+    await bar.getByRole('button', { name }).click()
+    await expect(
+      page.locator('.ant-message-notice-success').filter({ hasText: feedback }),
+    ).toBeVisible()
+  }
+})
+
+test('退出接口失败仅提示本地退出警告', async ({ page, context, baseURL }) => {
+  await setSession(context, testSession(), baseURL!)
+  await page.route('**/api/v1/auth/logout', route =>
+    route.fulfill({
+      status: 503,
+      json: { status: 503, message: 'Service unavailable', data: null },
+    }),
+  )
+  await page.goto('/resources?category=1')
+  await waitForHydration(page)
+  await page.getByRole('button', { name: '退出登录', exact: true }).click()
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: /确\s*定/ })
+    .click()
+  await expect(page.locator('.ant-message-notice-warning')).toContainText('本地会话已清除')
+  await expect(page.locator('.ant-message-notice-success')).toHaveCount(0)
 })
 
 test('个人收藏随语言切换重新加载，刷新后保持英文', async ({ page, context, baseURL }) => {

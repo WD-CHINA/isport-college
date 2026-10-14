@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { isContentAssetUrl, type MediaAsset } from '@isport/shared'
 import PreviewFrame from './PreviewFrame.vue'
 
@@ -13,12 +15,25 @@ watch(
   },
   { immediate: true },
 )
+
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(
+  messageApi,
+  () => !safeImages.value.length,
+  () => t('media.missing'),
+)
 </script>
 
 <template>
   <PreviewFrame :title="title">
-    <AAlert v-if="!safeImages.length" type="error" :title="t('media.missing')" show-icon />
-    <ACarousel v-else arrows dots class="image-carousel" data-testid="image-carousel">
+    <ContextHolder />
+    <ACarousel
+      v-if="safeImages.length"
+      arrows
+      dots
+      class="image-carousel"
+      data-testid="image-carousel"
+    >
       <div v-for="(item, index) in safeImages" :key="`${item.url}-${index}`">
         <img class="image-carousel__image" :src="item.url" :alt="title" @error="emit('error')" />
       </div>

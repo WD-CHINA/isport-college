@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
 import { useProfile } from '~/composables/useProfile'
 import { useAuthStore } from '~/stores/auth'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
@@ -8,23 +9,22 @@ const auth = useAuthStore()
 const { t } = useI18n()
 const { pending, error, save } = useProfile()
 const editing = shallowRef(false)
-const saved = shallowRef(false)
+const [messageApi, ContextHolder] = message.useMessage()
 const maskedPhone = computed(() => auth.user?.phoneMask ?? '')
 function startEditing() {
   editing.value = true
-  saved.value = false
 }
 async function submit(value: { nickname: string; avatarCode: number }) {
-  saved.value = false
   if (await save(value)) {
     editing.value = false
-    saved.value = true
+    messageApi.success(t('account.saved'))
   }
 }
 </script>
 
 <template>
   <section v-if="auth.user" class="account-profile">
+    <ContextHolder />
     <header class="account-profile__head">
       <AccountAvatar :avatar-code="auth.user.avatarCode" />
       <div class="account-profile__ident">
@@ -35,7 +35,6 @@ async function submit(value: { nickname: string; avatarCode: number }) {
         {{ t('common.edit') }}
       </AButton>
     </header>
-    <AAlert v-if="saved" type="success" show-icon :title="t('account.saved')" />
     <div v-if="editing" class="account-profile__form">
       <ProfileForm :user="auth.user" :pending="pending" :error="error" @save="submit" />
       <AButton :disabled="pending" @click="editing = false">{{ t('common.cancel') }}</AButton>

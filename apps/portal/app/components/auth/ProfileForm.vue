@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { useAcademy } from '~/composables/useAcademy'
 import { AVATAR_IDS, normalizeNickname, type WebProfile } from '@isport/shared'
 
@@ -9,7 +11,6 @@ const { t } = useI18n()
 const formId = useId()
 const nickname = shallowRef(props.user.nickname)
 const avatarCode = shallowRef(props.user.avatarCode)
-const invalid = shallowRef(false)
 const avatarRequest = useAsyncData('academy:avatars', () => academy.avatars())
 const codes = computed(() =>
   avatarRequest.data.value?.length
@@ -26,19 +27,24 @@ watch(
 )
 function submit() {
   const value = normalizeNickname(nickname.value)
-  invalid.value = value === null
-  if (value !== null) emit('save', { nickname: value, avatarCode: avatarCode.value })
+  if (value === null) {
+    messageApi.error(t('academy.nicknameRule'))
+    return
+  }
+  emit('save', { nickname: value, avatarCode: avatarCode.value })
 }
+
+const [messageApi, ContextHolder] = message.useMessage()
+useMessageFeedback(
+  messageApi,
+  () => props.error,
+  () => props.error ?? '',
+)
 </script>
 
 <template>
   <form class="profile-form" @submit.prevent="submit">
-    <AAlert
-      v-if="error || invalid"
-      type="error"
-      :title="invalid ? t('academy.nicknameRule') : error"
-      show-icon
-    />
+    <ContextHolder />
     <label :for="`${formId}-nickname`">{{ t('academy.nickname') }}</label>
     <AInput
       :id="`${formId}-nickname`"

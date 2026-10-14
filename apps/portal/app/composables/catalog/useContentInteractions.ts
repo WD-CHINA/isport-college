@@ -8,6 +8,7 @@ interface ContentInteractionOptions {
   detail: Readonly<Ref<WebContentDetail | undefined>>
   update: (detail: WebContentDetail) => void
   refresh: () => Promise<unknown>
+  onSuccess?: (kind: InteractionKind, active: boolean) => void
 }
 
 /** 点赞、收藏与登录后的操作回放；旧会话响应不能修改当前内容。 */
@@ -58,6 +59,7 @@ export function useContentInteractions(options: ContentInteractionOptions) {
           : { favorited: result.active, favoriteCount: result.count }),
       })
       nuxt.runWithContext(() => clearNuxtData(key => key.startsWith('academy:activity:')))
+      options.onSuccess?.(kind, result.active)
     } catch {
       if (!disposed && revision === auth.revision) interactionFailed.value = true
     } finally {

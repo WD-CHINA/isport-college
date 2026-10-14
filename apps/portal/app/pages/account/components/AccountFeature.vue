@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { message } from 'antdv-next'
+import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { useAccountActivity } from '../composables/useAccountActivity'
 import AccountProfile from './AccountProfile.vue'
 import ActivityFilters from './ActivityFilters.vue'
@@ -6,15 +8,22 @@ import ActivityList from './ActivityList.vue'
 import AppPagination from '~/components/app/AppPagination.vue'
 
 const { t } = useI18n()
+const [messageApi, ContextHolder] = message.useMessage()
 const { kind, channel, page, removing, failed, totals, request, filter, remove } =
-  useAccountActivity()
+  useAccountActivity({
+    onRemoved: kind =>
+      messageApi.success(t(kind === 'like' ? 'detail.unlikeSuccess' : 'detail.unfavoriteSuccess')),
+  })
 const { data, error, status, refresh } = request
 useSeoMeta({ title: () => t('academy.account') })
+useMessageFeedback(messageApi, failed, () => t('detail.interactionFailed'))
+useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))
 await request
 </script>
 
 <template>
   <main class="account-feature ic-container">
+    <ContextHolder />
     <h1>{{ t('academy.account') }}</h1>
     <AccountProfile />
     <section class="account-feature__activity">
@@ -25,12 +34,7 @@ await request
         :disabled="Boolean(removing)"
         @change="filter"
       />
-      <AAlert v-if="failed" type="error" :title="t('detail.interactionFailed')" show-icon />
-      <AAlert v-if="error" type="error" :title="t('academy.requestFailed')" show-icon>
-        <template #action
-          ><AButton @click="refresh()">{{ t('catalog.retry') }}</AButton></template
-        >
-      </AAlert>
+      <AButton v-if="error" @click="refresh()">{{ t('catalog.retry') }}</AButton>
       <template v-else>
         <ActivityList
           :items="data?.list ?? []"

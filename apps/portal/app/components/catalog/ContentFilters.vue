@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { WebListQuery, WebResourceFilters } from '@isport/shared'
+import CatalogCategoryTabs from './CatalogCategoryTabs.vue'
 
 const props = defineProps<{
   channel: 'resource' | 'research' | 'school'
@@ -70,25 +71,32 @@ function set(field: Exclude<keyof WebListQuery, 'page'>, value: unknown) {
 }
 function reset() {
   keyword.value = ''
-  model.value = { page: 1, category: resource.value ? model.value.category : undefined }
+  model.value = {
+    page: 1,
+    category: props.channel !== 'school' ? model.value.category : undefined,
+  }
 }
 </script>
 
 <template>
   <section
     class="content-filters"
-    :class="{ 'content-filters--resource': resource }"
+    :class="resource ? 'content-filters--resource' : 'content-filters--editorial'"
     :aria-label="t('catalog.filters')"
   >
-    <div class="content-filters__categories" role="group" :aria-label="t('catalog.category')">
-      <button
-        v-if="!resource"
-        type="button"
-        :aria-pressed="!model.category"
-        @click="set('category', '')"
-      >
-        {{ t(channel === 'school' ? 'catalog.allCases' : 'common.all') }}
-      </button>
+    <CatalogCategoryTabs
+      v-if="!resource"
+      :channel="channel === 'school' ? 'school' : 'research'"
+      :categories="categories"
+      :category="model.category"
+      @change="value => set('category', value)"
+    />
+    <div
+      v-else
+      class="content-filters__categories"
+      role="group"
+      :aria-label="t('catalog.category')"
+    >
       <button
         v-for="item in categories"
         :key="item.id"
@@ -98,22 +106,22 @@ function reset() {
       >
         {{ item.name }}
       </button>
-      <details v-if="!resource" class="content-filters__search-toggle" :open="!!model.keyword">
-        <summary>{{ t('common.search') }}</summary>
-        <form class="content-filters__search" @submit.prevent="set('keyword', keyword)">
-          <AInput
-            v-model:value="keyword"
-            allow-clear
-            :maxlength="100"
-            :aria-label="t('catalog.search')"
-            :placeholder="t('catalog.search')"
-            @change="!keyword && set('keyword', '')"
-          />
-          <AButton type="primary" html-type="submit">{{ t('common.search') }}</AButton>
-          <AButton @click="reset">{{ t('common.reset') }}</AButton>
-        </form>
-      </details>
     </div>
+    <details v-if="!resource" class="content-filters__search-toggle" :open="!!model.keyword">
+      <summary>{{ t('common.search') }}</summary>
+      <form class="content-filters__search" @submit.prevent="set('keyword', keyword)">
+        <AInput
+          v-model:value="keyword"
+          allow-clear
+          :maxlength="100"
+          :aria-label="t('catalog.search')"
+          :placeholder="t('catalog.search')"
+          @change="!keyword && set('keyword', '')"
+        />
+        <AButton type="primary" html-type="submit">{{ t('common.search') }}</AButton>
+        <AButton @click="reset">{{ t('common.reset') }}</AButton>
+      </form>
+    </details>
     <div
       v-for="field in chipFields"
       :key="field.key"
@@ -155,6 +163,10 @@ function reset() {
 <style scoped>
 .content-filters {
   min-width: 0;
+}
+
+.content-filters--editorial {
+  position: relative;
 }
 
 .content-filters--resource {
@@ -274,13 +286,19 @@ function reset() {
 }
 
 .content-filters__search-toggle {
-  margin-left: auto;
+  position: absolute;
+  top: calc(100% + 32px);
+  right: 0;
+  z-index: 1;
+  max-width: 100%;
   color: var(--catalog-muted);
   font-size: 14px;
 }
 
 .content-filters__search-toggle summary {
-  padding: 10px;
+  width: fit-content;
+  margin-inline-start: auto;
+  padding: 2px 0 8px;
   cursor: pointer;
 }
 
@@ -289,6 +307,11 @@ function reset() {
   max-width: 100%;
   gap: 8px;
   margin-top: 8px;
+  padding: 12px;
+  border: 1px solid var(--catalog-border);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--ic-box-shadow-md);
 }
 
 .content-filters__search > :first-child {
