@@ -46,43 +46,57 @@ const visible = computed({
 <style>
 .academy-login-container {
   overflow: hidden;
-  padding: 0 32px 40px !important;
+  padding: 12px 0 40px !important;
   border-radius: 16px !important;
   background:
-    linear-gradient(180deg, rgb(0 119 250 / 25%), rgb(0 119 250 / 0%) 155px), #fff !important;
+    linear-gradient(180deg, rgb(0 119 250 / 25%), rgb(0 119 250 / 0%) 148px), #fff !important;
+}
+
+.academy-login-container .ant-modal-close {
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  color: #1c1f23;
 }
 
 .academy-login-header {
   display: flex;
-  height: 144px;
+  height: 136px;
   align-items: center;
   margin-bottom: 0 !important;
-  padding-bottom: 6px;
-  background: url('/auth/ardot/login-school.svg') right -7px top 24px / 212px 124px no-repeat !important;
+  padding: 0 72px 0 32px;
+  background: url('/auth/ardot/login-header.png') right center / 480px 136px no-repeat !important;
+}
+
+.academy-login-header--profile {
+  background-image: url('/auth/ardot/nickname-header.png') !important;
 }
 
 .academy-login-header .ant-modal-title {
   position: relative;
+  color: #1c1f23;
   font-size: 24px;
   font-weight: 600;
   line-height: 34px;
 }
 
 .academy-login-body {
-  padding: 0 !important;
+  padding: 0 32px !important;
 }
 
 @media (max-width: 480px) {
-  .academy-login-container {
+  .academy-login-body {
     padding-inline: 20px !important;
   }
 
   .academy-login-header {
-    background-position: right -65px top 24px !important;
+    padding-left: 20px;
+    background-position: right -40px center !important;
   }
 
   .academy-login-header .ant-modal-title {
-    max-width: 240px;
+    max-width: 180px;
     font-size: 21px;
   }
 }

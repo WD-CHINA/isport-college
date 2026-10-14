@@ -13,7 +13,7 @@ const props = defineProps<{
   content: WebContentCard
   variant?: 'default' | 'catalog'
 }>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
 const imageFailed = shallowRef(false)
@@ -31,6 +31,17 @@ const kind = computed(() => {
   return kinds[props.content.detailType]
 })
 const published = computed(() => formatPublishedAt(props.content.publishedAt))
+const publisher = computed(
+  () => props.content.publisherName || props.content.authorName || props.content.schoolName,
+)
+const levelLabel = computed(() => {
+  if (props.content.levelName) return props.content.levelName
+  const level = props.content.recommendedLevel
+  if (!level) return ''
+  const marks = ['一', '二', '三', '四', '五']
+  const mark = locale.value === 'zh' ? marks[level - 1] : String(level)
+  return mark ? t('catalog.levelBadge', { level: mark }) : ''
+})
 watch(
   () => props.content.coverUrl,
   () => {
@@ -76,6 +87,15 @@ watch(
           >{{ content.categoryName }}</span
         >
         <h3>{{ content.title }}</h3>
+        <div
+          v-if="
+            variant === 'catalog' && content.channel === 'RESOURCE' && (publisher || levelLabel)
+          "
+          class="content-card__foot"
+        >
+          <span class="content-card__publisher">{{ publisher }}</span>
+          <span v-if="levelLabel" class="content-card__level">{{ levelLabel }}</span>
+        </div>
         <p v-if="variant !== 'catalog'">{{ content.summary }}</p>
         <div v-if="variant !== 'catalog'" class="content-card__meta">
           <span v-if="content.categoryName">{{ content.categoryName }}</span>
@@ -85,11 +105,6 @@ watch(
           <span>{{ t('catalog.views', { count: content.viewCount }) }}</span>
           <time v-if="published" :datetime="published">{{ published }}</time>
         </div>
-        <span
-          v-if="variant === 'catalog' && content.channel === 'RESOURCE'"
-          class="content-card__author"
-          >{{ content.authorName || content.schoolName }}</span
-        >
         <span v-if="variant === 'catalog' && content.channel === 'SCHOOL'" class="content-card__cta"
           >{{ t('catalog.viewCase') }} →</span
         >
@@ -230,13 +245,39 @@ watch(
 .content-card--catalog.content-card--resource h3 {
   font-size: 16px;
   font-weight: 500;
-  line-height: 23px;
+  line-height: 22px;
 }
 
-.content-card__author {
-  color: #777;
+.content-card__foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.content-card__publisher {
+  min-width: 0;
+  overflow: hidden;
+  flex: 1;
+  color: rgb(28 31 35 / 60%);
   font-size: 12px;
-  line-height: 18px;
+  font-weight: 500;
+  line-height: 22px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.content-card__level {
+  flex: none;
+  height: 20px;
+  margin-left: auto;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: rgb(45 180 192 / 20%);
+  color: #05a4b6;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 20px;
 }
 
 .content-card--catalog.content-card--research .content-card__cover {

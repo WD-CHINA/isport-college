@@ -162,10 +162,13 @@ const messages: MessageSchema = {
     tryOtherFilter: 'Try adjusting filters or search keywords',
   },
   auth: {
-    designWelcome: 'Welcome to Dream Sports Academy',
+    designWelcome: 'Welcome to Dream Academy',
     phonePlaceholder: 'Enter your 11-digit phone number',
+    codeLabel: 'Verification code',
     codePlaceholder: 'Enter the 6-digit verification code',
     agreementAnd: 'and',
+    termsLink: 'Terms',
+    privacyLink: 'Privacy Policy',
 
     loginTitle: 'Sign in to Dream Sports Academy',
     loginSubtitle: 'Save resources and share your teaching practice',
@@ -211,7 +214,9 @@ const messages: MessageSchema = {
     nickname: 'Nickname',
     nicknameRule:
       'Leave blank or use 2–6 Chinese characters, letters or digits. Spaces and emoji are not allowed.',
-    nicknameGuide: 'Welcome! Choose your nickname',
+    nicknameGuide: 'Set your nickname',
+    nicknamePlaceholder: '2–6 characters: Chinese, English or digits',
+    saveNickname: 'Save nickname',
     avatar: 'Choose an avatar',
     avatars: {
       ball: 'Ball',
@@ -223,7 +228,7 @@ const messages: MessageSchema = {
       cyclist: 'Cyclist',
       racket: 'Racket',
     },
-    skip: 'Skip for now',
+    skip: 'Skip',
     anonymous: 'No nickname',
     logoutConfirm: 'Sign out? Pending sign-in actions will be cancelled.',
     logoutLocal: 'Your local session was cleared, but the server sign-out request failed.',
@@ -267,6 +272,7 @@ const messages: MessageSchema = {
     search: 'Search content titles',
     level: 'Recommended level',
     levelValue: 'Level {level}',
+    levelBadge: 'Level {level}',
     kind: 'Resource type',
     fitness: 'Fitness focus',
     bodyPart: 'Body area',

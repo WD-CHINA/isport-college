@@ -11,6 +11,9 @@ const code = defineModel<string>('code', { required: true })
 const agreed = defineModel<boolean>('agreed', { required: true })
 const { t } = useI18n()
 const localePath = useLocalePath()
+const ready = computed(
+  () => /^1\d{10}$/.test(phone.value) && /^\d{6}$/.test(code.value) && agreed.value,
+)
 </script>
 
 <template>
@@ -30,7 +33,7 @@ const localePath = useLocalePath()
       />
     </div>
     <div class="sms-form__field">
-      <label for="login-code">{{ t('academy.smsCode') }}</label>
+      <label for="login-code">{{ t('auth.codeLabel') }}</label>
       <div class="sms-form__code">
         <AInput
           id="login-code"
@@ -58,15 +61,23 @@ const localePath = useLocalePath()
       <ACheckbox v-model:checked="agreed" :disabled="submitting">{{
         t('academy.agree')
       }}</ACheckbox>
-      <NuxtLink :to="localePath('/legal/terms')" target="_blank">{{ t('academy.terms') }}</NuxtLink>
+      <NuxtLink :to="localePath('/legal/terms')" target="_blank">{{
+        t('auth.termsLink')
+      }}</NuxtLink>
       {{ t('auth.agreementAnd') }}
       <NuxtLink :to="localePath('/legal/privacy')" target="_blank">{{
-        t('academy.privacy')
+        t('auth.privacyLink')
       }}</NuxtLink>
     </div>
-    <AButton type="primary" html-type="submit" size="large" :loading="submitting" block>{{
-      t('common.login')
-    }}</AButton>
+    <AButton
+      type="primary"
+      html-type="submit"
+      size="large"
+      :disabled="!ready"
+      :loading="submitting"
+      block
+      >{{ t('common.login') }}</AButton
+    >
   </form>
 </template>
 
@@ -134,7 +145,16 @@ const localePath = useLocalePath()
 
 .sms-form > :deep(.ant-btn-primary) {
   height: 40px;
-  border-radius: 3px;
+  border: 0;
+  border-radius: 6px;
   background: #0077fa;
+  box-shadow: none;
+}
+
+.sms-form > :deep(.ant-btn-primary:disabled),
+.sms-form > :deep(.ant-btn-primary.ant-btn-disabled) {
+  border: 0;
+  background: #e6e8ea;
+  color: rgb(28 31 35 / 35%);
 }
 </style>

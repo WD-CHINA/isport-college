@@ -18,6 +18,9 @@ export interface WebContentCard {
   categoryCode: string
   categoryName: string
   authorName: string
+  publisherName: string
+  levelName: string
+  recommendedLevel: number | null
   provinceName: string
   schoolName: string
   viewCount: number

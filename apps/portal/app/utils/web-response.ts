@@ -35,6 +35,12 @@ function id(value: unknown) {
 function choice<T extends string>(value: unknown, choices: readonly T[]): T {
   return choices.find(item => item === value) ?? invalid()
 }
+function recommendedLevel(value: unknown): number | null {
+  const level = typeof value === 'string' && /^[1-5]$/.test(value) ? Number(value) : value
+  return typeof level === 'number' && Number.isInteger(level) && level >= 1 && level <= 5
+    ? level
+    : null
+}
 export function parseContentCard(value: unknown): WebContentCard {
   const item = row(value)
   if (typeof item.title !== 'string' || typeof item.contentKey !== 'string') return invalid()
@@ -50,6 +56,13 @@ export function parseContentCard(value: unknown): WebContentCard {
     categoryCode: text(item.categoryCode),
     categoryName: text(item.categoryName),
     authorName: text(item.authorName),
+    publisherName:
+      text(item.uploadGroup) ||
+      text(item.publisherName) ||
+      text(item.authorName) ||
+      text(item.schoolName),
+    levelName: text(item.levelName) || text(item.recommendedLevelName),
+    recommendedLevel: recommendedLevel(item.recommendedLevel),
     provinceName: text(item.provinceName),
     schoolName: text(item.schoolName),
     viewCount: number(item.viewCount),

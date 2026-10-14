@@ -104,6 +104,25 @@ describe('调用侧协议验证', () => {
       summary: '',
       publishedAt: null,
       interactive: true,
+      publisherName: '',
+      levelName: '',
+      recommendedLevel: null,
+    })
+    expect(
+      parseContentCard({
+        ...card,
+        uploadGroup: '融梦学院',
+        recommendedLevel: 1,
+        authorName: '张老师',
+      }),
+    ).toMatchObject({
+      authorName: '张老师',
+      publisherName: '融梦学院',
+      recommendedLevel: 1,
+    })
+    expect(parseContentCard({ ...card, levelName: '水平三', authorName: '张老师' })).toMatchObject({
+      publisherName: '张老师',
+      levelName: '水平三',
     })
     expect(
       parseContentDetail({ ...card, mediaList: [{ mediaType: 'DOCUMENT', fileUrl: '/a.pdf' }] })
