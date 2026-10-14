@@ -34,7 +34,16 @@ export default defineNuxtConfig({
   pages: {
     pattern: ['**/*.vue', '!**/components/**', '!**/composables/**', '!**/utils/**'],
   },
-  modules: ['@pinia/nuxt', '@unocss/nuxt', '@nuxtjs/i18n', '@antdv-next/nuxt'],
+  modules: [
+    '@pinia/nuxt',
+    'pinia-plugin-persistedstate/nuxt',
+    '@unocss/nuxt',
+    '@nuxtjs/i18n',
+    '@antdv-next/nuxt',
+  ],
+  piniaPluginPersistedstate: {
+    storage: 'localStorage',
+  },
   css: ['normalize.css', '@isport/design-tokens/css-vars', '~/assets/css/main.scss'],
   nitro: {
     devProxy: {

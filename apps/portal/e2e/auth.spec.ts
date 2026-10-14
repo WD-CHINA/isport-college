@@ -9,15 +9,27 @@ import {
   waitForHydration,
 } from './academy.fixture'
 
+test('刷新个人中心不再在浏览器重复请求 /me', async ({ page, context, baseURL }) => {
+  await setSession(context, testSession(), baseURL!)
+  const meRequests: string[] = []
+  page.on('request', request => {
+    if (new URL(request.url()).pathname.endsWith('/api/v1/me')) meRequests.push(request.url())
+  })
+  await page.goto('/account')
+  await waitForHydration(page)
+  await expect(page.locator('.app-header__user')).toContainText('测试用户1')
+  await page.waitForTimeout(500)
+  expect(meRequests).toEqual([])
+})
 test('短信登录、会话恢复与退出', async ({ page, context }) => {
   await page.goto('/resources')
   await waitForHydration(page)
   await page.getByRole('button', { name: /登\s*录/, exact: true }).click()
   await smsLogin(page)
   await expect(page.locator('.app-header__user')).toContainText('测试用户1')
-  expect(
-    (await context.cookies()).find(cookie => cookie.name === AUTH_COOKIE_NAME)?.value,
-  ).toContain('e2e-1-login')
+  const authCookie = (await context.cookies()).find(cookie => cookie.name === AUTH_COOKIE_NAME)
+  expect(decodeURIComponent(authCookie?.value ?? '')).toMatch(/^e2e-1-login-/)
+  expect(authCookie?.value).not.toContain('profile')
   await page.reload()
   await waitForHydration(page)
   await expect(page.locator('.app-header__user')).toContainText('测试用户1')
@@ -151,7 +163,8 @@ test('其他标签页重新登录后，现有页面使用新会话', async ({ pa
   await page.getByRole('button', { name: /^点赞/ }).click()
   const request = await sent
   const cookie = (await context.cookies()).find(cookie => cookie.name === AUTH_COOKIE_NAME)!
-  const next = JSON.parse(decodeURIComponent(cookie.value)) as { token: string }
-  expect(request.headers().authorization).toBe(`Bearer ${next.token}`)
-  expect(next.token).not.toBe(previous.token)
+  const token = decodeURIComponent(cookie.value)
+  expect(token).not.toContain('profile')
+  expect(request.headers().authorization).toBe(`Bearer ${token}`)
+  expect(token).not.toBe(previous.token)
 })

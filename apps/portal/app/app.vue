@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ensureAcademySession } from '~/composables/useAcademy'
+import { refreshSessionAfterMount } from '~/composables/useAcademy'
 import LoginModal from '~/components/auth/LoginModal.vue'
 import LogoutConfirm from '~/components/auth/LogoutConfirm.vue'
 import NicknameGuide from '~/components/auth/NicknameGuide.vue'
@@ -12,10 +12,8 @@ const { locale, localeProperties, t } = useI18n()
 const runtimeConfig = useRuntimeConfig()
 const preventIndexing = runtimeConfig.public.siteEnv !== 'production'
 
-// 公开页首屏不等待资料服务；受保护页在路由门禁中验证会话。
-onMounted(() => {
-  void ensureAcademySession()
-})
+// 异步布局完成水合后再刷新资料；受保护页沿用 SSR 门禁的结果。
+onNuxtReady(refreshSessionAfterMount)
 
 useHead(() => ({
   htmlAttrs: { lang: localeProperties.value.language ?? locale.value },

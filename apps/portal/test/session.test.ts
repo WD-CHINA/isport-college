@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '../app/stores/auth'
-import { useAcademy } from '../app/composables/useAcademy'
+import {
+  ensureAcademySession,
+  refreshSessionAfterMount,
+  useAcademy,
+} from '../app/composables/useAcademy'
 import { useLoginUiStore } from '../app/stores/login-ui'
 import { useSessionActions } from '../app/composables/auth/useSessionActions'
 
@@ -17,7 +21,9 @@ const session = (id: number) => ({ token: `token-${id}`, profile: profile(id), n
 let current: ReturnType<typeof context>
 function context(id: number) {
   const pinia = createPinia()
-  const cookie = ref<unknown>(session(id))
+  const cookie = ref<unknown>(`token-${id}`)
+  const profileState = ref<unknown>(null)
+  const meDone = ref(false)
   const fetch = vi.fn(
     async (_input: RequestInfo | URL, _init?: RequestInit) =>
       new Response(JSON.stringify({ status: 200, message: 'OK', data: profile(id) })),
@@ -25,12 +31,13 @@ function context(id: number) {
   const nuxt: Record<string, unknown> = {
     $pinia: pinia,
     $router: { currentRoute: ref({ path: '/resources' }) },
+    isHydrating: false,
     runWithContext: (fn: () => unknown) => fn(),
     provide: (name: string, value: unknown) => {
       nuxt[`$${name}`] = value
     },
   }
-  return { pinia, cookie, fetch, nuxt }
+  return { pinia, cookie, profileState, meDone, fetch, nuxt }
 }
 function activate(value: ReturnType<typeof context>) {
   current = value
@@ -50,6 +57,9 @@ beforeEach(() => {
   vi.stubGlobal('shallowRef', shallowRef)
   vi.stubGlobal('watch', watch)
   vi.stubGlobal('useCookie', () => current.cookie)
+  vi.stubGlobal('useState', (key?: string) =>
+    key === 'ic-auth-me-done' ? current.meDone : current.profileState,
+  )
   vi.stubGlobal('useNuxtApp', () => current.nuxt)
   vi.stubGlobal('useRuntimeConfig', () => ({
     apiBase: 'http://localhost:3200',
@@ -131,6 +141,23 @@ describe('请求与会话隔离', () => {
     auth.clearSession()
     expect(auth.session).toBeNull()
   })
+  it('水合阶段不重复请求 SSR 已刷新的 /me', async () => {
+    useAuthStore()
+    current.meDone.value = true
+    current.nuxt.isHydrating = true
+    await ensureAcademySession()
+    expect(current.fetch).not.toHaveBeenCalled()
+  })
+  it('公开页挂载仍请求一次 /me，受保护页挂载沿用 SSR 结果', async () => {
+    useAuthStore()
+    refreshSessionAfterMount()
+    await vi.waitFor(() => expect(current.fetch).toHaveBeenCalledTimes(1))
+    expect(String(current.fetch.mock.calls[0]?.[0])).toContain('/api/v1/me')
+    current.fetch.mockClear()
+    current.meDone.value = true
+    refreshSessionAfterMount()
+    expect(current.fetch).not.toHaveBeenCalled()
+  })
   it('令牌不进入 Pinia SSR payload', () => {
     const auth = useAuthStore()
     expect(auth.isLoggedIn).toBe(true)
@@ -154,8 +181,9 @@ describe('请求与会话隔离', () => {
   it('其他标签页切换账号后，请求使用新令牌并拒绝旧资料响应', async () => {
     const auth = useAuthStore()
     const client = useAcademy()
-    current.cookie.value = session(2)
-    expect(auth.user?.id).toBe(2)
+    current.cookie.value = 'token-2'
+    expect(auth.user).toBeNull()
+    expect(auth.session?.token).toBe('token-2')
     expect(auth.revision).toBe(1)
     expect(auth.updateUser(profile(1), 'token-1')).toBe(false)
     await client.me()
@@ -163,15 +191,21 @@ describe('请求与会话隔离', () => {
       'Bearer token-2',
     )
   })
-  it('其他标签页更新相同会话的资料，不清理数据或反复写 Cookie', () => {
+  it('资料更新只写内存，Cookie 保持令牌', () => {
     const auth = useAuthStore()
-    const next = { ...session(1), profile: { ...profile(1), nickname: '新昵称' } }
-    current.cookie.value = next
+    auth.setSession(session(1))
+    expect(current.cookie.value).toBe('token-1')
+    expect(auth.updateUser({ ...profile(1), nickname: '新昵称' }, 'token-1')).toBe(true)
     expect(auth.user?.nickname).toBe('新昵称')
-    expect(auth.revision).toBe(0)
-    expect(clearNuxtData).not.toHaveBeenCalled()
-    expect(current.cookie.value).toEqual(next)
-    auth.updateUser(profile(1), 'token-1')
+    expect(auth.revision).toBe(1)
+    expect(current.cookie.value).toBe('token-1')
+    expect(clearNuxtData).toHaveBeenCalledTimes(1)
+  })
+  it('整包 Cookie 无效，不建立会话', () => {
+    current.cookie.value = session(1)
+    const auth = useAuthStore()
+    expect(current.cookie.value).toBeNull()
+    expect(auth.session).toBeNull()
     expect(auth.revision).toBe(0)
   })
   it('其他标签页写入无效 Cookie 后，不保留旧令牌', () => {

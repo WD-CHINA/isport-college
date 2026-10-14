@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { switchLanguage } from './academy.fixture'
+import { setSession, switchLanguage, testSession, waitForHydration } from './academy.fixture'
 
 function collectHydrationErrors(page: Page) {
   const errors: string[] = []
@@ -7,6 +7,42 @@ function collectHydrationErrors(page: Page) {
     if (/hydration.*mismatch/i.test(message.text())) errors.push(message.text())
   })
   return errors
+}
+
+for (const cached of [false, true]) {
+  test(`首页布局延迟加载时，${cached ? '恢复资料缓存' : '快速 /me 响应'}不会抢先改变水合内容`, async ({
+    page,
+    context,
+    baseURL,
+  }) => {
+    const session = testSession()
+    await setSession(context, session, baseURL!)
+    if (cached) {
+      await page.addInitScript(value => localStorage.setItem('ic_auth', JSON.stringify(value)), {
+        ...session,
+        profile: { ...session.profile, nickname: '缓存用户', avatarCode: 4 },
+      })
+    }
+    const hydrationErrors = collectHydrationErrors(page)
+    let delayedLayout = false
+    await page.route('**/_nuxt/*.js', async route => {
+      const response = await route.fetch()
+      // 首屏布局是异步模块；模拟网络较慢，让根应用先触发 mounted。
+      if ((await response.text()).includes('app-header__user')) {
+        delayedLayout = true
+        await new Promise(resolve => setTimeout(resolve, 700))
+      }
+      await route.fulfill({ response })
+    })
+    const response = await page.goto('/')
+    const html = await response!.text()
+    expect(html).toContain('我的账号')
+    expect(html).not.toContain(session.token)
+    await waitForHydration(page)
+    await expect(page.locator('.app-header__user')).toContainText('测试用户1')
+    expect(delayedLayout).toBe(true)
+    expect(hydrationErrors).toEqual([])
+  })
 }
 
 /** C 端 SSR：首屏 HTML 应直接包含渲染内容，无需等待 JS */

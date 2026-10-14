@@ -19,7 +19,7 @@ export function testSession(id = 1, suffix = randomUUID()): WebSession {
 }
 export async function setSession(context: BrowserContext, session: WebSession, baseURL: string) {
   await context.addCookies([
-    { name: AUTH_COOKIE_NAME, value: encodeURIComponent(JSON.stringify(session)), url: baseURL },
+    { name: AUTH_COOKIE_NAME, value: encodeURIComponent(session.token), url: baseURL },
   ])
 }
 export async function waitForHydration(page: Page) {

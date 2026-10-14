@@ -38,15 +38,15 @@ pages → Feature → domain composable
 
 `auth.clearSession()` 主动清理当前会话；`auth.clearSessionIfTokenMatches(token)` 仅在原请求令牌仍匹配时清理，供 401 和退出响应使用。
 
-Cookie 为 SameSite=Lax；`siteEnv=production` 时使用 Secure。令牌放在 store 的私有引用中，暴露的计算属性不会进入 Pinia SSR state。由于保留浏览器直连 Bearer 协议，Cookie 仍需被 JavaScript 读取；本轮没有实现 HttpOnly。若改为 HttpOnly，需要单独设计同源认证代理及部署边界。
+Cookie 为 SameSite=Lax；`siteEnv=production` 时使用 Secure。Cookie 只保存令牌。登录返回的资料与 `newUser` 放在 `auth` store，并由 `pinia-plugin-persistedstate` 经 `auth-cache` store 写入浏览器 `localStorage`（键 `ic_auth`），供刷新后的客户端恢复；水合完成前不读取这份缓存。服务端只根据令牌判断是否登录，受保护页继续用 `/me` 补齐资料，解析结果经本次请求的 state 交给水合，令牌不进入该 state。暴露的计算属性不会进入 Pinia SSR state。由于保留浏览器直连 Bearer 协议，Cookie 仍需被 JavaScript 读取；本轮没有实现 HttpOnly。若改为 HttpOnly，需要单独设计同源认证代理及部署边界。
 
-`auth` 监听 `useCookie` 同步的外部变化，其他标签页退出或切换账号时同步内存会话、递增会话版本并清理私有数据；相同会话的资料变化仅更新资料，不反复写入 Cookie。个人记录缓存键包含语言、用户和会话版本，语言切换会重新请求对应语言的内容。
+`auth` 监听 `useCookie` 同步其他标签页的退出和换令牌，并递增会话版本、清理私有数据。同一令牌的资料更新写入 `auth-cache` 持久化，不回写 Cookie；其他标签页通过 `storage` 事件同步资料缓存。个人记录缓存键包含语言、用户和会话版本，语言切换会重新请求对应语言的内容。
 
 当前 `/me` 不返回角色或权限，因此 `hasWebPermission()` 只向有效前台会话开放 `account:view`。菜单和路由使用相同判断；客户端权限判断不能替代学苑后端授权。
 
 ## SSR 与故障隔离
 
-公开页不等待 `/me`：资料在浏览器挂载后刷新，上限 2 秒。受保护路由先刷新已登录会话，401 会恢复为访客登录流程；其他资料服务故障保留本地会话，实际业务接口仍由后端鉴权。
+公开页不等待 `/me`：资料缓存恢复和刷新都通过 `onNuxtReady` 等待完整水合，刷新上限 2 秒。根应用的 mounted 不代表异步布局已完成水合，不能在该时机改变首屏资料。受保护路由在 SSR 门禁里刷新一次已登录会话，这次结果写入本次请求的标记，水合后不再重复请求。401 会恢复为访客登录流程；其他资料服务故障保留本地会话，实际业务接口仍由后端鉴权。
 
 详情正文独立 SSR；推荐在浏览器单独请求。推荐失败不会覆盖正文。资源、教师和动态不存在时，页面正文及 HTTP 响应均为 404。浏览计数只在浏览器提交，互动和计数的旧响应不能覆盖新会话数据。
 

@@ -8,3 +8,9 @@ onlyBuiltDependencies:
 
 overrides:
   glob@^10.0.0: 10.5.0
+
+# nuxt-define 1.0.0 的运行时代码使用 @nuxt/kit，但发布清单仅声明为开发依赖。
+packageExtensions:
+  nuxt-define@1.0.0:
+    dependencies:
+      '@nuxt/kit': 4.5.2

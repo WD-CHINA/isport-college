@@ -48,17 +48,29 @@ export function useAcademy() {
   return academy
 }
 
+const SESSION_REFRESHED = 'ic-auth-me-done'
+
 /** 已登录时用 /me 刷新资料。失败则保留本地会话，不阻断页面渲染。 */
 export async function ensureAcademySession() {
-  const academy = useAcademy()
+  const nuxt = useNuxtApp()
+  const refreshed = useState(SESSION_REFRESHED, () => false)
   const auth = useAuthStore()
   const token = auth.session?.token
   if (!token) return
+  // 受保护页的 SSR 已经刷新过。水合阶段的门禁不要再打一次。
+  if (nuxt.isHydrating && refreshed.value) return
+  const academy = useAcademy()
   try {
     const signal = AbortSignal.timeout(2_000)
     const profile = toWebProfile(await academy.me(undefined, signal))
-    if (profile) auth.updateUser(profile, token)
+    if (profile && auth.updateUser(profile, token)) refreshed.value = true
   } catch {
-    // 401 已由请求层清会话。其余失败保留 cookie 中的资料。
+    // 401 已由请求层清会话。其余失败保留 store 中已有的资料。
   }
+}
+
+/** 公开页在浏览器挂载后补一次资料。受保护页沿用 SSR 的结果。 */
+export function refreshSessionAfterMount() {
+  if (useState(SESSION_REFRESHED, () => false).value) return
+  void ensureAcademySession()
 }
