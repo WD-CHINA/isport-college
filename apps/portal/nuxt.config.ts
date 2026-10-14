@@ -15,6 +15,10 @@ const adminRouteRules = Object.fromEntries(
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-18',
+  // 监听所有网卡，局域网设备可用本机 IP 打开开发服务。
+  devServer: {
+    host: '0.0.0.0',
+  },
   devtools: {
     enabled: true,
 

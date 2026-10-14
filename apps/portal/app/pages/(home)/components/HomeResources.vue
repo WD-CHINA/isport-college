@@ -55,10 +55,10 @@ function setLevel(value: unknown) {
             :aria-pressed="!level && item.id === category"
             @click="emit('select', item.id)"
           >
-            <img
+            <span
               v-if="categoryIcons[item.id]"
-              :src="`/home/figma/${categoryIcons[item.id]}`"
-              alt=""
+              class="home-resources__icon"
+              :style="{ '--icon': `url(/home/figma/${categoryIcons[item.id]})` }"
             />
             {{ item.name }}
           </button>
@@ -168,13 +168,14 @@ function setLevel(value: unknown) {
 .home-resources__cover {
   display: grid;
   place-items: center;
-  height: 158px;
+  height: 158px !important;
   background: #dce7f5;
+  overflow: hidden;
 }
 
 .home-resources__photo {
   width: 100%;
-  height: 100%;
+  height: 158px !important;
   object-fit: cover;
 }
 
@@ -194,9 +195,13 @@ function setLevel(value: unknown) {
   line-height: 22px;
 }
 
-.home-resources__filters img {
+.home-resources__icon {
   display: block;
   flex: none;
+  width: 20px;
+  height: 20px;
+  background-color: currentcolor;
+  mask: var(--icon) center / 20px 20px no-repeat;
 }
 
 .home-resources small {

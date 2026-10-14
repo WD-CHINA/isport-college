@@ -65,7 +65,7 @@ const visible = computed({
   height: 136px;
   align-items: center;
   margin-bottom: 0 !important;
-  padding: 0 72px 0 32px;
+  padding: 0 72px 0 32px !important;
   background: url('/auth/ardot/login-header.png') right center / 480px 136px no-repeat !important;
 }
 
