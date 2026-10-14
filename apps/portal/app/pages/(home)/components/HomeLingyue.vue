@@ -36,129 +36,133 @@ const tools = computed(() => [
     </div>
   </section>
 </template>
-<style scoped>
+<style lang="scss" scoped>
 .home-lingyue {
   padding: 36px 0;
-}
 
-.home-lingyue__panel {
-  position: relative;
-  display: flex;
-  min-height: 133px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 24px 36px;
-  border-radius: 12px;
-  background: #eaf5ff url('/home/figma/df637.png') center / cover no-repeat;
-}
+  &__panel {
+    position: relative;
+    display: flex;
+    min-height: 133px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 36px;
+    border-radius: 12px;
+    background: #eaf5ff url('/home/figma/df637.png') center / cover no-repeat;
+  }
 
-.home-lingyue__heading {
-  flex: 0 1 250px;
-}
+  &__heading {
+    flex: 0 1 250px;
+  }
 
-.home-lingyue h2 {
-  margin: 0;
-  background: linear-gradient(145deg, #0079ff 4.2%, #a348f3 22.85%);
-  background-clip: text;
-  color: transparent;
-  font-size: 28px;
-  font-weight: 600;
-  line-height: 45px;
-}
+  h2 {
+    margin: 0;
+    background: linear-gradient(145deg, #0079ff 4.2%, #a348f3 22.85%);
+    background-clip: text;
+    color: transparent;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 45px;
+  }
 
-.home-lingyue p {
-  margin: 6px 0 0;
-  color: rgb(28 31 35 / 60%);
-  font-size: 14px;
-  line-height: 22px;
-}
+  p {
+    margin: 6px 0 0;
+    color: rgb(28 31 35 / 60%);
+    font-size: 14px;
+    line-height: 22px;
+  }
 
-.home-lingyue small {
-  position: absolute;
-  bottom: 4px;
-  left: 36px;
-  line-height: 16px;
-  color: var(--home-color-muted);
-  font-size: 12px;
-}
+  small {
+    position: absolute;
+    bottom: 4px;
+    left: 36px;
+    line-height: 16px;
+    color: var(--home-color-muted);
+    font-size: 12px;
+  }
 
-.home-lingyue__tools {
-  display: flex;
-  gap: 24px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+  &__tools {
+    display: flex;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 
-.home-lingyue button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  min-height: 61px;
-  padding: 8px 16px;
-  border: 0;
-  border-radius: 8px;
-  background: #fff;
-  color: var(--home-color-text);
-  cursor: not-allowed;
-}
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 61px;
+    padding: 8px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--home-color-text);
+    cursor: not-allowed;
+  }
 
-.home-lingyue__icon {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  flex: none;
-  place-items: center;
-}
+  &__icon {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    place-items: center;
+  }
 
-.home-lingyue img {
-  display: block;
-  flex: none;
-}
+  img {
+    display: block;
+    flex: none;
+  }
 
-.home-lingyue strong {
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 45px;
-  white-space: nowrap;
+  strong {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 45px;
+    white-space: nowrap;
+  }
 }
 
 @media (max-width: 1199px) {
-  .home-lingyue__panel {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  .home-lingyue {
+    &__panel {
+      flex-direction: column;
+      align-items: stretch;
+    }
 
-  .home-lingyue small {
-    position: static;
-    display: block;
-    margin-top: 8px;
-  }
+    small {
+      position: static;
+      display: block;
+      margin-top: 8px;
+    }
 
-  .home-lingyue__heading {
-    flex-basis: auto;
-  }
+    &__heading {
+      flex-basis: auto;
+    }
 
-  .home-lingyue__tools {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+    &__tools {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
-  .home-lingyue button {
-    width: 100%;
+    button {
+      width: 100%;
+    }
   }
 }
 
 @media (max-width: 560px) {
-  .home-lingyue__panel {
-    padding: 24px 16px;
-  }
+  .home-lingyue {
+    &__panel {
+      padding: 24px 16px;
+    }
 
-  .home-lingyue__tools {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    &__tools {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
   }
 }
 </style>

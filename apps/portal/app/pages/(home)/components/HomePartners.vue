@@ -29,70 +29,72 @@ const partners = [
     </ul>
   </section>
 </template>
-<style scoped>
+<style lang="scss" scoped>
 .home-partners {
   background: #fbfdff;
-}
 
-.home-partners__list {
-  display: flex;
-  min-height: 99.755px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin-block: 0;
-  padding-block: 24px;
-  list-style: none;
-}
+  &__list {
+    display: flex;
+    min-height: 99.755px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-block: 0;
+    padding-block: 24px;
+    list-style: none;
 
-.home-partners__list > li {
-  flex: none;
-}
+    > li {
+      flex: none;
+    }
 
-.home-partners__list img {
-  display: block;
-}
+    img {
+      display: block;
+    }
+  }
 
-.home-partners__shnu {
-  position: relative;
-  width: 133.208px;
-  height: 33.123px;
-}
+  &__shnu {
+    position: relative;
+    width: 133.208px;
+    height: 33.123px;
 
-.home-partners__shnu img {
-  position: absolute;
-}
+    img {
+      position: absolute;
+    }
+  }
 
-.home-partners__shnu-name {
-  left: 39.13px;
-  top: 1.93px;
-}
+  &__shnu-name {
+    left: 39.13px;
+    top: 1.93px;
+  }
 
-.home-partners__shnu-seal {
-  left: 0;
-  top: 0;
-}
+  &__shnu-seal {
+    left: 0;
+    top: 0;
+  }
 
-.home-partners__shnu-mark {
-  left: 2.13px;
-  top: 13.63px;
-}
+  &__shnu-mark {
+    left: 2.13px;
+    top: 13.63px;
+  }
 
-.home-partners__shnu-detail {
-  left: 3.71px;
-  top: 21.89px;
-}
+  &__shnu-detail {
+    left: 3.71px;
+    top: 21.89px;
+  }
 
-.home-partners__shnu-dot {
-  left: 4.58px;
-  top: 22.88px;
+  &__shnu-dot {
+    left: 4.58px;
+    top: 22.88px;
+  }
 }
 
 @media (max-width: 1199px) {
-  .home-partners__list {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 24px 48px;
+  .home-partners {
+    &__list {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px 48px;
+    }
   }
 }
 </style>

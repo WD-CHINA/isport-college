@@ -45,39 +45,39 @@ const browsePath = computed(() =>
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .activity-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 245px), 1fr));
   gap: 20px;
-}
 
-.activity-list__action {
-  display: grid;
-  gap: 12px;
-  padding: 0 18px 18px;
-  font-size: var(--ic-font-size-xs, 12px);
-  color: var(--ic-color-text-secondary, #64748b);
-}
+  &__action {
+    display: grid;
+    gap: 12px;
+    padding: 0 18px 18px;
+    font-size: var(--ic-font-size-xs, 12px);
+    color: var(--ic-color-text-secondary, #64748b);
+  }
 
-.activity-list__empty {
-  display: grid;
-  gap: 12px;
-  justify-items: center;
-  padding: 48px 12px;
-  border: 1px dashed var(--ic-color-border-strong, #cbd5e1);
-  border-radius: var(--ic-border-radius-lg, 12px);
-  background: var(--ic-color-background-container, #fff);
-  color: var(--ic-color-text-secondary, #64748b);
-  text-align: center;
-}
+  &__empty {
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+    padding: 48px 12px;
+    border: 1px dashed var(--ic-color-border-strong, #cbd5e1);
+    border-radius: var(--ic-border-radius-lg, 12px);
+    background: var(--ic-color-background-container, #fff);
+    color: var(--ic-color-text-secondary, #64748b);
+    text-align: center;
 
-.activity-list__empty p {
-  margin: 0;
-}
+    p {
+      margin: 0;
+    }
 
-.activity-list__empty a {
-  font-weight: var(--ic-font-weight-medium, 500);
-  color: var(--ic-color-brand-500, #2563eb);
+    a {
+      font-weight: var(--ic-font-weight-medium, 500);
+      color: var(--ic-color-brand-500, #2563eb);
+    }
+  }
 }
 </style>

@@ -49,77 +49,81 @@ const items = computed(() => [
   </section>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .home-capabilities {
   position: relative;
   z-index: 1;
   margin-top: -64px;
   padding-bottom: 36px;
   background: linear-gradient(transparent 64px, #fbfdff 64px);
-}
 
-.home-capabilities ul {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
-  margin: 0;
-  padding: 36px;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 4%);
-  list-style: none;
-}
+  ul {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin: 0;
+    padding: 36px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 4%);
+    list-style: none;
+  }
 
-.home-capabilities a {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  min-width: 0;
-  color: #1c1f23;
-}
+  a {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 0;
+    color: #1c1f23;
+  }
 
-.home-capabilities__icon {
-  display: grid;
-  width: 60px;
-  height: 60px;
-  flex: none;
-  place-items: center;
-  border-radius: 6px;
-  background: #eaf5ff;
-  color: #3295fb;
-}
+  &__icon {
+    display: grid;
+    width: 60px;
+    height: 60px;
+    flex: none;
+    place-items: center;
+    border-radius: 6px;
+    background: #eaf5ff;
+    color: #3295fb;
 
-.home-capabilities__icon img {
-  display: block;
-}
+    img {
+      display: block;
+    }
+  }
 
-.home-capabilities strong,
-.home-capabilities small {
-  display: block;
-}
+  & strong,
+  & small {
+    display: block;
+  }
 
-.home-capabilities strong {
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 28px;
-}
+  strong {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 28px;
+  }
 
-.home-capabilities small {
-  margin-top: 6px;
-  color: rgb(28 31 35 / 60%);
-  font-size: 13px;
-  line-height: 20px;
+  small {
+    margin-top: 6px;
+    color: rgb(28 31 35 / 60%);
+    font-size: 13px;
+    line-height: 20px;
+  }
 }
 
 @media (max-width: 900px) {
-  .home-capabilities ul {
-    grid-template-columns: 1fr 1fr;
+  .home-capabilities {
+    ul {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 }
 
 @media (max-width: 560px) {
-  .home-capabilities ul {
-    grid-template-columns: 1fr;
+  .home-capabilities {
+    ul {
+      grid-template-columns: 1fr;
+    }
   }
 }
 </style>

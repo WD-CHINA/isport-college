@@ -41,19 +41,21 @@ useMessageFeedback(
   </PreviewFrame>
 </template>
 
-<style scoped>
-.image-carousel :deep(.slick-slide) {
-  text-align: center;
-  line-height: 0;
-  background: #0f172a0a;
-}
+<style lang="scss" scoped>
+.image-carousel {
+  :deep(.slick-slide) {
+    text-align: center;
+    line-height: 0;
+    background: #0f172a0a;
+  }
 
-.image-carousel__image {
-  display: block;
-  width: auto;
-  max-width: 100%;
-  max-height: 70vh;
-  margin: 0 auto;
-  object-fit: contain;
+  &__image {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 70vh;
+    margin: 0 auto;
+    object-fit: contain;
+  }
 }
 </style>

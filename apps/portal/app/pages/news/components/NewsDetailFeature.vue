@@ -71,15 +71,15 @@ if (import.meta.server && notFound.value) {
   </main>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .news-detail {
   display: grid;
   gap: 12px;
   padding-top: 32px;
   padding-bottom: 56px;
-}
 
-.news-detail h1 {
-  margin: 12px 0 0;
+  h1 {
+    margin: 12px 0 0;
+  }
 }
 </style>

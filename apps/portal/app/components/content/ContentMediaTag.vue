@@ -19,7 +19,7 @@ const label = computed(() => labels[props.type])
     ><img :src="contentMediaIcon(type)" alt="" />{{ t(`catalog.media.${label}`) }}</span
   >
 </template>
-<style scoped>
+<style lang="scss" scoped>
 .content-media-tag {
   display: inline-flex;
   width: fit-content;
@@ -33,10 +33,10 @@ const label = computed(() => labels[props.type])
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
-}
 
-.content-media-tag img {
-  display: block;
-  flex: none;
+  img {
+    display: block;
+    flex: none;
+  }
 }
 </style>

@@ -55,19 +55,19 @@ await request
   </main>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .account-feature {
   padding-top: 32px;
   padding-bottom: 56px;
-}
 
-.account-feature :deep(h1) {
-  margin: 0 0 20px;
-  font-size: var(--ic-font-size-3xl, 30px);
-  letter-spacing: -0.01em;
-}
+  :deep(h1) {
+    margin: 0 0 20px;
+    font-size: var(--ic-font-size-3xl, 30px);
+    letter-spacing: -0.01em;
+  }
 
-.account-feature__activity {
-  margin-top: 32px;
+  &__activity {
+    margin-top: 32px;
+  }
 }
 </style>

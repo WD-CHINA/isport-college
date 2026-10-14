@@ -12,79 +12,81 @@ const { t } = useI18n()
   </section>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .home-hero {
   position: relative;
   min-height: 480px;
   background: #14508f url('/home/figma/48fa6.png') center / cover no-repeat;
   color: #fff;
-}
 
-.home-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgb(0 119 250 / 90%) 0%,
-    rgb(0 146 250 / 60%) 45%,
-    rgb(0 146 250 / 10%) 75%,
-    rgb(0 146 250 / 10%) 100%
-  );
-}
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgb(0 119 250 / 90%) 0%,
+      rgb(0 146 250 / 60%) 45%,
+      rgb(0 146 250 / 10%) 75%,
+      rgb(0 146 250 / 10%) 100%
+    );
+  }
 
-.home-hero__inner {
-  position: relative;
-  display: flex;
-  min-height: 480px;
-  flex-direction: column;
-  padding-top: 80px;
-  gap: 20px;
-}
+  &__inner {
+    position: relative;
+    display: flex;
+    min-height: 480px;
+    flex-direction: column;
+    padding-top: 80px;
+    gap: 20px;
+  }
 
-.home-hero__eyebrow {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 24px;
-}
+  &__eyebrow {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 24px;
+  }
 
-.home-hero__title {
-  max-width: 650px;
-  margin: 0;
-  font-size: 46px;
-  font-weight: 600;
-  line-height: 72px;
-  white-space: pre-line;
-}
+  &__title {
+    max-width: 650px;
+    margin: 0;
+    font-size: 46px;
+    font-weight: 600;
+    line-height: 72px;
+    white-space: pre-line;
 
-.home-hero__title:lang(en-US) {
-  line-height: 55px;
-}
+    &:lang(en-US) {
+      line-height: 55px;
+    }
+  }
 
-.home-hero__lead {
-  max-width: 500px;
-  margin: 0;
-  color: #d5e1ee;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 24px;
+  &__lead {
+    max-width: 500px;
+    margin: 0;
+    color: #d5e1ee;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+  }
 }
 
 @media (max-width: 767px) {
-  .home-hero,
-  .home-hero__inner {
-    min-height: 360px;
-  }
+  .home-hero {
+    &,
+    &__inner {
+      min-height: 360px;
+    }
 
-  .home-hero__title {
-    font-size: 32px;
-    line-height: 44px;
-  }
+    &__title {
+      font-size: 32px;
+      line-height: 44px;
+    }
 
-  .home-hero__inner {
-    padding-top: 48px;
-    padding-bottom: 96px;
+    &__inner {
+      padding-top: 48px;
+      padding-bottom: 96px;
+    }
   }
 }
 </style>

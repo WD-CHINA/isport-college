@@ -74,36 +74,36 @@ function href(id: number, detailType: string, jumpUrl: string) {
   </main>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .catalog-page {
   display: grid;
   gap: 24px;
   padding-top: 40px;
   padding-bottom: 64px;
-}
 
-.catalog-page h1 {
-  margin: 0;
-}
+  h1 {
+    margin: 0;
+  }
 
-.catalog-page__news {
-  display: grid;
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+  &__news {
+    display: grid;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 
-.catalog-page__news a {
-  display: grid;
-  gap: 6px;
-  color: inherit;
-}
+    a {
+      display: grid;
+      gap: 6px;
+      color: inherit;
+    }
 
-.catalog-page__news img {
-  width: min(100%, 320px);
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: 8px;
+    img {
+      width: min(100%, 320px);
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  }
 }
 </style>

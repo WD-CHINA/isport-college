@@ -82,7 +82,7 @@ function selectResource(id: string) {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .academy-home {
   --home-color-primary: #0077fa;
   --home-color-text: #1c1f23;
@@ -92,9 +92,9 @@ function selectResource(id: string) {
 
   background: #fbfdff;
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-}
 
-.academy-home__status {
-  padding: 40px 0;
+  &__status {
+    padding: 40px 0;
+  }
 }
 </style>

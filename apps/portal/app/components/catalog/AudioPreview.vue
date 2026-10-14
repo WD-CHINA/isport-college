@@ -24,7 +24,7 @@ const VueWavePlayer = defineAsyncComponent(() =>
   </PreviewFrame>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .audio-preview {
   width: 100%;
 }

@@ -110,13 +110,13 @@ if (import.meta.server && notFound.value) {
   </main>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .content-detail {
   padding-top: 32px;
   padding-bottom: 56px;
-}
 
-.content-detail__recommendations {
-  margin-top: 40px;
+  &__recommendations {
+    margin-top: 40px;
+  }
 }
 </style>

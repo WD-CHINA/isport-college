@@ -69,7 +69,7 @@ useMessageFeedback(messageApi, failed, () => t('media.failed'))
   </PreviewFrame>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .video-preview {
   width: 100%;
   min-height: 240px;

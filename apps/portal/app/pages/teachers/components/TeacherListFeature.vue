@@ -69,41 +69,41 @@ function changePage(next: number) {
   </main>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .catalog-page {
   display: grid;
   gap: 24px;
   padding-top: 40px;
   padding-bottom: 64px;
-}
 
-.catalog-page h1 {
-  margin: 0;
-}
+  h1 {
+    margin: 0;
+  }
 
-.catalog-page__people {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+  &__people {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 
-.catalog-page__people a {
-  display: grid;
-  gap: 4px;
-  padding: 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  color: inherit;
-  background: #fff;
-}
+    a {
+      display: grid;
+      gap: 4px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      color: inherit;
+      background: #fff;
+    }
 
-.catalog-page__people img {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  object-fit: cover;
+    img {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
 }
 </style>

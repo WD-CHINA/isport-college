@@ -70,25 +70,25 @@ useMessageFeedback(
   </form>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .profile-form {
   display: grid;
   gap: var(--ic-spacing-3, 12px);
-}
 
-.profile-form__avatars {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--ic-spacing-3, 12px);
-  border: 0;
-  padding: 0;
-}
+  &__avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ic-spacing-3, 12px);
+    border: 0;
+    padding: 0;
+  }
 
-.profile-form__avatar {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  gap: var(--ic-spacing-1, 4px);
-  font-size: 24px;
+  &__avatar {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    gap: var(--ic-spacing-1, 4px);
+    font-size: 24px;
+  }
 }
 </style>

@@ -80,7 +80,7 @@ await request
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .content-list-feature {
   --catalog-primary: #0077fa;
   --catalog-text: #1c1f23;
@@ -90,83 +90,87 @@ await request
   background: #fbfdff;
   color: var(--catalog-text);
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-}
 
-.content-list-feature__main {
-  display: grid;
-  width: min(100% - 48px, 1200px);
-  gap: 24px;
-  margin-inline: auto;
-  padding: 32px 0 50px;
-}
+  &__main {
+    display: grid;
+    width: min(100% - 48px, 1200px);
+    gap: 24px;
+    margin-inline: auto;
+    padding: 32px 0 50px;
+  }
 
-.content-list-feature:not(.content-list-feature--resource) .content-list-feature__main {
-  min-width: 0;
-  gap: 0;
-}
+  &:not(.content-list-feature--resource) .content-list-feature__main {
+    min-width: 0;
+    gap: 0;
+  }
 
-.content-list-feature--resource .content-list-feature__main {
-  gap: 18px;
-  padding-top: 26px;
-}
+  &--resource .content-list-feature__main {
+    gap: 18px;
+    padding-top: 26px;
+  }
 
-.content-list-feature__heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px 14px;
-  padding-top: 8px;
-}
+  &__heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 14px;
+    padding-top: 8px;
+  }
 
-.content-list-feature--resource .content-list-feature__heading {
-  padding-top: 30px;
-}
+  &--resource .content-list-feature__heading {
+    padding-top: 30px;
+  }
 
-.content-list-feature:not(.content-list-feature--resource) .content-list-feature__heading {
-  display: grid;
-  gap: 12px;
-  padding-top: 32px;
-  padding-right: 64px;
-}
+  &:not(.content-list-feature--resource) .content-list-feature__heading {
+    display: grid;
+    gap: 12px;
+    padding-top: 32px;
+    padding-right: 64px;
+  }
 
-.content-list-feature:not(.content-list-feature--resource) .content-list-feature__count {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
+  &:not(.content-list-feature--resource) .content-list-feature__count {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 
-.content-list-feature:not(.content-list-feature--resource) .content-list-feature__description {
-  line-height: 16px;
-}
+  &:not(.content-list-feature--resource) .content-list-feature__description {
+    line-height: 16px;
+  }
 
-.content-list-feature__heading h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 24px;
-}
+  &__heading {
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 24px;
+    }
+  }
 
-.content-list-feature__count {
-  margin: 0;
-  color: var(--catalog-muted);
-  font-size: 12px;
-}
+  &__count {
+    margin: 0;
+    color: var(--catalog-muted);
+    font-size: 12px;
+  }
 
-.content-list-feature__description {
-  width: 100%;
-  margin: 0;
-  color: var(--catalog-muted);
-  font-size: 13px;
-  line-height: 20px;
+  &__description {
+    width: 100%;
+    margin: 0;
+    color: var(--catalog-muted);
+    font-size: 13px;
+    line-height: 20px;
+  }
 }
 
 @media (max-width: 767px) {
-  .content-list-feature__main {
-    width: calc(100% - 32px);
-    padding-top: 24px;
+  .content-list-feature {
+    &__main {
+      width: calc(100% - 32px);
+      padding-top: 24px;
+    }
   }
 }
 </style>

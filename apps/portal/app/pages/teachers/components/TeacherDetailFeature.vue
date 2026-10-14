@@ -62,20 +62,20 @@ if (import.meta.server && notFound.value) {
   </main>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .teacher-detail {
   padding-top: 32px;
   padding-bottom: 56px;
-}
 
-.teacher-detail img {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  object-fit: cover;
-}
+  img {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
 
-.teacher-detail h1 {
-  margin: 16px 0 8px;
+  h1 {
+    margin: 16px 0 8px;
+  }
 }
 </style>

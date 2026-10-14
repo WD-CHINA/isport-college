@@ -41,12 +41,14 @@ useMessageFeedback(
   </PreviewFrame>
 </template>
 
-<style scoped>
-.document-preview__frame {
-  display: block;
-  width: 100%;
-  min-height: 70vh;
-  border: 0;
-  background: #fff;
+<style lang="scss" scoped>
+.document-preview {
+  &__frame {
+    display: block;
+    width: 100%;
+    min-height: 70vh;
+    border: 0;
+    background: #fff;
+  }
 }
 </style>

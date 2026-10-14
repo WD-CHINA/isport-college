@@ -46,30 +46,32 @@ const published = computed(() => formatPublishedAt(props.content.publishedAt))
   </article>
 </template>
 
-<style scoped>
-.detail-shell__breadcrumb,
-.detail-shell__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 16px;
-  color: #64748b;
-  font-size: 14px;
-}
+<style lang="scss" scoped>
+.detail-shell {
+  &__breadcrumb,
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    color: #64748b;
+    font-size: 14px;
+  }
 
-.detail-shell__title {
-  font-size: clamp(24px, 4vw, 36px);
-  line-height: 1.4;
-  margin: 24px 0 12px;
-  overflow-wrap: anywhere;
-}
+  &__title {
+    font-size: clamp(24px, 4vw, 36px);
+    line-height: 1.4;
+    margin: 24px 0 12px;
+    overflow-wrap: anywhere;
+  }
 
-.detail-shell__meta {
-  margin-bottom: 24px;
-}
+  &__meta {
+    margin-bottom: 24px;
+  }
 
-.detail-shell__summary {
-  margin-top: 24px;
-  line-height: 1.8;
-  overflow-wrap: anywhere;
+  &__summary {
+    margin-top: 24px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+  }
 }
 </style>

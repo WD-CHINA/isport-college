@@ -20,53 +20,55 @@ const stats = [
     </dl>
   </section>
 </template>
-<style scoped>
+<style lang="scss" scoped>
 .home-service-stats {
   display: grid;
   min-height: 180px;
   place-items: center;
   background: var(--home-color-primary);
   color: #fff;
-}
 
-.home-service-stats__list {
-  display: grid;
-  width: min(100% - 48px, 1288px);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 30px;
-  margin: 0;
-  padding: 40px 0;
-  text-align: center;
-}
+  &__list {
+    display: grid;
+    width: min(100% - 48px, 1288px);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 30px;
+    margin: 0;
+    padding: 40px 0;
+    text-align: center;
+  }
 
-.home-service-stats dd {
-  margin: 0;
-  font-size: 44px;
-  font-weight: 600;
-  line-height: 54px;
-}
+  dd {
+    margin: 0;
+    font-size: 44px;
+    font-weight: 600;
+    line-height: 54px;
+  }
 
-.home-service-stats small {
-  margin-left: 8px;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 14px;
-}
+  small {
+    margin-left: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14px;
+  }
 
-.home-service-stats dt {
-  margin-top: 14px;
-  font-size: 12px;
-  line-height: 18px;
+  dt {
+    margin-top: 14px;
+    font-size: 12px;
+    line-height: 18px;
+  }
 }
 
 @media (max-width: 700px) {
-  .home-service-stats__list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .home-service-stats {
+    &__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
-  .home-service-stats dd {
-    font-size: 32px;
-    line-height: 44px;
+    dd {
+      font-size: 32px;
+      line-height: 44px;
+    }
   }
 }
 </style>

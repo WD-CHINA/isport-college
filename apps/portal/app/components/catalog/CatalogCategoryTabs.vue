@@ -39,97 +39,97 @@ const { t } = useI18n()
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .catalog-category-tabs {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
-}
 
-.catalog-category-tabs button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  min-width: 0;
-  min-height: 76px;
-  padding: 24px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--ic-color-background-container, #fff);
-  color: var(--catalog-text);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 4%);
-  font-family: inherit;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 28px;
-  text-align: start;
-  cursor: pointer;
-  transition:
-    color var(--ic-motion-duration-fast, 150ms),
-    box-shadow var(--ic-motion-duration-fast, 150ms);
-}
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-width: 0;
+    min-height: 76px;
+    padding: 24px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--ic-color-background-container, #fff);
+    color: var(--catalog-text);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 4%);
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 28px;
+    text-align: start;
+    cursor: pointer;
+    transition:
+      color var(--ic-motion-duration-fast, 150ms),
+      box-shadow var(--ic-motion-duration-fast, 150ms);
+  }
 
-.catalog-category-tabs button > span:last-child {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
+  button > span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
 
-.catalog-category-tabs button:hover {
-  color: var(--catalog-primary);
-  box-shadow:
-    inset 0 0 0 1px var(--catalog-primary),
-    0 4px 12px rgb(0 0 0 / 4%);
-}
+  button:hover {
+    color: var(--catalog-primary);
+    box-shadow:
+      inset 0 0 0 1px var(--catalog-primary),
+      0 4px 12px rgb(0 0 0 / 4%);
+  }
 
-.catalog-category-tabs button[aria-pressed='true'] {
-  color: var(--catalog-primary);
-  box-shadow:
-    inset 0 0 0 2px var(--catalog-primary),
-    0 4px 12px rgb(0 0 0 / 4%);
-}
+  button[aria-pressed='true'] {
+    color: var(--catalog-primary);
+    box-shadow:
+      inset 0 0 0 2px var(--catalog-primary),
+      0 4px 12px rgb(0 0 0 / 4%);
+  }
 
-.catalog-category-tabs button:focus-visible {
-  outline: 2px solid var(--catalog-primary);
-  outline-offset: 4px;
-}
+  button:focus-visible {
+    outline: 2px solid var(--catalog-primary);
+    outline-offset: 4px;
+  }
 
-.catalog-category-tabs__icon {
-  width: 28px;
-  height: 28px;
-  flex: 0 0 28px;
-  background: currentcolor;
-  mask-position: center;
-  mask-repeat: no-repeat;
-  mask-size: contain;
-}
+  &__icon {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    background: currentcolor;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
 
-.catalog-category-tabs__icon--all {
-  mask-image: url('/catalog/ardot/school-all.svg');
-}
+    &--all {
+      mask-image: url('/catalog/ardot/school-all.svg');
+    }
 
-.catalog-category-tabs__icon--series {
-  mask-image: url('/catalog/ardot/research-practice.svg');
-}
+    &--series {
+      mask-image: url('/catalog/ardot/research-practice.svg');
+    }
 
-.catalog-category-tabs__icon--research {
-  mask-image: url('/catalog/ardot/research-development.svg');
-}
+    &--research {
+      mask-image: url('/catalog/ardot/research-development.svg');
+    }
 
-.catalog-category-tabs__icon--topics {
-  mask-image: url('/catalog/ardot/research-events.svg');
-}
+    &--topics {
+      mask-image: url('/catalog/ardot/research-events.svg');
+    }
 
-.catalog-category-tabs__icon--products {
-  mask-image: url('/catalog/ardot/research-tutorials.svg');
-}
+    &--products {
+      mask-image: url('/catalog/ardot/research-tutorials.svg');
+    }
 
-.catalog-category-tabs__icon--curriculum {
-  mask-image: url('/catalog/ardot/school-curriculum.svg');
-}
+    &--curriculum {
+      mask-image: url('/catalog/ardot/school-curriculum.svg');
+    }
 
-.catalog-category-tabs__icon--digital {
-  mask-image: url('/catalog/ardot/school-digital.svg');
+    &--digital {
+      mask-image: url('/catalog/ardot/school-digital.svg');
+    }
+  }
 }
 
 @media (max-width: 1023px) {
@@ -140,24 +140,28 @@ const { t } = useI18n()
 }
 
 @media (max-width: 767px) {
-  .catalog-category-tabs button {
-    gap: 8px;
-    min-height: 64px;
-    padding: 16px 12px;
-    font-size: 14px;
-    line-height: 22px;
-  }
+  .catalog-category-tabs {
+    button {
+      gap: 8px;
+      min-height: 64px;
+      padding: 16px 12px;
+      font-size: 14px;
+      line-height: 22px;
+    }
 
-  .catalog-category-tabs__icon {
-    width: 24px;
-    height: 24px;
-    flex-basis: 24px;
+    &__icon {
+      width: 24px;
+      height: 24px;
+      flex-basis: 24px;
+    }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .catalog-category-tabs button {
-    transition: none;
+  .catalog-category-tabs {
+    button {
+      transition: none;
+    }
   }
 }
 </style>

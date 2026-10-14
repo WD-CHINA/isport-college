@@ -11,27 +11,27 @@ defineProps<{ title: string }>()
   </section>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .preview-frame {
   overflow: hidden;
   border: 1px solid #dbe3ef;
   border-radius: 12px;
   background: #f1f5f9;
-}
 
-.preview-frame__toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 12px;
-  background: #fff;
-}
+  &__toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px;
+    background: #fff;
+  }
 
-.preview-frame__content {
-  min-width: 0;
-  overflow: auto;
-  padding: 12px;
+  &__content {
+    min-width: 0;
+    overflow: auto;
+    padding: 12px;
+  }
 }
 </style>

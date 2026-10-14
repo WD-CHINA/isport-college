@@ -52,7 +52,7 @@ useMessageFeedback(
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .media-preview {
   display: grid;
   gap: 16px;

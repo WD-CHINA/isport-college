@@ -90,80 +90,80 @@ useMessageFeedback(
   </form>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .sms-form {
   display: grid;
   gap: 24px;
   color: #1c1f23;
-}
 
-.sms-form__field {
-  display: grid;
-  gap: 10px;
-}
+  &__field {
+    display: grid;
+    gap: 10px;
 
-.sms-form__field > label {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-}
+    > label {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+    }
 
-.sms-form__field :deep(.ant-input) {
-  height: 40px;
-  border-radius: 5px;
-  font-size: 16px;
-}
+    :deep(.ant-input) {
+      height: 40px;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+  }
 
-.sms-form__code {
-  display: flex;
-  overflow: hidden;
-  align-items: center;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-}
+  &__code {
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
 
-.sms-form__code :deep(input) {
-  min-width: 0;
-  border: 0;
-  box-shadow: none;
-}
+    :deep(input) {
+      min-width: 0;
+      border: 0;
+      box-shadow: none;
+    }
 
-.sms-form__code :deep(.ant-btn) {
-  flex: none;
-  padding-inline: 12px;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  color: #0077fa;
-  box-shadow: none;
-}
+    :deep(.ant-btn) {
+      flex: none;
+      padding-inline: 12px;
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      color: #0077fa;
+      box-shadow: none;
+    }
+  }
 
-.sms-form__agreement {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-  color: #808080;
-  font-size: 14px;
-  line-height: 20px;
-}
+  &__agreement {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    color: #808080;
+    font-size: 14px;
+    line-height: 20px;
 
-.sms-form__agreement a {
-  color: #0077fa;
-}
+    a {
+      color: #0077fa;
+    }
+  }
 
-.sms-form > :deep(.ant-btn-primary) {
-  height: 40px;
-  border: 0;
-  border-radius: 6px;
-  background: #0077fa;
-  box-shadow: none;
-}
+  > :deep(.ant-btn-primary) {
+    height: 40px;
+    border: 0;
+    border-radius: 6px;
+    background: #0077fa;
+    box-shadow: none;
+  }
 
-.sms-form > :deep(.ant-btn-primary:disabled),
-.sms-form > :deep(.ant-btn-primary.ant-btn-disabled) {
-  border: 0;
-  background: #e6e8ea;
-  color: rgb(28 31 35 / 35%);
+  & > :deep(.ant-btn-primary:disabled),
+  & > :deep(.ant-btn-primary.ant-btn-disabled) {
+    border: 0;
+    background: #e6e8ea;
+    color: rgb(28 31 35 / 35%);
+  }
 }
 </style>

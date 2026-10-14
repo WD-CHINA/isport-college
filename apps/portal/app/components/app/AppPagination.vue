@@ -16,7 +16,7 @@ const emit = defineEmits<{ change: [page: number] }>()
   />
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .app-pagination {
   display: flex;
   flex-wrap: wrap;

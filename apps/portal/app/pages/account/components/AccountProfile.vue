@@ -42,42 +42,42 @@ async function submit(value: { nickname: string; avatarCode: number }) {
   </section>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .account-profile {
   padding: 24px;
   border: 1px solid var(--ic-color-border-base, #e2e8f0);
   border-radius: var(--ic-border-radius-xl, 14px);
   background: var(--ic-color-background-container, #fff);
   box-shadow: var(--ic-box-shadow-sm, 0 1px 2px 0 rgb(15 23 42 / 6%));
-}
 
-.account-profile__head {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
 
-.account-profile__ident {
-  flex: 1;
-  min-width: 0;
-}
+  &__ident {
+    flex: 1;
+    min-width: 0;
 
-.account-profile__ident h2 {
-  margin: 0 0 4px;
-  font-size: var(--ic-font-size-xl, 20px);
-}
+    h2 {
+      margin: 0 0 4px;
+      font-size: var(--ic-font-size-xl, 20px);
+    }
 
-.account-profile__ident p {
-  margin: 0;
-  color: var(--ic-color-text-secondary, #64748b);
-  font-size: var(--ic-font-size-sm, 14px);
-}
+    p {
+      margin: 0;
+      color: var(--ic-color-text-secondary, #64748b);
+      font-size: var(--ic-font-size-sm, 14px);
+    }
+  }
 
-.account-profile__form {
-  display: grid;
-  gap: 16px;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--ic-color-border-base, #e2e8f0);
+  &__form {
+    display: grid;
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--ic-color-border-base, #e2e8f0);
+  }
 }
 </style>

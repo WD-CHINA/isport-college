@@ -86,58 +86,58 @@ useMessageFeedback(
   </AModal>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .nickname-guide {
   display: grid;
   gap: 24px;
   color: #1c1f23;
-}
 
-.nickname-guide__field {
-  display: grid;
-  gap: 10px;
-}
+  &__field {
+    display: grid;
+    gap: 10px;
 
-.nickname-guide__field > label {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-}
+    > label {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+    }
 
-.nickname-guide__field :deep(.ant-input) {
-  height: 40px;
-  border-radius: 5px;
-  font-size: 16px;
-}
+    :deep(.ant-input) {
+      height: 40px;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+  }
 
-.nickname-guide > :deep(.ant-btn-primary) {
-  height: 40px;
-  border: 0;
-  border-radius: 6px;
-  background: #0077fa;
-  box-shadow: none;
-}
+  > :deep(.ant-btn-primary) {
+    height: 40px;
+    border: 0;
+    border-radius: 6px;
+    background: #0077fa;
+    box-shadow: none;
+  }
 
-.nickname-guide > :deep(.ant-btn-primary:disabled),
-.nickname-guide > :deep(.ant-btn-primary.ant-btn-disabled) {
-  border: 0;
-  background: #e6e8ea;
-  color: rgb(28 31 35 / 35%);
-}
+  & > :deep(.ant-btn-primary:disabled),
+  & > :deep(.ant-btn-primary.ant-btn-disabled) {
+    border: 0;
+    background: #e6e8ea;
+    color: rgb(28 31 35 / 35%);
+  }
 
-.nickname-guide__skip {
-  justify-self: center;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #0077fa;
-  font-size: 14px;
-  line-height: 20px;
-  cursor: pointer;
-}
+  &__skip {
+    justify-self: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #0077fa;
+    font-size: 14px;
+    line-height: 20px;
+    cursor: pointer;
 
-.nickname-guide__skip:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
 }
 </style>

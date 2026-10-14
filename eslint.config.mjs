@@ -127,4 +127,10 @@ export default [
       ],
     },
   },
+  {
+    files: ['apps/portal/**/*.vue'],
+    rules: {
+      'vue/block-lang': ['error', { style: { lang: 'scss' } }],
+    },
+  },
 ]

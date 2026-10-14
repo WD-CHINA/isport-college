@@ -50,7 +50,7 @@ function handleLocaleClick({ key }: { key: string | number }) {
   </ADropdown>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .app-locale-menu {
   display: inline-flex;
   align-items: center;
@@ -58,17 +58,19 @@ function handleLocaleClick({ key }: { key: string | number }) {
   height: auto;
   padding-inline: 8px;
   color: var(--ic-color-text-secondary, #475569);
-}
 
-.app-locale-menu__icon {
-  width: 18px;
-  height: 18px;
-  display: block;
+  &__icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+  }
 }
 
 @media (max-width: 359px) {
-  .app-locale-menu__label {
-    display: none;
+  .app-locale-menu {
+    &__label {
+      display: none;
+    }
   }
 }
 </style>

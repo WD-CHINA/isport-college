@@ -15,7 +15,7 @@ withDefaults(defineProps<{ type: WebDetailType; size?: number }>(), { size: 32 }
   />
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .content-type-icon {
   display: block;
   flex: none;

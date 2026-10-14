@@ -45,16 +45,16 @@ const { t } = useI18n()
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .activity-filters {
   display: grid;
   gap: 16px;
   margin-bottom: 24px;
-}
 
-.activity-filters__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  &__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
 }
 </style>

@@ -37,7 +37,7 @@ function goHome() {
   </AResult>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .error-page {
   min-height: 100vh;
   padding-top: 20vh;

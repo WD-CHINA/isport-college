@@ -32,32 +32,36 @@ const { t } = useI18n()
   <AppEmpty v-if="!loading && !items.length" :description="t('catalog.noResults')" />
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .content-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 245px), 1fr));
   gap: 24px;
-}
 
-.content-grid--catalog {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
+  &--catalog {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 
-.content-grid--wide {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 26px;
-  margin-top: 24px;
+  &--wide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 26px;
+    margin-top: 24px;
+  }
 }
 
 @media (max-width: 1023px) {
-  .content-grid--catalog {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .content-grid {
+    &--catalog {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 }
 
 @media (max-width: 767px) {
-  .content-grid--catalog {
-    grid-template-columns: 1fr;
+  .content-grid {
+    &--catalog {
+      grid-template-columns: 1fr;
+    }
   }
 }
 </style>

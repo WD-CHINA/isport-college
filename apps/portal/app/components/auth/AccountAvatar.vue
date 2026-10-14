@@ -14,7 +14,7 @@ const symbol = computed(() => symbols[props.avatarCode - 1] ?? '●')
   }}</span>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .account-avatar {
   display: inline-grid;
   place-items: center;

@@ -25,7 +25,7 @@ const { t } = useI18n()
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .interaction-bar {
   display: flex;
   flex-wrap: wrap;
