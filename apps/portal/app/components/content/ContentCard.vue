@@ -5,9 +5,10 @@ import {
   webContentPath,
   type WebContentCard,
 } from '@isport/shared'
+import ContentMediaTag from './ContentMediaTag.vue'
 import { useApiUrl } from '~/utils/api-url'
 
-const props = defineProps<{ content: WebContentCard }>()
+const props = defineProps<{ content: WebContentCard; variant?: 'default' | 'catalog' }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
@@ -35,7 +36,14 @@ watch(
 </script>
 
 <template>
-  <article class="content-card" :data-content-id="content.contentKey">
+  <article
+    class="content-card"
+    :class="[
+      variant === 'catalog' && 'content-card--catalog',
+      `content-card--${content.channel.toLowerCase()}`,
+    ]"
+    :data-content-id="content.contentKey"
+  >
     <NuxtLink :to="href" class="content-card__link">
       <div class="content-card__cover">
         <img
@@ -48,12 +56,23 @@ watch(
           @error="imageFailed = true"
         />
         <span v-else>{{ t('catalog.noCover') }}</span>
-        <span class="content-card__kind">{{ t(`catalog.media.${kind}`) }}</span>
+        <span v-if="variant !== 'catalog'" class="content-card__kind">{{
+          t(`catalog.media.${kind}`)
+        }}</span>
       </div>
       <div class="content-card__body">
+        <ContentMediaTag
+          v-if="variant === 'catalog' && content.channel === 'RESOURCE'"
+          :type="content.detailType"
+        />
+        <span
+          v-if="variant === 'catalog' && content.channel === 'SCHOOL' && content.categoryName"
+          class="content-card__category"
+          >{{ content.categoryName }}</span
+        >
         <h3>{{ content.title }}</h3>
-        <p>{{ content.summary }}</p>
-        <div class="content-card__meta">
+        <p v-if="variant !== 'catalog'">{{ content.summary }}</p>
+        <div v-if="variant !== 'catalog'" class="content-card__meta">
           <span v-if="content.categoryName">{{ content.categoryName }}</span>
           <span v-if="content.channel === 'SCHOOL' && (content.provinceName || content.schoolName)"
             >{{ content.provinceName }} · {{ content.schoolName }}</span
@@ -61,6 +80,14 @@ watch(
           <span>{{ t('catalog.views', { count: content.viewCount }) }}</span>
           <time v-if="published" :datetime="published">{{ published }}</time>
         </div>
+        <span
+          v-if="variant === 'catalog' && content.channel === 'RESOURCE'"
+          class="content-card__author"
+          >{{ content.authorName || content.schoolName }}</span
+        >
+        <span v-if="variant === 'catalog' && content.channel === 'SCHOOL'" class="content-card__cta"
+          >{{ t('catalog.viewCase') }} →</span
+        >
       </div>
     </NuxtLink>
     <slot />
@@ -168,5 +195,99 @@ watch(
   font-size: var(--ic-font-size-sm, 13px);
   font-weight: var(--ic-font-weight-medium, 500);
   color: var(--ic-color-brand-500, #2563eb);
+}
+
+.content-card--catalog {
+  min-width: 0;
+  border: 0;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px var(--catalog-border);
+}
+
+.content-card--catalog .content-card__cover {
+  overflow: hidden;
+}
+
+.content-card--catalog .content-card__cover img {
+  position: absolute;
+  inset: 0;
+}
+
+.content-card--catalog .content-card__body {
+  gap: 8px;
+  padding: 16px 24px 24px;
+}
+
+.content-card--catalog.content-card--resource {
+  min-height: 278px;
+}
+
+.content-card--catalog.content-card--resource h3 {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 23px;
+}
+
+.content-card__author {
+  color: #777;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.content-card--catalog.content-card--research .content-card__cover {
+  aspect-ratio: 588 / 250;
+}
+
+.content-card--catalog.content-card--research .content-card__body {
+  min-height: 79px;
+  padding: 26px;
+}
+
+.content-card--catalog.content-card--research h3 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 27px;
+}
+
+.content-card--catalog.content-card--school .content-card__cover {
+  aspect-ratio: 587 / 300;
+}
+
+.content-card--catalog.content-card--school .content-card__body {
+  gap: 16px;
+  padding: 24px 26px 26px;
+}
+
+.content-card--catalog.content-card--school h3 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 30px;
+}
+
+.content-card__category {
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 3px;
+  background: #eaf5ff;
+  color: var(--catalog-primary);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.content-card__cta {
+  width: fit-content;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 3px;
+  background: #eaf5ff;
+  color: var(--catalog-primary);
+  font-size: 12px;
+  line-height: 14px;
+}
+
+@media (max-width: 767px) {
+  .content-card--catalog.content-card--school h3 {
+    font-size: 18px;
+  }
 }
 </style>

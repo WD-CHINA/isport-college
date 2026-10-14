@@ -29,6 +29,20 @@ describe('createRequest', () => {
     expect(new Headers(calls[0]?.init.headers).get('x-locale')).toBe('en-US')
   })
 
+  it('保留开发代理上游的路径前缀', async () => {
+    const calls: string[] = []
+    const request = createRequest({
+      baseURL: 'https://yuntiyu-test2.dream-sports.cn/academy',
+      fetch: async input => {
+        calls.push(String(input))
+        return envelope({ ok: true })
+      },
+    })
+
+    await request('GET', '/home')
+    expect(calls[0]).toBe('https://yuntiyu-test2.dream-sports.cn/academy/api/v1/home')
+  })
+
   it('401 触发 onUnauthorized', async () => {
     const onUnauthorized = vi.fn()
     const request = createRequest({

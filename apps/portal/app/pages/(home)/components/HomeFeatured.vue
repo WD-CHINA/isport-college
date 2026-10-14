@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { isContentAssetUrl, webContentPath, type WebContentCard } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
 
 const props = defineProps<{ featured: WebContentCard[]; hot: WebContentCard[] }>()
@@ -18,16 +19,13 @@ watch(
   },
 )
 
-function kind(item: WebContentCard) {
-  const kinds = {
-    VIDEO: 'video',
-    AUDIO: 'audio',
-    DOCUMENT: 'courseware',
-    IMAGE: 'image',
-    LINK: 'link',
-    ARTICLE: 'article',
-  } as const
-  return t(`catalog.media.${kinds[item.detailType]}`)
+const hotIcons = {
+  VIDEO: 'faa76.svg',
+  AUDIO: '5b8fd.svg',
+  DOCUMENT: '45ed2.svg',
+  IMAGE: 'e2df2.svg',
+  LINK: '4f72c.svg',
+  ARTICLE: '4f72c.svg',
 }
 </script>
 
@@ -47,8 +45,8 @@ function kind(item: WebContentCard) {
             <h3>{{ current.title }}</h3>
             <p>{{ current.summary }}</p>
             <NuxtLink :to="localePath(webContentPath(current))"
-              >{{ t('home.viewContent') }} ›</NuxtLink
-            >
+              >{{ t('home.viewContent') }} <img src="/home/figma/ec1cf.svg" alt=""
+            /></NuxtLink>
           </div>
           <div v-if="featured.length > 1" class="home-featured__dots">
             <button
@@ -64,10 +62,12 @@ function kind(item: WebContentCard) {
         <aside class="home-featured__hot">
           <div class="home-featured__hot-head">
             <h3>{{ t('home.hotTitle') }}</h3>
-            <NuxtLink :to="localePath('/resources')">{{ t('home.viewAll') }} ›</NuxtLink>
+            <NuxtLink :to="localePath('/resources')"
+              >{{ t('home.viewAll') }} <img src="/home/figma/21c16.svg" alt=""
+            /></NuxtLink>
           </div>
           <ul>
-            <li v-for="item in hot.slice(0, 5)" :key="item.contentKey">
+            <li v-for="(item, row) in hot.slice(0, 5)" :key="item.contentKey">
               <NuxtLink :to="localePath(webContentPath(item))">
                 <img
                   v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
@@ -77,12 +77,21 @@ function kind(item: WebContentCard) {
                 <span v-else class="home-featured__thumb" />
                 <span class="home-featured__hot-copy">
                   <strong>{{ item.title }}</strong>
-                  <em v-if="item.categoryName">{{ kind(item) }} · {{ item.categoryName }}</em>
+                  <em v-if="item.categoryName"
+                    ><img :src="`/home/figma/${hotIcons[item.detailType]}`" alt="" />{{
+                      item.categoryName
+                    }}</em
+                  >
                 </span>
-                <span aria-hidden="true">›</span>
+                <img
+                  class="home-featured__arrow"
+                  :src="`/home/figma/${row === 0 ? '49d2c.svg' : 'dd1b3.svg'}`"
+                  alt=""
+                />
               </NuxtLink>
             </li>
           </ul>
+          <AppEmpty v-if="!hot.length" :description="t('common.empty')" />
         </aside>
       </div>
     </div>
@@ -105,14 +114,16 @@ function kind(item: WebContentCard) {
 .home-featured__spotlight,
 .home-featured__hot {
   border-radius: 12px;
+  box-shadow: inset 0 0 0 1px var(--home-color-border);
   background: #fff;
 }
 
 .home-featured__spotlight {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-content: start;
+  grid-template-columns: minmax(0, 400fr) minmax(0, 344fr);
   gap: 24px;
-  min-height: 320px;
+  min-height: 409px;
   padding: 24px;
 }
 
@@ -124,11 +135,11 @@ function kind(item: WebContentCard) {
 
 .home-featured__cover {
   overflow: hidden;
-  min-height: 240px;
+  height: 320px;
 }
 
 .home-featured__cover img,
-.home-featured__hot img {
+.home-featured__hot li > a > img:not(.home-featured__arrow) {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -138,11 +149,12 @@ function kind(item: WebContentCard) {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 16px;
+  gap: 18px;
+  min-height: 320px;
+  padding-block: 16px;
 }
 
-.home-featured__tag,
-.home-featured__hot em {
+.home-featured__tag {
   color: #0077fa;
   font-size: 12px;
   font-style: normal;
@@ -163,17 +175,36 @@ function kind(item: WebContentCard) {
 .home-featured__copy h3 {
   font-size: 24px;
   font-weight: 600;
-  line-height: 36px;
+  line-height: 38px;
 }
 
 .home-featured__copy p {
   margin: 0;
   color: #68788c;
   font-size: 14px;
-  line-height: 22px;
+  line-height: 24px;
 }
 
-.home-featured__copy a,
+.home-featured__hot em {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 1px 4px;
+  border: 0.5px solid #2cb8c5;
+  border-radius: 3px;
+  color: #05a4b6;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 16px;
+}
+
+.home-featured__hot em img {
+  display: block;
+  flex: none;
+}
+
 .home-featured__hot-head a {
   color: #0077fa;
   font-size: 14px;
@@ -181,6 +212,15 @@ function kind(item: WebContentCard) {
 }
 
 .home-featured__copy a {
+  height: 32px;
+  border: 0;
+  color: var(--home-color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   margin-top: auto;
   padding: 6px 12px;
   border-radius: 6px;
@@ -191,7 +231,7 @@ function kind(item: WebContentCard) {
   display: flex;
   grid-column: 1 / -1;
   justify-content: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .home-featured__dots button {
@@ -216,7 +256,7 @@ function kind(item: WebContentCard) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .home-featured__hot h3 {
@@ -228,6 +268,7 @@ function kind(item: WebContentCard) {
   display: grid;
   gap: 16px;
   margin: 0;
+  padding: 0;
   list-style: none;
 }
 
@@ -238,9 +279,9 @@ function kind(item: WebContentCard) {
   color: #1c1f23;
 }
 
-.home-featured__hot img,
+.home-featured__hot li > a > img:not(.home-featured__arrow),
 .home-featured__thumb {
-  width: 48px;
+  width: 66px;
   height: 48px;
   flex: none;
 }
@@ -249,7 +290,7 @@ function kind(item: WebContentCard) {
   display: grid;
   min-width: 0;
   flex: 1;
-  gap: 4px;
+  gap: 6px;
 }
 
 .home-featured__hot strong {
@@ -258,6 +299,34 @@ function kind(item: WebContentCard) {
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.home-featured__hot-head a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  color: rgb(28 31 35 / 80%);
+}
+
+.home-featured__hot h3 {
+  line-height: 32px;
+}
+
+.home-featured__hot .home-featured__arrow {
+  width: auto;
+  height: auto;
+}
+
+.home-featured__copy a img,
+.home-featured__hot-head img {
+  display: block;
+  flex: none;
+}
+
+.home-featured__tag {
+  background: rgb(0 149 238 / 15%);
+  color: #004b83;
 }
 
 @media (max-width: 960px) {

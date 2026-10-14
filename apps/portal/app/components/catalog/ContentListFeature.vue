@@ -2,6 +2,7 @@
 import AppPagination from '~/components/app/AppPagination.vue'
 import ContentFilters from './ContentFilters.vue'
 import ContentGrid from '~/components/content/ContentGrid.vue'
+import CatalogHero from './CatalogHero.vue'
 import { useContentList } from '~/composables/catalog/useContentList'
 import type { ContentChannel } from '@isport/shared'
 
@@ -13,76 +14,129 @@ const { query, request, filterRequest, categories, update, changePage, retry } =
 const { data, status, error } = request
 const { data: resourceFilters, error: filterError } = filterRequest
 const title = computed(() => t(`catalog.channels.${props.channel}`))
+const sectionTitle = computed(
+  () =>
+    categories.value.find(item => item.id === query.value.category)?.name ??
+    t(props.channel === 'school' ? 'catalog.allCases' : `catalog.channels.${props.channel}`),
+)
+function search(keyword: string) {
+  void update({ ...query.value, keyword: keyword || undefined })
+}
 useSeoMeta({ title: () => title.value, description: () => t('catalog.description') })
 await request
 </script>
 
 <template>
-  <div class="container-page content-list-feature">
-    <header>
-      <h1>{{ title }}</h1>
-      <p>{{ t('catalog.description') }}</p>
-    </header>
-    <ContentFilters
-      :model-value="query"
-      :channel="channel"
-      :categories="categories"
-      :resource-filters="resourceFilters"
-      @update:model-value="update"
-    />
-    <AAlert v-if="filterError" type="warning" show-icon :title="t('academy.requestFailed')" />
-    <AAlert v-if="error" type="error" show-icon :title="t('academy.requestFailed')">
-      <template #action
-        ><AButton @click="retry">{{ t('catalog.retry') }}</AButton></template
-      >
-    </AAlert>
-    <template v-else>
-      <p class="content-list-feature__count" role="status">
-        {{
-          status === 'pending'
-            ? t('common.loading')
-            : t('catalog.total', { count: data?.total ?? 0 })
-        }}
-      </p>
-      <ContentGrid :items="data?.list ?? []" :loading="status === 'pending'" />
-      <AppPagination
-        v-if="data"
-        :total="data.total"
-        :page="query.page"
-        :page-size="data.pageSize"
-        @change="changePage"
+  <div class="content-list-feature" :class="`content-list-feature--${channel}`">
+    <CatalogHero :channel="channel" :keyword="query.keyword" @search="search" />
+    <div class="content-list-feature__main">
+      <ContentFilters
+        :model-value="query"
+        :channel="channel"
+        :categories="categories"
+        :resource-filters="resourceFilters"
+        @update:model-value="update"
       />
-    </template>
+      <AAlert v-if="filterError" type="warning" show-icon :title="t('academy.requestFailed')" />
+      <AAlert v-if="error" type="error" show-icon :title="t('academy.requestFailed')">
+        <template #action
+          ><AButton @click="retry">{{ t('catalog.retry') }}</AButton></template
+        >
+      </AAlert>
+      <template v-else>
+        <header class="content-list-feature__heading">
+          <h2>{{ sectionTitle }}</h2>
+          <p class="content-list-feature__count" role="status">
+            {{
+              status === 'pending'
+                ? t('common.loading')
+                : t('catalog.total', { count: data?.total ?? 0 })
+            }}
+          </p>
+          <p v-if="channel !== 'resource'" class="content-list-feature__description">
+            {{ t(`catalog.sectionIntro.${channel}`) }}
+          </p>
+        </header>
+        <ContentGrid
+          :items="data?.list ?? []"
+          :loading="status === 'pending'"
+          variant="catalog"
+          :channel="channel"
+        />
+        <AppPagination
+          v-if="data"
+          :total="data.total"
+          :page="query.page"
+          :page-size="data.pageSize"
+          @change="changePage"
+        />
+      </template>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .content-list-feature {
+  --catalog-primary: #0077fa;
+  --catalog-text: #1c1f23;
+  --catalog-muted: #68788c;
+  --catalog-border: rgb(28 31 35 / 10%);
+
+  background: #fbfdff;
+  color: var(--catalog-text);
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.content-list-feature__main {
   display: grid;
+  width: min(100% - 48px, 1200px);
   gap: 24px;
-  padding-top: 40px;
-  padding-bottom: 64px;
+  margin-inline: auto;
+  padding: 32px 0 50px;
 }
 
-.content-list-feature h1 {
-  margin: 0 0 12px;
-  font-size: var(--ic-font-size-3xl, 30px);
-  letter-spacing: -0.01em;
+.content-list-feature--resource .content-list-feature__main {
+  gap: 18px;
+  padding-top: 26px;
 }
 
-.content-list-feature header p {
+.content-list-feature__heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 14px;
+  padding-top: 8px;
+}
+
+.content-list-feature--resource .content-list-feature__heading {
+  padding-top: 30px;
+}
+
+.content-list-feature__heading h2 {
   margin: 0;
-  color: var(--ic-color-text-secondary, #64748b);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
 }
 
 .content-list-feature__count {
-  justify-self: start;
   margin: 0;
-  padding: 6px 14px;
-  border-radius: var(--ic-border-radius-full, 9999px);
-  background: var(--ic-color-brand-50, #eff6ff);
-  color: var(--ic-color-brand-700, #1e40af);
-  font-size: var(--ic-font-size-sm, 14px);
-  font-weight: var(--ic-font-weight-medium, 500);
+  color: var(--catalog-muted);
+  font-size: 12px;
+}
+
+.content-list-feature__description {
+  width: 100%;
+  margin: 0;
+  color: var(--catalog-muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+@media (max-width: 767px) {
+  .content-list-feature__main {
+    width: calc(100% - 32px);
+    padding-top: 24px;
+  }
 }
 </style>

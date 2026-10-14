@@ -29,7 +29,9 @@ test('资源分类筛选更新查询参数', async ({ page }) => {
 test('手机导航无横向溢出', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/en/resources')
-  await expect(page.getByRole('heading', { name: 'Teaching Resources', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'PE Teaching Resource Library', exact: true }),
+  ).toBeVisible()
   await waitForHydration(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.locator('.app-header__panel').getByRole('link', { name: 'Teachers' }).click()

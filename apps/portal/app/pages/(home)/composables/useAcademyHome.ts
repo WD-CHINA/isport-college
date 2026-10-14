@@ -1,6 +1,8 @@
 import { useRefreshOnFocus } from '~/composables/useRefreshOnFocus'
 import { useAcademy } from '~/composables/useAcademy'
 import { RESEARCH_CATEGORIES } from '@isport/shared'
+import { storeToRefs } from 'pinia'
+import { useHomeUiStore } from '~/stores/home-ui'
 
 export function useAcademyHome() {
   const academy = useAcademy()
@@ -9,9 +11,9 @@ export function useAcademyHome() {
     () => `academy:home:${locale.value}`,
     () => academy.home(),
   )
-  const selectedResource = shallowRef('')
-  const selectedResearch = shallowRef('')
-  const selectedLevel = shallowRef('')
+  const { selectedResource, selectedResearch, selectedLevel } = storeToRefs(
+    useHomeUiStore(useNuxtApp().$pinia),
+  )
   const language = computed(() => (locale.value === 'en' ? 'en-US' : 'zh-CN'))
 
   function pick(current: string, ids: string[]) {
@@ -20,13 +22,7 @@ export function useAcademyHome() {
 
   const resourceGroups = computed(() => request.data.value?.resourceGroupList ?? [])
   const levelGroups = computed(() => request.data.value?.levelGroupList ?? [])
-  const researchCodes = computed(() => {
-    const present = new Set(
-      (request.data.value?.researchList ?? []).map(item => item.categoryCode).filter(Boolean),
-    )
-    const source = RESEARCH_CATEGORIES.filter(item => present.size === 0 || present.has(item.id))
-    return source.length ? source : RESEARCH_CATEGORIES
-  })
+  const researchCodes = computed(() => RESEARCH_CATEGORIES)
 
   const resourceCategory = computed({
     get: () =>

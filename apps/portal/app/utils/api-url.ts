@@ -2,7 +2,12 @@
 export function resolveApiUrl(value: string | undefined, baseURL: string): string {
   const raw = (value ?? '').trim()
   if (!raw.startsWith('/') || !/^https?:\/\//i.test(baseURL)) return raw
-  return new URL(raw, baseURL).href
+  const base = new URL(baseURL)
+  const prefix = base.pathname.replace(/\/$/, '')
+  base.pathname = `${prefix}${raw}`
+  base.search = ''
+  base.hash = ''
+  return base.href
 }
 
 export function useApiUrl() {

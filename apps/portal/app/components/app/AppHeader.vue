@@ -52,8 +52,10 @@ function handleLogout() {
   <header class="app-header">
     <div class="container-page app-header__inner">
       <div class="app-header__leading">
-        <NuxtLink :to="localePath('/')" class="app-header__brand">
-          {{ t('nav.brand') }}
+        <NuxtLink :to="localePath('/')" class="app-header__brand" :aria-label="t('nav.brand')">
+          <span class="app-header__logo">
+            <img src="/home/figma/5aa99.svg" alt="" />
+          </span>
         </NuxtLink>
         <nav class="app-header__nav" :aria-label="t('nav.home')">
           <NuxtLink
@@ -172,6 +174,17 @@ function handleLogout() {
   white-space: nowrap;
 }
 
+.app-header__logo {
+  display: block;
+  width: 130.034px;
+  height: 30px;
+  mask: url('/home/figma/c86ca.svg') center / contain no-repeat;
+}
+
+.app-header__logo img {
+  display: block;
+}
+
 .app-header__nav {
   display: none;
   align-items: center;
@@ -182,6 +195,8 @@ function handleLogout() {
   display: inline-flex;
   align-items: center;
   height: 32px;
+  min-width: 80px;
+  justify-content: center;
   padding: 0 12px;
   border-radius: 3px;
   color: #1c1f23;
@@ -191,7 +206,7 @@ function handleLogout() {
 
 .app-header__link--active {
   color: #0077fa;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .app-header__actions {
@@ -209,12 +224,13 @@ function handleLogout() {
   padding: 0 12px;
   border-radius: 6px;
   font-size: 14px;
+  font-weight: 600;
   line-height: 20px;
   white-space: nowrap;
 }
 
 .app-header__cta-lingyue {
-  background: linear-gradient(90deg, #0079ff 0%, #a348f3 100%);
+  background: linear-gradient(109deg, #0079ff 0%, #a348f3 100%);
   color: #fff;
 }
 
@@ -225,6 +241,7 @@ function handleLogout() {
 }
 
 .app-header__login {
+  flex-shrink: 0;
   height: 32px;
   padding: 0 12px;
   border: 0;
@@ -233,6 +250,7 @@ function handleLogout() {
   color: #1c1f23;
   font-size: 14px;
   line-height: 20px;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -250,6 +268,7 @@ function handleLogout() {
   justify-content: center;
   width: 44px;
   height: 44px;
+  flex-shrink: 0;
   border: 0;
   background: transparent;
   color: #1c1f23;
@@ -281,6 +300,24 @@ function handleLogout() {
   font-size: 16px;
   text-align: left;
   cursor: pointer;
+}
+
+@media (max-width: 767px) {
+  .app-header__inner {
+    gap: 8px;
+  }
+
+  .app-header__actions {
+    gap: 4px;
+  }
+
+  .app-header__login {
+    padding-inline: 8px;
+  }
+
+  .app-header__burger {
+    width: 36px;
+  }
 }
 
 @media (min-width: 1280px) {

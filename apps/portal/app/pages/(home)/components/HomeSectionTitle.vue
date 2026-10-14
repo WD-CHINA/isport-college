@@ -1,5 +1,5 @@
 <script setup lang="ts">
-defineProps<{ title: string; subtitle?: string; more?: string; to?: string }>()
+defineProps<{ title: string; subtitle?: string; more?: string; to?: string; moreIcon?: string }>()
 </script>
 
 <template>
@@ -8,7 +8,9 @@ defineProps<{ title: string; subtitle?: string; more?: string; to?: string }>()
       <h2>{{ title }}</h2>
       <p v-if="subtitle">{{ subtitle }}</p>
     </div>
-    <NuxtLink v-if="to && more" :to="to">{{ more }} <span aria-hidden="true">›</span></NuxtLink>
+    <NuxtLink v-if="to && more" :to="to"
+      >{{ more }} <img :src="moreIcon || '/home/figma/2ae72.svg'" alt=""
+    /></NuxtLink>
   </div>
 </template>
 
@@ -36,11 +38,35 @@ defineProps<{ title: string; subtitle?: string; more?: string; to?: string }>()
 }
 
 .home-section-title a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   flex: none;
   color: #0077fa;
   font-size: 14px;
   font-weight: 500;
   line-height: 32px;
   white-space: nowrap;
+}
+
+.home-section-title img {
+  display: block;
+  flex: none;
+}
+
+@media (max-width: 560px) {
+  .home-section-title {
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .home-section-title h2 {
+    font-size: 24px;
+    line-height: 36px;
+  }
+
+  .home-section-title a {
+    white-space: normal;
+  }
 }
 </style>

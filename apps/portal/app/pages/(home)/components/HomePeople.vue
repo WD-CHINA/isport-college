@@ -24,9 +24,13 @@ watch(
     <div class="container-page">
       <HomeSectionTitle :title="t('home.teachersTitle')" :subtitle="t('home.teachersSubtitle')" />
       <ul>
-        <li v-for="person in visible" :key="person.id">
+        <li v-for="(person, row) in visible" :key="person.id">
           <NuxtLink :to="localePath(`/teachers/${person.id}`)">
-            <p>{{ person.story || person.honorTitle }}</p>
+            <div class="home-people__quote">
+              <img :src="`/home/figma/${row === 2 ? '3f802.svg' : '5f87f.svg'}`" alt="" />
+              <p>{{ person.story || person.honorTitle }}</p>
+            </div>
+            <span class="home-people__divider"><img src="/home/figma/e84bd.svg" alt="" /></span>
             <span class="home-people__who">
               <img
                 v-if="isContentAssetUrl(apiUrl(person.avatarUrl))"
@@ -70,12 +74,17 @@ watch(
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
   margin: 36px 0 0;
+  padding: 0;
   list-style: none;
+}
+
+.home-people li {
+  min-width: 0;
 }
 
 .home-people a {
   display: flex;
-  min-height: 220px;
+  min-height: 244px;
   flex-direction: column;
   justify-content: space-between;
   padding: 24px;
@@ -90,13 +99,26 @@ watch(
   line-height: 22px;
 }
 
-.home-people p::before {
-  content: '“';
+.home-people__quote {
+  display: grid;
+  gap: 12px;
+}
+
+.home-people__quote img {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+}
+
+.home-people__divider {
   display: block;
-  margin-bottom: 12px;
-  color: #0077fa;
-  font-size: 28px;
-  line-height: 1;
+  overflow: hidden;
+  margin-top: 24px;
+}
+
+.home-people__divider img {
+  display: block;
 }
 
 .home-people__who {
@@ -104,12 +126,10 @@ watch(
   align-items: center;
   gap: 16px;
   margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid rgb(104 120 140 / 25%);
 }
 
-.home-people img,
-.home-people i {
+.home-people__who img,
+.home-people__who i {
   width: 48px;
   height: 48px;
   flex: none;
@@ -118,14 +138,23 @@ watch(
   object-fit: cover;
 }
 
-.home-people strong,
-.home-people em,
+.home-people strong {
+  display: inline;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .home-people small {
   display: block;
 }
 
 .home-people em {
-  color: #0077fa;
+  display: inline-block;
+  margin: 0 0 6px 12px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgb(0 149 238 / 15%);
+  color: #004b83;
   font-size: 12px;
   font-style: normal;
 }
@@ -138,8 +167,8 @@ watch(
 .home-people__dots {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-top: 24px;
+  gap: 12px;
+  margin-top: 36px;
 }
 
 .home-people__dots button {

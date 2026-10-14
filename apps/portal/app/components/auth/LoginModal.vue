@@ -17,13 +17,17 @@ const visible = computed({
 <template>
   <AModal
     v-model:open="visible"
-    :title="t('auth.loginTitle')"
-    :width="440"
+    :title="t('auth.designWelcome')"
+    :classes="{
+      container: 'academy-login-container',
+      header: 'academy-login-header',
+      body: 'academy-login-body',
+    }"
+    :width="480"
     :footer="null"
     centered
     destroy-on-hidden
   >
-    <p class="login-subtitle">{{ t('auth.gateDefault') }}</p>
     <SmsLoginForm
       v-model:phone="form.phone"
       v-model:code="form.code"
@@ -38,9 +42,47 @@ const visible = computed({
   </AModal>
 </template>
 
-<style scoped>
-.login-subtitle {
-  margin-bottom: var(--ic-spacing-4, 16px);
-  color: var(--ic-color-text-secondary, #475569);
+<style>
+.academy-login-container {
+  overflow: hidden;
+  padding: 0 32px 40px !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(180deg, rgb(0 119 250 / 25%), rgb(0 119 250 / 0%) 155px), #fff !important;
+}
+
+.academy-login-header {
+  display: flex;
+  height: 144px;
+  align-items: center;
+  margin-bottom: 0 !important;
+  padding-bottom: 6px;
+  background: url('/auth/ardot/login-school.svg') right -7px top 24px / 212px 124px no-repeat !important;
+}
+
+.academy-login-header .ant-modal-title {
+  position: relative;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 34px;
+}
+
+.academy-login-body {
+  padding: 0 !important;
+}
+
+@media (max-width: 480px) {
+  .academy-login-container {
+    padding-inline: 20px !important;
+  }
+
+  .academy-login-header {
+    background-position: right -65px top 24px !important;
+  }
+
+  .academy-login-header .ant-modal-title {
+    max-width: 240px;
+    font-size: 21px;
+  }
 }
 </style>

@@ -45,7 +45,7 @@ function handleLocaleClick({ key }: { key: string | number }) {
           stroke-width="1.5"
         />
       </svg>
-      {{ currentLocaleLabel }}
+      <span class="app-locale-menu__label">{{ currentLocaleLabel }}</span>
     </AButton>
   </ADropdown>
 </template>
@@ -64,5 +64,11 @@ function handleLocaleClick({ key }: { key: string | number }) {
   width: 18px;
   height: 18px;
   display: block;
+}
+
+@media (max-width: 359px) {
+  .app-locale-menu__label {
+    display: none;
+  }
 }
 </style>

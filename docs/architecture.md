@@ -4,7 +4,7 @@
 
 ## 数据与部署边界
 
-SSR 始终请求私有 Runtime Config 的 `apiBase`，不使用入站 Host 决定上游。开发环境由 `.env.development` 提供 `NUXT_API_BASE`，生产由部署环境注入；未配置固定 HTTP/HTTPS 根地址时服务启动失败。浏览器默认请求同源相对路径：开发由 `nitro.devProxy` 转发，生产由 Nginx 转发。`NUXT_PUBLIC_API_BASE` 为绝对地址时浏览器改为直连，供测试使用；它不影响 SSR 上游。响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。生产应用没有同源业务 mock。
+SSR 始终请求私有 Runtime Config 的 `apiBase`，不使用入站 Host 决定上游。开发环境由 `.env.development` 提供 `NUXT_API_BASE`，生产由部署环境注入；未配置固定 HTTP/HTTPS 地址时服务启动失败。地址可以带部署前缀，例如 `/academy`。浏览器默认请求同源相对路径：开发由 `nitro.devProxy` 转发，生产由 Nginx 转发。`NUXT_PUBLIC_API_BASE` 为绝对地址时浏览器改为直连，供测试使用；它不影响 SSR 上游。响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。生产应用没有同源业务 mock。
 
 SSR 与浏览器统一使用标准 `fetch`，只携带当前会话的 Bearer，不继承入站 Cookie/Authorization。接口地址在 Nitro 启动时检查；接口信封和响应数据各在其边界校验一次，展示层直接使用整理后的类型。
 
@@ -105,11 +105,11 @@ Turbo 将根 ESLint、Stylelint、Prettier 配置和架构规则列为全局缓�
 
 管理端在 Nuxt routeRules 和 HTTP 中间件中强制 CSR，后者使用归一化路径处理大小写变体。管理及个人路由输出 `noindex, nofollow, noarchive`；非生产环境全站禁止收录。发布只启动一个 `.output/server/index.mjs`。
 
-| 环境变量               | 用途                                                                                                 |
-| ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| `NUXT_API_BASE`        | SSR 固定上游及开发代理上游；开发由 `.env.development` 提供，生产部署时注入；必须为 HTTP/HTTPS 根地址 |
-| `NUXT_PUBLIC_API_BASE` | 浏览器接口地址；空或 `/` 表示当前站点，绝对根地址表示直连；不决定 SSR 目标                           |
-| `NUXT_PUBLIC_SITE_ENV` | 默认 development；production 启用 Secure Cookie 并允许公开页收录                                     |
+| 环境变量               | 用途                                                                                                             |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `NUXT_API_BASE`        | SSR 固定上游及开发代理上游；开发由 `.env.development` 提供，生产部署时注入；必须为 HTTP/HTTPS 地址，可带路径前缀 |
+| `NUXT_PUBLIC_API_BASE` | 浏览器接口地址；空或 `/` 表示当前站点，绝对根地址表示直连；不决定 SSR 目标                                       |
+| `NUXT_PUBLIC_SITE_ENV` | 默认 development；production 启用 Secure Cookie 并允许公开页收录                                                 |
 
 生产启动时设置 `NUXT_API_BASE`，例如 `NUXT_API_BASE=https://api.example.com node .output/server/index.mjs`（地址由部署环境提供）。Nuxt 的 `--dotenv` 在开发与构建时加载 `.env`，生产 Node 进程不自动加载 `.env.production`。公开页收录及 Secure Cookie 仍由实际部署环境的 `NUXT_PUBLIC_SITE_ENV` 决定。
 

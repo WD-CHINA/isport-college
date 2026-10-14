@@ -55,8 +55,12 @@ export function createRequest(options: RequestOptions): ApiRequest {
   const send = options.fetch ?? fetch
   return async function request(method, path, { body, query, signal } = {}) {
     signal?.throwIfAborted()
-    // 配置地址在启动时检查，请求层只负责拼接接口路径。
-    const url = new URL(`/api/v1${path}`, options.baseURL)
+    // 绝对路径会盖掉 base 里的目录，先保留 /academy 这类前缀再拼接 /api/v1。
+    const url = new URL(options.baseURL)
+    const prefix = url.pathname.replace(/\/$/, '')
+    url.pathname = `${prefix}/api/v1${path}`
+    url.search = ''
+    url.hash = ''
     for (const [key, value] of Object.entries(query ?? {})) {
       if (value !== undefined && value !== '') url.searchParams.set(key, String(value))
     }

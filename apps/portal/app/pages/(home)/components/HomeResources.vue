@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { isContentAssetUrl, webContentPath, type WebContentCard } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import ContentMediaTag from '~/components/content/ContentMediaTag.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
 
 const props = defineProps<{
@@ -17,17 +18,13 @@ const localePath = useLocalePath()
 const apiUrl = useApiUrl()
 const visible = computed(() => (props.level ? props.levelItems : props.items).slice(0, 8))
 
-function kind(item: WebContentCard) {
-  const kinds = {
-    VIDEO: 'video',
-    AUDIO: 'audio',
-    DOCUMENT: 'courseware',
-    IMAGE: 'image',
-    LINK: 'link',
-    ARTICLE: 'article',
-  } as const
-  return t(`catalog.media.${kinds[item.detailType]}`)
+const categoryIcons: Record<string, string> = {
+  '1': '82439.svg',
+  '2': 'c65f9.svg',
+  '3': '0beb2.svg',
+  '4': 'e8dd8.svg',
 }
+
 function setLevel(event: Event) {
   emit('level', (event.target as HTMLSelectElement).value)
 }
@@ -52,6 +49,11 @@ function setLevel(event: Event) {
             :aria-pressed="!level && item.id === category"
             @click="emit('select', item.id)"
           >
+            <img
+              v-if="categoryIcons[item.id]"
+              :src="`/home/figma/${categoryIcons[item.id]}`"
+              alt=""
+            />
             {{ item.name }}
           </button>
         </div>
@@ -74,7 +76,7 @@ function setLevel(event: Event) {
               />
             </span>
             <span class="home-resources__body">
-              <em>{{ kind(item) }}</em>
+              <ContentMediaTag :type="item.detailType" />
               <strong>{{ item.title }}</strong>
               <small v-if="item.categoryName">{{
                 t('home.suitable', { name: item.categoryName })
@@ -98,7 +100,7 @@ function setLevel(event: Event) {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 24px;
+  margin-top: 36px;
 }
 
 .home-resources__filters div {
@@ -111,14 +113,24 @@ function setLevel(event: Event) {
 .home-resources__filters select {
   height: 32px;
   padding: 0 12px;
-  border: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--home-color-border);
   border-radius: 6px;
   background: #fff;
   color: #1c1f23;
   font-size: 14px;
 }
 
+.home-resources__filters select {
+  appearance: none;
+  padding-right: 36px;
+  background: #fff url('/home/figma/86cc4.svg') right 8px center no-repeat;
+}
+
 .home-resources__filters .is-active {
+  border-color: transparent;
   background: #eaf5ff;
   color: #0077fa;
 }
@@ -128,13 +140,16 @@ function setLevel(event: Event) {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
   margin: 24px 0 0;
+  padding: 0;
   list-style: none;
 }
 
 .home-resources a {
   display: block;
   overflow: hidden;
+  min-height: 278px;
   border-radius: 12px;
+  box-shadow: inset 0 0 0 1px var(--home-color-border);
   background: #fff;
   color: #1c1f23;
 }
@@ -154,26 +169,26 @@ function setLevel(event: Event) {
 .home-resources__body {
   display: grid;
   gap: 8px;
-  padding: 16px;
-}
-
-.home-resources em {
-  justify-self: start;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: #eaf5ff;
-  color: #0077fa;
-  font-size: 12px;
-  font-style: normal;
+  padding: 16px 24px 24px;
 }
 
 .home-resources strong {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   font-size: 16px;
   font-weight: 500;
   line-height: 22px;
 }
 
+.home-resources__filters img {
+  display: block;
+  flex: none;
+}
+
 .home-resources small {
+  line-height: 22px;
   color: #68788c;
   font-size: 12px;
 }
@@ -184,6 +199,12 @@ function setLevel(event: Event) {
   height: 1px;
   overflow: hidden;
   clip-path: inset(50%);
+}
+
+@media (min-width: 961px) {
+  .home-resources {
+    padding-bottom: 36px;
+  }
 }
 
 @media (max-width: 960px) {

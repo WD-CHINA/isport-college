@@ -1,150 +1,164 @@
 <script setup lang="ts">
+import { ACADEMY_CAPABILITIES } from '~/config/capabilities'
 const { t } = useI18n()
-const localePath = useLocalePath()
-const to = computed(() => localePath('/lingyue/simulation'))
 const tools = computed(() => [
-  {
-    title: t('lingyue.lesson'),
-    desc: t('home.lingyueLessonDesc'),
-    icon: '/home/lingyue-lesson.png',
-  },
-  {
-    title: t('lingyue.unit'),
-    desc: t('home.lingyueUnitDesc'),
-    icon: '/home/lingyue-unit.png',
-  },
-  {
-    title: t('lingyue.exercise'),
-    desc: t('home.lingyueExerciseDesc'),
-    icon: '/home/lingyue-exercise.png',
-  },
-  {
-    title: t('lingyue.assessment'),
-    desc: t('home.lingyueAssessmentDesc'),
-    icon: '/home/lingyue-assessment.png',
-  },
+  { title: t('lingyue.lesson'), icon: '9cb0e.svg' },
+  { title: t('lingyue.unit'), icon: 'c11d4.svg' },
+  { title: t('lingyue.exercise'), icon: 'c9968.svg' },
+  { title: t('lingyue.assessment'), icon: '0bb5a.svg' },
 ])
 </script>
-
 <template>
-  <section class="home-lingyue">
+  <section class="home-lingyue learning-entries">
     <div class="container-page">
-      <header>
-        <h2>{{ t('home.lingyueTitle') }}</h2>
-        <p>{{ t('home.lingyueSubtitle') }}</p>
-      </header>
-      <ul>
-        <li v-for="tool in tools" :key="tool.title">
-          <NuxtLink :to="to">
-            <img :src="tool.icon" alt="" width="60" height="60" />
-            <span>
+      <div class="home-lingyue__panel">
+        <header class="home-lingyue__heading">
+          <h2>{{ t('home.lingyueTitle') }}</h2>
+          <p>{{ t('home.lingyueSubtitle') }}</p>
+          <small v-if="!ACADEMY_CAPABILITIES.lingyue.enabled">{{ t('academy.unavailable') }}</small>
+        </header>
+        <ul class="home-lingyue__tools learning-entries__tools">
+          <li v-for="tool in tools" :key="tool.icon">
+            <button
+              type="button"
+              :disabled="!ACADEMY_CAPABILITIES.lingyue.enabled"
+              :title="t('academy.unavailable')"
+            >
+              <span class="home-lingyue__icon"
+                ><img :src="`/home/figma/${tool.icon}`" alt=""
+              /></span>
               <strong>{{ tool.title }}</strong>
-              <small>{{ tool.desc }}</small>
-            </span>
-            <em aria-hidden="true">›</em>
-          </NuxtLink>
-        </li>
-      </ul>
+              <img src="/home/figma/6303a.svg" alt="" />
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   </section>
 </template>
-
 <style scoped>
 .home-lingyue {
-  padding: 48px 0;
-  background:
-    url('/home/lingyue-bg.png') right top / cover no-repeat,
-    linear-gradient(90deg, #f4f7ff 0%, #eef3ff 45%, #e8f4ff 100%);
+  padding: 36px 0;
 }
 
-.home-lingyue header {
-  display: grid;
-  gap: 6px;
+.home-lingyue__panel {
+  position: relative;
+  display: flex;
+  min-height: 133px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 36px;
+  border-radius: 12px;
+  background: #eaf5ff url('/home/figma/df637.png') center / cover no-repeat;
+}
+
+.home-lingyue__heading {
+  flex: 0 1 250px;
 }
 
 .home-lingyue h2 {
   margin: 0;
-  background: linear-gradient(90deg, #0079ff 0%, #a348f3 100%);
-  background-clip: text;
+  background: linear-gradient(145deg, #0079ff 4.2%, #a348f3 22.85%);
   background-clip: text;
   color: transparent;
-  -webkit-text-fill-color: transparent;
   font-size: 28px;
   font-weight: 600;
   line-height: 45px;
 }
 
 .home-lingyue p {
-  margin: 0;
-  color: #1c1f23;
+  margin: 6px 0 0;
+  color: rgb(28 31 35 / 60%);
   font-size: 14px;
   line-height: 22px;
 }
 
-.home-lingyue ul {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+.home-lingyue small {
+  position: absolute;
+  bottom: 4px;
+  left: 36px;
+  line-height: 16px;
+  color: var(--home-color-muted);
+  font-size: 12px;
+}
+
+.home-lingyue__tools {
+  display: flex;
   gap: 24px;
-  margin: 36px 0 0;
+  margin: 0;
+  padding: 0;
   list-style: none;
 }
 
-.home-lingyue a {
+.home-lingyue button {
   display: flex;
   align-items: center;
-  gap: 16px;
-  min-height: 108px;
-  padding: 24px;
-  border-radius: 12px;
+  justify-content: center;
+  gap: 12px;
+  min-height: 61px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
   background: #fff;
-  box-shadow: 0 8px 24px rgb(28 31 35 / 6%);
-  color: #1c1f23;
+  color: var(--home-color-text);
+  cursor: not-allowed;
+}
+
+.home-lingyue__icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  place-items: center;
 }
 
 .home-lingyue img {
-  width: 60px;
-  height: 60px;
+  display: block;
   flex: none;
-  border-radius: 6px;
-  object-fit: cover;
-}
-
-.home-lingyue span {
-  display: grid;
-  min-width: 0;
-  flex: 1;
-  gap: 6px;
 }
 
 .home-lingyue strong {
   font-size: 18px;
   font-weight: 500;
-  line-height: 28px;
+  line-height: 45px;
+  white-space: nowrap;
 }
 
-.home-lingyue small {
-  color: rgb(28 31 35 / 60%);
-  font-size: 13px;
-  line-height: 20px;
-}
+@media (max-width: 1199px) {
+  .home-lingyue__panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.home-lingyue em {
-  flex: none;
-  color: #68788c;
-  font-size: 18px;
-  font-style: normal;
-  line-height: 1;
-}
+  .home-lingyue small {
+    position: static;
+    display: block;
+    margin-top: 8px;
+  }
 
-@media (max-width: 900px) {
-  .home-lingyue ul {
-    grid-template-columns: 1fr 1fr;
+  .home-lingyue__heading {
+    flex-basis: auto;
+  }
+
+  .home-lingyue__tools {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-lingyue button {
+    width: 100%;
   }
 }
 
 @media (max-width: 560px) {
-  .home-lingyue ul {
+  .home-lingyue__panel {
+    padding: 24px 16px;
+  }
+
+  .home-lingyue__tools {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 </style>

@@ -9,6 +9,9 @@ import HomePartners from './HomePartners.vue'
 import HomePeople from './HomePeople.vue'
 import HomeResearch from './HomeResearch.vue'
 import HomeResources from './HomeResources.vue'
+import HomeSchools from './HomeSchools.vue'
+import HomeNews from './HomeNews.vue'
+import HomeServiceStats from './HomeServiceStats.vue'
 import { useAcademyHome } from '../composables/useAcademyHome'
 
 const { t } = useI18n()
@@ -36,8 +39,8 @@ function selectResource(id: string) {
 <template>
   <div class="academy-home">
     <HomeHero />
-    <HomePartners />
     <HomeCapabilities />
+    <HomePartners />
     <div v-if="error" class="container-page academy-home__status">
       <AAlert type="error" :title="t('academy.requestFailed')">
         <template #action
@@ -70,14 +73,24 @@ function selectResource(id: string) {
         @select="researchCategory = $event"
       />
       <HomePeople :people="data.teacherList" />
-      <HomeCreation :items="data.schoolList" />
+      <HomeCreation />
+      <HomeSchools :items="data.schoolList" />
+      <HomeNews :items="data.newsList" />
     </template>
+    <HomeServiceStats />
   </div>
 </template>
 
 <style scoped>
 .academy-home {
+  --home-color-primary: #0077fa;
+  --home-color-text: #1c1f23;
+  --home-color-muted: #68788c;
+  --home-color-tint: #eaf5ff;
+  --home-color-border: rgb(28 31 35 / 10%);
+
   background: #fbfdff;
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 .academy-home__status {

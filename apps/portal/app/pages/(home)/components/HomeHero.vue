@@ -16,7 +16,7 @@ const { t } = useI18n()
 .home-hero {
   position: relative;
   min-height: 480px;
-  background: #14508f url('/home/hero.jpg') center / cover no-repeat;
+  background: #14508f url('/home/figma/48fa6.png') center / cover no-repeat;
   color: #fff;
 }
 
@@ -26,9 +26,10 @@ const { t } = useI18n()
   inset: 0;
   background: linear-gradient(
     90deg,
-    rgb(16 78 150 / 88%) 0%,
-    rgb(22 102 186 / 55%) 38%,
-    rgb(70 150 220 / 12%) 100%
+    rgb(0 119 250 / 90%) 0%,
+    rgb(0 146 250 / 60%) 45%,
+    rgb(0 146 250 / 10%) 75%,
+    rgb(0 146 250 / 10%) 100%
   );
 }
 
@@ -37,7 +38,7 @@ const { t } = useI18n()
   display: flex;
   min-height: 480px;
   flex-direction: column;
-  justify-content: center;
+  padding-top: 80px;
   gap: 20px;
 }
 
@@ -75,6 +76,11 @@ const { t } = useI18n()
   .home-hero__title {
     font-size: 32px;
     line-height: 44px;
+  }
+
+  .home-hero__inner {
+    padding-top: 48px;
+    padding-bottom: 96px;
   }
 }
 </style>

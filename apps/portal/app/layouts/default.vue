@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import AppFooter from '~/components/app/AppFooter.vue'
 import AppHeader from '~/components/app/AppHeader.vue'
-// C 端默认布局：Header + 内容 + Footer
+const route = useRoute()
+const compactFooter = computed(() => route.meta.compactFooter === true)
 </script>
 
 <template>
@@ -10,6 +11,6 @@ import AppHeader from '~/components/app/AppHeader.vue'
     <main class="flex-1">
       <slot />
     </main>
-    <AppFooter />
+    <AppFooter :compact="compactFooter" />
   </div>
 </template>

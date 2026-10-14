@@ -43,6 +43,20 @@ const messages: MessageSchema = {
       'Browse all courses at iSport Academy. Filter by category and level, and enroll online.',
     adminTitle: 'Admin Console',
   },
+  footer: {
+    brand: 'Dream Sports Academy',
+    home: 'Home',
+    contact: 'Contact us',
+    navigation: 'Site navigation',
+    hotline: 'Consultation',
+    company: '融梦跃视(上海)体育科技有限公司',
+    address: 'Address: 10F, T1, XinYao Centre, 12 Cangwu Road, Xuhui District, Shanghai',
+    email: 'Email: ',
+    wechat: 'WeChat',
+    video: 'WeChat Channels',
+    wechatQr: 'Dream Sports Academy WeChat account QR code',
+    videoQr: 'Dream Sports Academy WeChat Channels QR code',
+  },
   home: {
     heroEyebrow: 'A professional home for PE teachers',
     heroTitle: 'Bring professional strength to PE\nand stay with every teacher',
@@ -87,6 +101,21 @@ const messages: MessageSchema = {
     lingyueExerciseDesc: 'Arrange training with a clear purpose',
     lingyueAssessmentDesc: 'Read students’ fitness results',
     partnersLabel: 'Partner universities',
+    schoolsSubtitle: 'Real practice in curriculum, classroom innovation and digital learning',
+    allSchools: 'All cases',
+    newsSubtitle: 'Updates in sports research, conferences and school events',
+    slide: 'Page {page}',
+    serviceStats: {
+      title: 'Academy reach',
+      teachers: 'PE teachers served',
+      teachersUnit: 'teachers',
+      schools: 'Schools served',
+      schoolsUnit: 'schools',
+      resources: 'Teaching resources',
+      resourcesUnit: 'resources',
+      regions: 'Regional coverage',
+      regionsUnit: 'regions',
+    },
     whyTitle: 'Why Choose Us',
     why1Title: 'Professional Coaches',
     why1Desc: 'All coaches are certified with 8+ years of experience on average.',
@@ -133,6 +162,11 @@ const messages: MessageSchema = {
     tryOtherFilter: 'Try adjusting filters or search keywords',
   },
   auth: {
+    designWelcome: 'Welcome to Dream Sports Academy',
+    phonePlaceholder: 'Enter your 11-digit phone number',
+    codePlaceholder: 'Enter the 6-digit verification code',
+    agreementAnd: 'and',
+
     loginTitle: 'Sign in to Dream Sports Academy',
     loginSubtitle: 'Save resources and share your teaching practice',
     username: 'Username',
@@ -203,6 +237,24 @@ const messages: MessageSchema = {
     account: 'My Account',
   },
   catalog: {
+    resourceLibrary: 'PE Teaching Resource Library',
+    resourceEyebrow: 'Dream Sports Academy · Teaching Resources',
+    resourceSearch: 'Enter a resource name',
+    secondCategory: 'Subcategory',
+    resetFilters: 'Reset filters',
+    allCases: 'All cases',
+    viewCase: 'View case',
+    intro: {
+      research:
+        'Courses that support PE teachers in platform use, teaching skills and professional development.',
+      school:
+        'Explore school practices in curriculum design, classroom innovation and digital learning.',
+    },
+    sectionIntro: {
+      research: 'Learn practical methods from real lessons, teacher tutorials and reflections.',
+      school: 'Discover how schools turn curriculum plans into classroom practice.',
+    },
+
     channels: {
       resource: 'Teaching Resources',
       research: 'Professional Learning',

@@ -6,25 +6,25 @@ const items = computed(() => [
     title: t('home.capabilityDesign'),
     desc: t('home.capabilityDesignDesc'),
     to: localePath('/resources'),
-    icon: 'design',
+    icon: 'eb337.svg',
   },
   {
     title: t('home.capabilityPractice'),
     desc: t('home.capabilityPracticeDesc'),
     to: localePath('/schools'),
-    icon: 'practice',
+    icon: 'a8f62.svg',
   },
   {
     title: t('home.capabilityStudy'),
     desc: t('home.capabilityStudyDesc'),
     to: localePath('/research'),
-    icon: 'study',
+    icon: 'd91b1.svg',
   },
   {
     title: t('home.capabilityExpert'),
     desc: t('home.capabilityExpertDesc'),
     to: localePath('/teachers'),
-    icon: 'expert',
+    icon: 'cf724.svg',
   },
 ])
 </script>
@@ -36,56 +36,7 @@ const items = computed(() => [
         <li v-for="item in items" :key="item.icon">
           <NuxtLink :to="item.to">
             <span class="home-capabilities__icon" aria-hidden="true">
-              <svg v-if="item.icon === 'design'" viewBox="0 0 24 24">
-                <path
-                  d="M5 4h10l4 4v12H5V4z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                />
-                <path
-                  d="M15 4v4h4M8 12h8M8 16h5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                />
-              </svg>
-              <svg v-else-if="item.icon === 'practice'" viewBox="0 0 24 24">
-                <path
-                  d="M4 16l6-8 4 5 2-3 4 6H4z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                />
-              </svg>
-              <svg v-else-if="item.icon === 'study'" viewBox="0 0 24 24">
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="7"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                />
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="3"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                />
-                <circle cx="12" cy="12" r="1" fill="currentColor" />
-              </svg>
-              <svg v-else viewBox="0 0 24 24">
-                <circle cx="12" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.6" />
-                <path
-                  d="M6 19c1.2-3 3.2-4.5 6-4.5S16.8 16 18 19"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                />
-              </svg>
+              <img :src="`/home/figma/${item.icon}`" alt="" />
             </span>
             <span>
               <strong>{{ item.title }}</strong>
@@ -100,7 +51,11 @@ const items = computed(() => [
 
 <style scoped>
 .home-capabilities {
-  background: #fbfdff;
+  position: relative;
+  z-index: 1;
+  margin-top: -64px;
+  padding-bottom: 36px;
+  background: linear-gradient(transparent 64px, #fbfdff 64px);
 }
 
 .home-capabilities ul {
@@ -111,7 +66,7 @@ const items = computed(() => [
   padding: 36px;
   border-radius: 12px;
   background: #fff;
-  box-shadow: 0 8px 24px rgb(28 31 35 / 6%);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 4%);
   list-style: none;
 }
 
@@ -134,9 +89,8 @@ const items = computed(() => [
   color: #3295fb;
 }
 
-.home-capabilities__icon svg {
-  width: 28px;
-  height: 28px;
+.home-capabilities__icon img {
+  display: block;
 }
 
 .home-capabilities strong,
@@ -151,7 +105,8 @@ const items = computed(() => [
 }
 
 .home-capabilities small {
-  color: #1c1f23;
+  margin-top: 6px;
+  color: rgb(28 31 35 / 60%);
   font-size: 13px;
   line-height: 20px;
 }

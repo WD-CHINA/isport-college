@@ -16,6 +16,9 @@ describe('展示层整理学苑响应', () => {
     expect(resolveApiUrl('https://cdn.example/a.png', 'http://10.9.0.26:8090')).toBe(
       'https://cdn.example/a.png',
     )
+    expect(
+      resolveApiUrl('/statics/demo.png', 'https://yuntiyu-test2.dream-sports.cn/academy'),
+    ).toBe('https://yuntiyu-test2.dream-sports.cn/academy/statics/demo.png')
   })
 
   it('资料缺字段时补成会话可用的形状', () => {
