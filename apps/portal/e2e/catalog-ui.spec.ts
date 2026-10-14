@@ -13,7 +13,7 @@ test('资源主视觉搜索保留筛选，二级分类与重置同步地址', as
     .click()
   await expect(page).toHaveURL(/secondCategoryId=10/)
   await page.getByRole('button', { name: '重置筛选', exact: true }).click()
-  await expect(page).toHaveURL(/\/resources$/)
+  await expect(page).toHaveURL(/\/resources\?category=1$/)
   await expect(page.locator('.catalog-hero').getByRole('searchbox')).toHaveValue('')
 })
 

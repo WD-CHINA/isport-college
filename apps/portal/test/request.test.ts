@@ -94,6 +94,43 @@ describe('createRequest', () => {
 })
 
 describe('请求边界回归', () => {
+  it.each([undefined, null, { retryAfter: 60 }])(
+    '无数据操作接受有效成功信封，忽略 data=%j',
+    async data => {
+      const request = createRequest({
+        baseURL: 'http://localhost',
+        fetch: async () => envelope(data),
+      })
+      await expect(request('POST', '/auth/sms', { responseMode: 'void' })).resolves.toBeUndefined()
+    },
+  )
+  it.each([
+    '<html>gateway</html>',
+    'null',
+    '[]',
+    '{"status":"200","message":"OK"}',
+    '{"status":200}',
+    '{"message":"OK"}',
+  ])('无数据操作仍拒绝畸形信封 %s', async body => {
+    const request = createRequest({
+      baseURL: 'http://localhost',
+      fetch: async () => new Response(body),
+    })
+    await expect(request('POST', '/auth/sms', { responseMode: 'void' })).rejects.toMatchObject({
+      code: 'SERVICE_UNAVAILABLE',
+    })
+  })
+  it('无数据操作保留后端失败状态，不能启动伪成功流程', async () => {
+    const request = createRequest({
+      baseURL: 'http://localhost',
+      fetch: async () =>
+        new Response(JSON.stringify({ status: 400, message: '发送频繁，请稍后重试' })),
+    })
+    await expect(request('POST', '/auth/sms', { responseMode: 'void' })).rejects.toMatchObject({
+      code: 'VALIDATION_FAILED',
+      message: '发送频繁，请稍后重试',
+    })
+  })
   it('已取消的请求不发送接口', async () => {
     const fetch = vi.fn()
     const request = createRequest({ baseURL: 'http://localhost', fetch })

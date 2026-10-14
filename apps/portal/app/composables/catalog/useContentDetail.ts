@@ -7,7 +7,11 @@ import { toWebChannel } from '~/utils/web-channel'
 import { useContentInteractions } from './useContentInteractions'
 import { useContentView } from './useContentView'
 
-export function useContentDetail(id: string, channel: 'resource' | 'research' | 'school') {
+export function useContentDetail(
+  id: string,
+  channel: 'resource' | 'research' | 'school',
+  options: { recommendations?: boolean } = {},
+) {
   const academy = useAcademy()
   const auth = useAuthStore()
   const { t, locale } = useI18n()
@@ -46,7 +50,12 @@ export function useContentDetail(id: string, channel: 'resource' | 'research' | 
         signal,
       )
     },
-    { server: false, default: () => [], watch: [() => detail.value?.contentKey] },
+    {
+      server: false,
+      immediate: options.recommendations !== false,
+      default: () => [],
+      watch: options.recommendations === false ? [] : [() => detail.value?.contentKey],
+    },
   )
   const notFound = computed(() => {
     const error = request.error.value

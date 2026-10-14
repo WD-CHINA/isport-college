@@ -145,12 +145,12 @@ const server = createServer(async (req, res) => {
     const id = Number(/^e2e-(\d+)-/.exec(token)?.[1] ?? 1)
     const english = req.headers['x-locale'] === 'en-US'
     if (path === '/health') return send(res, true)
-    if (path === '/auth/sms') return send(res, { retryAfter: 60 })
+    if (path === '/auth/sms') return send(res, undefined)
     if (path === '/auth/login') {
       if (body.code !== '123456' || body.agreed !== true) return send(res, null, 400, '验证码错误')
       return send(res, { token: `e2e-1-login-${++sequence}`, newUser: false, profile: profile(1) })
     }
-    if (path === '/auth/logout') return send(res, null)
+    if (path === '/auth/logout') return send(res, undefined)
     if (path.startsWith('/me') || path.startsWith('/actions/')) {
       if (token.includes('slow-me') && path === '/me') await delay(3000)
       if (!token || token.includes('expired')) return send(res, null, 401, '登录已过期')
@@ -165,7 +165,7 @@ const server = createServer(async (req, res) => {
         profiles.set(token, updated)
         return send(res, updated)
       }
-      if (path === '/me/nickname-prompt') return send(res, null)
+      if (path === '/me/nickname-prompt') return send(res, undefined)
       if (path === '/me/actions') {
         const action = url.searchParams.get('action') ?? 'FAVORITE'
         const channel = url.searchParams.get('channel')
@@ -190,7 +190,7 @@ const server = createServer(async (req, res) => {
       }
     }
     if (path === '/avatars') return send(res, [1, 2, 3, 4])
-    if (path === '/contents/view') return send(res, null)
+    if (path === '/contents/view') return send(res, undefined)
     if (path === '/contents/recommend') {
       if (url.searchParams.get('originId') === '8')
         return send(res, null, 503, 'Service unavailable')
@@ -199,17 +199,16 @@ const server = createServer(async (req, res) => {
     if (path === '/resources/filters')
       return send(res, {
         categoryList: [
-          { id: '1', name: english ? 'Fitness' : '体能', parentId: null },
-          { id: '2', name: english ? 'Sports' : '专项运动', parentId: null },
+          { id: '1', name: english ? 'Fitness' : '体能' },
+          { id: '2', name: english ? 'Sports' : '专项运动' },
         ],
         secondCategoryList: [{ id: '10', name: '力量', parentId: '1' }],
         levelList: [1, 2, 3, 4, 5].map(id => ({
           id: String(id),
           name: `水平 ${id}`,
-          parentId: null,
         })),
-        bodyPartList: [{ id: '4', name: '上肢', parentId: null }],
-        typeList: ['0', '1', '2', '5', '6'].map(id => ({ id, name: `类型 ${id}`, parentId: null })),
+        bodyPartList: [{ id: '4', name: '上肢' }],
+        typeList: ['0', '1', '2', '5', '6'].map(id => ({ id, name: `类型 ${id}` })),
       })
     if (path === '/home')
       return send(res, {
@@ -217,10 +216,16 @@ const server = createServer(async (req, res) => {
         // 保留多个空分区，验证首页并列空状态和语言切换的水合行为。
         hotList: [],
         resourceGroupList: [
-          { groupId: 1, groupName: '体能', itemList: [card(1, 'RESOURCE', english)] },
+          {
+            groupId: 1,
+            groupName: english ? 'Fitness' : '体能',
+            itemList: [card(1, 'RESOURCE', english)],
+          },
+          { groupId: 2, groupName: english ? 'Sports' : '专项运动', itemList: [] },
         ],
         levelGroupList: [
           { groupId: 3, groupName: '水平三', itemList: [card(3, 'RESOURCE', english)] },
+          { groupId: 5, groupName: '水平五', itemList: [] },
         ],
         researchList: [card(1, 'RESEARCH', english)],
         schoolList: [],
@@ -238,8 +243,12 @@ const server = createServer(async (req, res) => {
           ? send(res, detail(originId, channel, english, token))
           : send(res, null, 404, '内容不存在')
       }
-      let rows = Array.from({ length: 24 }, (_, index) => card(index + 1, channel, english))
       const keyword = url.searchParams.get('keyword')
+      const paginationFixture = channel === 'RESOURCE' && keyword === '分页样例'
+      let rows = Array.from({ length: paginationFixture ? 72 : 24 }, (_, index) => ({
+        ...card(index + 1, channel, english),
+        ...(paginationFixture ? { title: `分页样例 ${index + 1}` } : {}),
+      }))
       if (keyword) rows = rows.filter(row => row.title.includes(keyword))
       return send(res, page(rows, url.searchParams))
     }

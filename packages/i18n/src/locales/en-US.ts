@@ -237,6 +237,7 @@ const messages: MessageSchema = {
     account: 'My Account',
   },
   catalog: {
+    clearSearch: 'Clear search',
     resourceLibrary: 'PE Teaching Resource Library',
     resourceEyebrow: 'Dream Sports Academy · Teaching Resources',
     resourceSearch: 'Enter a resource name',

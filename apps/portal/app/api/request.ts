@@ -13,6 +13,7 @@ export interface ApiRequestOptions {
   body?: unknown
   query?: Record<string, string | number | undefined>
   signal?: AbortSignal
+  responseMode?: 'data' | 'void'
 }
 
 export type ApiRequest = (
@@ -28,7 +29,7 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 /** HTTP 状态优先；HTTP 200 再检查学苑信封中的业务状态。 */
-async function readResponse(response: Response): Promise<unknown> {
+async function readResponse(response: Response, mode: 'data' | 'void'): Promise<unknown> {
   const payload = asRecord(await response.json().catch(() => null))
   const status = response.status === 200 ? payload.status : response.status
   if (typeof status !== 'number') {
@@ -44,16 +45,20 @@ async function readResponse(response: Response): Promise<unknown> {
   if (status === 400 || response.status !== 200) {
     throw ApiError.validation(message)
   }
-  if (status !== 200 || !Object.hasOwn(payload, 'data') || typeof payload.message !== 'string') {
+  if (
+    status !== 200 ||
+    (mode === 'data' && !Object.hasOwn(payload, 'data')) ||
+    typeof payload.message !== 'string'
+  ) {
     throw ApiError.serviceUnavailable('学苑接口响应格式不正确')
   }
-  return payload.data
+  return mode === 'void' ? undefined : payload.data
 }
 
 /** 地址、鉴权与语言头、信封、超时和取消；不处理业务字段。 */
 export function createRequest(options: RequestOptions): ApiRequest {
   const send = options.fetch ?? fetch
-  return async function request(method, path, { body, query, signal } = {}) {
+  return async function request(method, path, { body, query, signal, responseMode = 'data' } = {}) {
     signal?.throwIfAborted()
     // 绝对路径会盖掉 base 里的目录，先保留 /academy 这类前缀再拼接 /api/v1。
     const url = new URL(options.baseURL)
@@ -91,7 +96,7 @@ export function createRequest(options: RequestOptions): ApiRequest {
         headers,
         body: body === undefined ? undefined : JSON.stringify(body),
         signal: requestSignal,
-      }).then(readResponse)
+      }).then(response => readResponse(response, responseMode))
       return await Promise.race([response, aborted])
     } catch (error) {
       if (signal?.aborted) throw signal.reason

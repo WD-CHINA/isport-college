@@ -32,7 +32,7 @@ const chipFields = computed(() => {
     {
       key: 'bodyPartTagId' as const,
       label: t('catalog.bodyPart'),
-      items: props.resourceFilters.bodyPartList,
+      items: model.value.category === '1' ? props.resourceFilters.bodyPartList : [],
     },
   ].filter(field => field.items.length)
 })
@@ -62,12 +62,15 @@ const selectFields = computed(() => {
 function set(field: Exclude<keyof WebListQuery, 'page'>, value: unknown) {
   const text = typeof value === 'string' ? value : ''
   const next: WebListQuery = { ...model.value, [field]: text || undefined, page: 1 }
-  if (field === 'category') next.secondCategoryId = undefined
+  if (field === 'category') {
+    next.secondCategoryId = undefined
+    next.bodyPartTagId = undefined
+  }
   model.value = next
 }
 function reset() {
   keyword.value = ''
-  model.value = { page: 1 }
+  model.value = { page: 1, category: resource.value ? model.value.category : undefined }
 }
 </script>
 
@@ -78,7 +81,12 @@ function reset() {
     :aria-label="t('catalog.filters')"
   >
     <div class="content-filters__categories" role="group" :aria-label="t('catalog.category')">
-      <button type="button" :aria-pressed="!model.category" @click="set('category', '')">
+      <button
+        v-if="!resource"
+        type="button"
+        :aria-pressed="!model.category"
+        @click="set('category', '')"
+      >
         {{ t(channel === 'school' ? 'catalog.allCases' : 'common.all') }}
       </button>
       <button
@@ -195,7 +203,6 @@ function reset() {
 }
 
 .content-filters--resource .content-filters__categories > button {
-  min-height: 66px;
   padding: 0 10px;
   border-radius: 0;
   font-size: 16px;
@@ -233,6 +240,8 @@ function reset() {
 .content-filters__label {
   color: var(--catalog-muted);
   font-size: 12px;
+  width: 66px;
+  flex: none;
 }
 
 .content-filters__chips > .content-filters__label {

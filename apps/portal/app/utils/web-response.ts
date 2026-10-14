@@ -153,10 +153,10 @@ export function parseFilters(value: unknown): WebResourceFilters {
       if (
         typeof item.id !== 'string' ||
         typeof item.name !== 'string' ||
-        (item.parentId !== null && typeof item.parentId !== 'string')
+        (item.parentId != null && typeof item.parentId !== 'string')
       )
         return invalid()
-      return { id: item.id, name: item.name, parentId: item.parentId }
+      return { id: item.id, name: item.name, parentId: item.parentId ?? null }
     })
   return {
     categoryList: options(filters.categoryList),

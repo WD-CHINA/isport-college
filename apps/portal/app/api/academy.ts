@@ -24,13 +24,13 @@ const CONTENT_PATH: Record<WebChannel, string> = {
 export function createAcademyClient(request: ApiRequest) {
   return {
     sendSms(params: { phone: string }) {
-      return request('POST', '/auth/sms', { body: params })
+      return request('POST', '/auth/sms', { body: params, responseMode: 'void' })
     },
     login(params: { phone: string; code: string; agreed: boolean }) {
       return request('POST', '/auth/login', { body: params }) as Promise<WebLoginResult>
     },
     logout() {
-      return request('POST', '/auth/logout')
+      return request('POST', '/auth/logout', { responseMode: 'void' })
     },
     me(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
       return request('GET', '/me', { query: params, signal }) as Promise<WebProfile>
@@ -42,7 +42,7 @@ export function createAcademyClient(request: ApiRequest) {
       return request('PUT', '/me/avatar', { body: params }) as Promise<WebProfile>
     },
     dismissNicknamePrompt() {
-      return request('POST', '/me/nickname-prompt')
+      return request('POST', '/me/nickname-prompt', { responseMode: 'void' })
     },
     avatars(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
       return request('GET', '/avatars', { query: params, signal }) as Promise<number[]>
@@ -80,7 +80,7 @@ export function createAcademyClient(request: ApiRequest) {
       return request('GET', '/contents/recommend', { query, signal }) as Promise<WebContentCard[]>
     },
     view(body: Pick<WebContentCard, 'channel' | 'origin' | 'originId'>) {
-      return request('POST', '/contents/view', { body })
+      return request('POST', '/contents/view', { body, responseMode: 'void' })
     },
     like(body: Pick<WebContentCard, 'channel' | 'origin' | 'originId'>) {
       return request('POST', '/actions/like', { body }) as Promise<WebActionResult>

@@ -36,6 +36,9 @@ export function normalizeContentQuery(
   if (id(category) && (!filters || filters.categoryList.some(item => item.id === category))) {
     query.category = category
   }
+  if (!query.category && filters?.categoryList.length) {
+    query.category = filters.categoryList[0]?.id
+  }
   const second = id(raw.secondCategoryId)
   if (
     second &&
@@ -52,7 +55,11 @@ export function normalizeContentQuery(
     query.recommendedLevel = level
   }
   const body = id(raw.bodyPartTagId)
-  if (body && (!filters || filters.bodyPartList.some(item => item.id === body))) {
+  if (
+    query.category === '1' &&
+    body &&
+    (!filters || filters.bodyPartList.some(item => item.id === body))
+  ) {
     query.bodyPartTagId = body
   }
   const type = scalar(raw.resourceType)

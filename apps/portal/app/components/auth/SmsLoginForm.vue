@@ -43,6 +43,8 @@ const localePath = useLocalePath()
           size="large"
         />
         <AButton
+          type="text"
+          ghost
           :loading="sending"
           :disabled="remaining > 0 || submitting"
           size="large"
@@ -100,11 +102,6 @@ const localePath = useLocalePath()
   border-radius: 5px;
 }
 
-.sms-form__code:focus-within {
-  border-color: #0077fa;
-  box-shadow: 0 0 0 2px rgb(0 119 250 / 10%);
-}
-
 .sms-form__code :deep(input) {
   min-width: 0;
   border: 0;
@@ -114,9 +111,9 @@ const localePath = useLocalePath()
 .sms-form__code :deep(.ant-btn) {
   flex: none;
   padding-inline: 12px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
   color: #0077fa;
   box-shadow: none;
 }

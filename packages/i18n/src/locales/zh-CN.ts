@@ -231,6 +231,7 @@ export default {
     account: '我的账号',
   },
   catalog: {
+    clearSearch: '清除搜索',
     resourceLibrary: '体育教学资源库',
     resourceEyebrow: '融梦体育学苑 · 教学资源',
     resourceSearch: '输入资源名称',

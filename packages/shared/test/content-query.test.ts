@@ -14,6 +14,19 @@ const filters: WebResourceFilters = {
 }
 
 describe('学苑 URL 查询的唯一规则', () => {
+  it('资源默认首个分类，体能条件不进入其他分类', () => {
+    expect(normalizeContentQuery({}, 'resource', filters)).toEqual({ page: 1, category: '1' })
+    expect(
+      normalizeContentQuery(
+        { category: '2', bodyPartTagId: '4', recommendedLevel: '3' },
+        'resource',
+        filters,
+      ),
+    ).toEqual({ page: 1, category: '2', recommendedLevel: '3' })
+    expect(normalizeContentQuery({}, 'resource', { ...filters, categoryList: [] })).toEqual({
+      page: 1,
+    })
+  })
   it('只保留当前协议支持的字段，并支持旧 level 链接', () => {
     expect(
       normalizeContentQuery(
@@ -48,7 +61,7 @@ describe('学苑 URL 查询的唯一规则', () => {
         'resource',
         filters,
       ),
-    ).toEqual({ page: 1 })
+    ).toEqual({ page: 1, category: '1' })
     expect(
       normalizeContentQuery({ category: '2', secondCategoryId: '10' }, 'resource', filters),
     ).toEqual({ page: 1, category: '2' })

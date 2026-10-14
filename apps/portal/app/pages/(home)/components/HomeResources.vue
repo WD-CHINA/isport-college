@@ -2,6 +2,7 @@
 import { isContentAssetUrl, webContentPath, type WebContentCard } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import ContentMediaTag from '~/components/content/ContentMediaTag.vue'
+import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
 
 const props = defineProps<{
@@ -17,6 +18,10 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
 const visible = computed(() => (props.level ? props.levelItems : props.items).slice(0, 8))
+const levelOptions = computed(() => [
+  { value: '', label: t('home.allLevels') },
+  ...props.levels.map(item => ({ value: item.id, label: item.name })),
+])
 
 const categoryIcons: Record<string, string> = {
   '1': '82439.svg',
@@ -25,8 +30,8 @@ const categoryIcons: Record<string, string> = {
   '4': 'e8dd8.svg',
 }
 
-function setLevel(event: Event) {
-  emit('level', (event.target as HTMLSelectElement).value)
+function setLevel(value: unknown) {
+  emit('level', typeof value === 'string' ? value : '')
 }
 </script>
 
@@ -40,7 +45,7 @@ function setLevel(event: Event) {
         :to="localePath('/resources')"
       />
       <div class="home-resources__filters">
-        <div role="group" :aria-label="t('catalog.category')">
+        <div class="home-resources__categories" role="group" :aria-label="t('catalog.category')">
           <button
             v-for="item in categories"
             :key="item.id"
@@ -57,15 +62,17 @@ function setLevel(event: Event) {
             {{ item.name }}
           </button>
         </div>
-        <label>
-          <span class="sr-only">{{ t('catalog.level') }}</span>
-          <select :value="level" @change="setLevel">
-            <option value="">{{ t('home.allLevels') }}</option>
-            <option v-for="item in levels" :key="item.id" :value="item.id">{{ item.name }}</option>
-          </select>
-        </label>
+        <label for="home-resource-level" class="sr-only">{{ t('catalog.level') }}</label>
+        <ASelect
+          id="home-resource-level"
+          class="home-resources__level"
+          :value="level"
+          :options="levelOptions"
+          :virtual="false"
+          @change="setLevel"
+        />
       </div>
-      <ul>
+      <ul v-if="visible.length">
         <li v-for="item in visible" :key="item.contentKey">
           <NuxtLink :to="localePath(webContentPath(item))">
             <span class="home-resources__cover">
@@ -85,6 +92,9 @@ function setLevel(event: Event) {
           </NuxtLink>
         </li>
       </ul>
+      <div v-else class="home-resources__empty">
+        <AppEmpty :description="t('common.empty')" />
+      </div>
     </div>
   </section>
 </template>
@@ -103,14 +113,13 @@ function setLevel(event: Event) {
   margin-top: 36px;
 }
 
-.home-resources__filters div {
+.home-resources__categories {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
-.home-resources__filters button,
-.home-resources__filters select {
+.home-resources__filters button {
   height: 32px;
   padding: 0 12px;
   display: inline-flex;
@@ -123,10 +132,9 @@ function setLevel(event: Event) {
   font-size: 14px;
 }
 
-.home-resources__filters select {
-  appearance: none;
-  padding-right: 36px;
-  background: #fff url('/home/figma/86cc4.svg') right 8px center no-repeat;
+.home-resources__level {
+  min-width: 128px;
+  flex-shrink: 0;
 }
 
 .home-resources__filters .is-active {
@@ -191,6 +199,13 @@ function setLevel(event: Event) {
   line-height: 22px;
   color: #68788c;
   font-size: 12px;
+}
+
+.home-resources__empty {
+  display: grid;
+  min-height: 278px;
+  place-items: center;
+  margin-top: 24px;
 }
 
 .sr-only {

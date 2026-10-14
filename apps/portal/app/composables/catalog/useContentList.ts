@@ -32,12 +32,17 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
   )
   const key = computed(
     () =>
-      `academy:list:${locale.value}:${channel}:${JSON.stringify(contentQueryToUrl(query.value))}`,
+      // SSR 尚未取得分类字典时也必须与浏览器使用同一键。
+      `academy:list:${locale.value}:${channel}:${JSON.stringify(contentQueryToUrl(normalizeContentQuery(route.query, channel)))}`,
   )
   const request = useAsyncData(key, async (_app, { signal }) => {
     if (channel === 'resource') await filterRequest
     const current = query.value
-    const paging = { keyword: current.keyword, pageNum: current.page, pageSize: WEB_PAGE_SIZE }
+    const paging = {
+      keyword: current.keyword,
+      pageNum: current.page,
+      pageSize: WEB_PAGE_SIZE,
+    }
     if (remoteChannel === 'RESOURCE') {
       return academy.resources(
         {
@@ -73,6 +78,27 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
   function update(filters: WebListQuery) {
     return router.push({ path: route.path, query: contentQueryToUrl({ ...filters, page: 1 }) })
   }
+  function search(keyword: string) {
+    const normalized = keyword.trim().slice(0, 100) || undefined
+    const filters =
+      channel === 'resource'
+        ? {
+            page: 1,
+            category: categories.value[0]?.id,
+            recommendedLevel: query.value.recommendedLevel,
+            keyword: normalized,
+          }
+        : { ...query.value, keyword: normalized }
+    return update(filters)
+  }
+  function recordView(contentKey: string, viewCount: number) {
+    const page = request.data.value
+    if (!page) return
+    request.data.value = {
+      ...page,
+      list: page.list.map(item => (item.contentKey === contentKey ? { ...item, viewCount } : item)),
+    }
+  }
   function changePage(page: number) {
     return router.push({ path: route.path, query: contentQueryToUrl({ ...query.value, page }) })
   }
@@ -81,5 +107,15 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
     await request.refresh()
   }
   useRefreshOnFocus(retry)
-  return { query, request, filterRequest, categories, update, changePage, retry }
+  return {
+    query,
+    request,
+    filterRequest,
+    categories,
+    update,
+    search,
+    recordView,
+    changePage,
+    retry,
+  }
 }

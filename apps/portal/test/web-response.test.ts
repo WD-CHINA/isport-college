@@ -64,6 +64,30 @@ const card = {
 }
 
 describe('调用侧协议验证', () => {
+  it('筛选接口根选项可省略 parentId，二级分类仍保留父级关联', () => {
+    const filters = {
+      categoryList: [
+        { id: '1', name: '体能' },
+        { id: '2', name: '专项技能', parentId: null },
+      ],
+      secondCategoryList: [{ id: '6', name: '肌肉力量', parentId: '1' }],
+      levelList: [{ id: '3', name: '水平三' }],
+      bodyPartList: [{ id: '83', name: '上肢' }],
+      typeList: [{ id: '0', name: '视频' }],
+    }
+    const parsed = parseFilters(filters)
+    expect(parsed.categoryList).toEqual([
+      { id: '1', name: '体能', parentId: null },
+      { id: '2', name: '专项技能', parentId: null },
+    ])
+    expect(parsed.secondCategoryList[0]?.parentId).toBe('1')
+    for (const field of ['levelList', 'bodyPartList', 'typeList'] as const)
+      expect(parsed[field][0]?.parentId).toBeNull()
+    for (const parentId of [1, false, {}, []])
+      expect(() =>
+        parseFilters({ ...filters, categoryList: [{ id: '1', name: '体能', parentId }] }),
+      ).toThrow(ApiError)
+  })
   it('拒绝畸形首页、列表、枚举和计数，不让模板解引用异常', () => {
     for (const value of [null, {}, { featuredList: [] }])
       expect(() => parseHome(value)).toThrow(ApiError)

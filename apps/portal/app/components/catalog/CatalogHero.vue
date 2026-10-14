@@ -5,6 +5,18 @@ const props = defineProps<{ channel: ContentChannel; keyword?: string }>()
 const emit = defineEmits<{ search: [keyword: string] }>()
 const { t } = useI18n()
 const keywordInput = shallowRef(props.keyword ?? '')
+const composing = shallowRef(false)
+const searchInput = useTemplateRef<HTMLInputElement>('searchInput')
+function submit() {
+  if (composing.value) return
+  keywordInput.value = keywordInput.value.trim()
+  emit('search', keywordInput.value)
+}
+function clear() {
+  keywordInput.value = ''
+  emit('search', '')
+  searchInput.value?.focus()
+}
 watch(
   () => props.keyword,
   value => {
@@ -25,18 +37,26 @@ const title = computed(() =>
       <div class="catalog-hero__copy">
         <p v-if="resource" class="catalog-hero__eyebrow">{{ t('catalog.resourceEyebrow') }}</p>
         <h1>{{ title }}</h1>
-        <form
-          v-if="resource"
-          class="catalog-hero__search"
-          @submit.prevent="emit('search', keywordInput)"
-        >
+        <form v-if="resource" class="catalog-hero__search" @submit.prevent="submit">
           <input
+            ref="searchInput"
             v-model="keywordInput"
             type="search"
             maxlength="100"
             :aria-label="t('catalog.search')"
             :placeholder="t('catalog.resourceSearch')"
+            @compositionstart="composing = true"
+            @compositionend="composing = false"
           />
+          <button
+            v-if="keywordInput"
+            type="button"
+            class="catalog-hero__clear"
+            :aria-label="t('catalog.clearSearch')"
+            @click="clear"
+          >
+            ×
+          </button>
           <button type="submit">{{ t('common.search') }}</button>
         </form>
         <p v-else class="catalog-hero__description">{{ t(`catalog.intro.${channel}`) }}</p>
@@ -139,6 +159,17 @@ const title = computed(() =>
   background: var(--catalog-primary);
   color: #fff;
   cursor: pointer;
+}
+
+.catalog-hero__search .catalog-hero__clear {
+  padding-inline: 12px;
+  background: #fff;
+  color: var(--catalog-muted);
+  font-size: 20px;
+}
+
+.catalog-hero__search input::-webkit-search-cancel-button {
+  display: none;
 }
 
 @media (max-width: 767px) {

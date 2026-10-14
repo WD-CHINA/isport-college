@@ -18,6 +18,23 @@ function clientOf(options: Omit<RequestOptions, 'baseURL'> & { baseURL?: string 
 }
 
 describe('createAcademyClient', () => {
+  it('短信、退出、关闭昵称引导和浏览上报允许成功信封省略 data', async () => {
+    const client = createAcademyDataClient(
+      clientOf({
+        fetch: async () => new Response(JSON.stringify({ status: 200, message: 'OK' })),
+      }),
+    )
+    await expect(client.sendSms({ phone: '13800138000' })).resolves.toBeUndefined()
+    await expect(client.logout()).resolves.toBeUndefined()
+    await expect(client.dismissNicknamePrompt()).resolves.toBeUndefined()
+    await expect(
+      client.view({ channel: 'RESOURCE', origin: 'PLATFORM', originId: 1 }),
+    ).resolves.toBeUndefined()
+    await expect(
+      client.login({ phone: '13800138000', code: '123456', agreed: true }),
+    ).rejects.toMatchObject({ code: 'SERVICE_UNAVAILABLE' })
+    await expect(client.resourceFilters()).rejects.toMatchObject({ code: 'SERVICE_UNAVAILABLE' })
+  })
   it('登录只提交文档字段', async () => {
     const calls: { url: URL; init: RequestInit }[] = []
     const client = clientOf({

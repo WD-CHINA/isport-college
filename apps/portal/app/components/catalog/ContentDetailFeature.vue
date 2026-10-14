@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useContentDetail } from '~/composables/catalog/useContentDetail'
-import { isPublicHttpUrl, type MediaAsset, type WebMediaItem } from '@isport/shared'
+import { isPublicHttpUrl } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import { RichTextContent } from '@isport/rich-text'
 import ContentDetailShell from './ContentDetailShell.vue'
 import ContentGrid from '~/components/content/ContentGrid.vue'
 import InteractionBar from './InteractionBar.vue'
 import MediaPreview from './MediaPreview.vue'
+import { toContentMedia } from '~/utils/content-media'
 
 const props = defineProps<{ id: string; channel: 'resource' | 'research' | 'school' }>()
 const { t } = useI18n()
@@ -26,20 +27,10 @@ const {
 } = useContentDetail(props.id, props.channel)
 const { data, error, status } = request
 const { data: recommendations } = recommendationsRequest
-function toAsset(item: WebMediaItem): MediaAsset {
-  const documentKind = /\.pptx?($|\?)/i.test(item.fileUrl) ? 'ppt' : 'pdf'
-  const kinds = { VIDEO: 'video', AUDIO: 'audio', IMAGE: 'image', DOCUMENT: documentKind } as const
-  return {
-    kind: kinds[item.mediaType],
-    url: apiUrl(item.fileUrl),
-    duration: item.durationSec ?? undefined,
-    pageCount: item.pageCount ?? undefined,
-  }
-}
 const mediaItems = computed(() => {
   const detail = data.value?.detail
   if (!detail || detail.detailType === 'ARTICLE' || detail.detailType === 'LINK') return []
-  return detail.mediaList.map(toAsset)
+  return toContentMedia(detail.mediaList, apiUrl)
 })
 const externalUrl = computed(() => {
   const url = apiUrl(data.value?.detail.jumpUrl)
