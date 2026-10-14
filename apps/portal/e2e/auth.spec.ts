@@ -34,8 +34,8 @@ test('短信登录、会话恢复与退出', async ({ page, context }) => {
 test('登录后恢复个人中心导航', async ({ page }) => {
   await page.goto('/resources')
   await waitForHydration(page)
-  await page.locator('.app-header__nav').getByRole('link', { name: '我的账号' }).click()
-  await expect(page).toHaveURL(/\/resources$/)
+  await page.goto('/account')
+  await expect(page).toHaveURL(/\/$/)
   await smsLogin(page)
   await expect(page).toHaveURL(/\/account$/)
   await expect(page.getByRole('heading', { name: '测试用户1' })).toBeVisible()
@@ -49,8 +49,8 @@ test('验证码错误可纠正，未同意协议不能登录', async ({ page }) 
   await dialog.getByRole('button', { name: '获取验证码' }).click()
   await expect(dialog.getByRole('button', { name: /秒后重发/ })).toBeVisible()
   await dialog.locator('#login-code').fill('000000')
-  await dialog.getByRole('button', { name: /登\s*录/, exact: true }).click()
-  await expect(dialog.getByRole('alert')).toContainText('请先阅读并同意')
+  const submit = dialog.getByRole('button', { name: /登\s*录/, exact: true })
+  await expect(submit).toBeDisabled()
   await dialog.getByRole('checkbox').check()
   await dialog.getByRole('button', { name: /登\s*录/, exact: true }).click()
   await expect(dialog.getByRole('alert')).toContainText('验证码错误')
@@ -61,7 +61,9 @@ test('验证码错误可纠正，未同意协议不能登录', async ({ page }) 
 test('会话过期清 Cookie，公开正文继续显示', async ({ page, context, baseURL }) => {
   await setSession(context, testSession(1, 'expired'), baseURL!)
   await page.goto('/resources/1')
-  await expect(page.getByRole('heading', { name: '资源示例 1', exact: true })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { level: 1, name: '资源示例 1', exact: true }),
+  ).toBeVisible()
   await expect(page.getByRole('button', { name: /登\s*录/, exact: true })).toBeVisible()
   await expect
     .poll(async () => (await context.cookies()).some(cookie => cookie.name === AUTH_COOKIE_NAME))
@@ -76,7 +78,7 @@ test('登录后点赞回放与个人记录移除', async ({ page }) => {
     'aria-pressed',
     'true',
   )
-  await page.locator('.app-header__nav').getByRole('link', { name: '我的账号' }).click()
+  await page.locator('.app-header__user').click()
   await expect(page).toHaveURL(/\/account$/)
   await page.getByRole('button', { name: /^我的点赞/ }).click()
   await expect(page.locator('.activity-list')).toContainText('资源示例 1')
@@ -94,7 +96,7 @@ test('个人收藏随语言切换重新加载，刷新后保持英文', async ({
     'aria-pressed',
     'true',
   )
-  await page.locator('.app-header__nav').getByRole('link', { name: '我的账号' }).click()
+  await page.locator('.app-header__user').click()
   await expect(page.locator('.activity-list')).toContainText('资源示例 1')
   await switchLanguage(page, 'en')
   await expect(page).toHaveURL(/\/en\/account$/)

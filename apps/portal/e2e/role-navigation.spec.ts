@@ -3,10 +3,12 @@ import { expect, test, setSession, testSession } from './academy.fixture'
 test('普通前台用户只显示个人中心，不显示管理与创作入口', async ({ page, context, baseURL }) => {
   await setSession(context, testSession(), baseURL!)
   await page.goto('/resources')
-  await expect(page.locator('.app-header__user')).toContainText('测试用户1')
-  const nav = page.locator('.app-header__nav')
-  await expect(nav.getByRole('link', { name: '我的账号' })).toBeVisible()
-  await expect(nav.getByRole('link', { name: /管理后台|创作中心/ })).toHaveCount(0)
+  const account = page.locator('.app-header__user')
+  await expect(account).toContainText('测试用户1')
+  await expect(account).toHaveAttribute('href', '/account')
+  await expect(
+    page.locator('.app-header__nav').getByRole('link', { name: /我的账号|管理后台|创作中心/ }),
+  ).toHaveCount(0)
 })
 test('并发 SSR 会话各自渲染资料，令牌不进入 HTML payload', async ({ browser, baseURL }) => {
   const contexts = await Promise.all([browser.newContext(), browser.newContext()])

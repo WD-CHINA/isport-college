@@ -38,7 +38,7 @@ test('默认分类及一级切换清除下级条件，搜索保留水平并清�
   )
   await page.getByRole('button', { name: '专项运动', exact: true }).click()
   const query = new URL((await nextRequest).url()).searchParams
-  expect(query.get('pageSize')).toBe('60')
+  expect(query.get('pageSize')).toBe('12')
   expect(query.get('pageNum')).toBe('1')
   expect(query.has('secondCategoryId')).toBe(false)
   expect(query.has('bodyPartTagId')).toBe(false)
@@ -55,14 +55,14 @@ test('默认分类及一级切换清除下级条件，搜索保留水平并清�
   await expect(page.locator('.catalog-hero').getByRole('searchbox')).toBeFocused()
 })
 
-test('每页 60 条，翻页和刷新保持查询，筛选回到第一页', async ({ page }) => {
+test('每页 12 条，翻页和刷新保持查询，筛选回到第一页', async ({ page }) => {
   await page.goto('/resources?keyword=分页样例')
   await waitForHydration(page)
-  await expect(page.locator('.content-card')).toHaveCount(60)
+  await expect(page.locator('.content-card')).toHaveCount(12)
   await page.getByRole('button', { name: '页 2', exact: true }).click()
   await expect(page).toHaveURL(/page=2/)
   await expect(page.locator('.content-card')).toHaveCount(12)
-  await expect(page.locator('.content-card').first()).toContainText('分页样例 61')
+  await expect(page.locator('.content-card').first()).toContainText('分页样例 13')
   await page.reload()
   await expect(page.locator('.content-card')).toHaveCount(12)
   await page
@@ -70,7 +70,7 @@ test('每页 60 条，翻页和刷新保持查询，筛选回到第一页', asyn
     .getByRole('button', { name: '上肢', exact: true })
     .click()
   await expect(page).not.toHaveURL(/page=/)
-  await expect(page.locator('.content-card')).toHaveCount(60)
+  await expect(page.locator('.content-card')).toHaveCount(12)
 })
 
 test('列表资源点击进入详情页，上报一次浏览', async ({ page }) => {
