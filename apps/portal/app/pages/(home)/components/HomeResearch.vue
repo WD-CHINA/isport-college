@@ -16,10 +16,10 @@ const apiUrl = useApiUrl()
 const featured = computed(() => props.items[0])
 const side = computed(() => props.items.slice(1, 3))
 const icons: Record<string, string> = {
-  SERIES: '42431.svg',
-  RESEARCH: '3b93a.svg',
-  TOPICS: 'e30de.svg',
-  PRODUCTS: '4a368.svg',
+  SERIES: 'research-practice.svg',
+  RESEARCH: 'research-development.svg',
+  TOPICS: 'research-events.svg',
+  PRODUCTS: 'research-tutorials.svg',
 }
 const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) : ''))
 </script>
@@ -44,9 +44,11 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
             :aria-pressed="item.id === category"
             @click="emit('select', item.id)"
           >
-            <span class="home-research__icon"
-              ><img :src="`/home/figma/${icons[item.id]}`" alt=""
-            /></span>
+            <span
+              class="home-research__icon"
+              :style="{ '--research-icon': `url(/catalog/ardot/${icons[item.id]})` }"
+              aria-hidden="true"
+            />
             {{ item.name }}
           </button>
         </div>
@@ -131,19 +133,21 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
       border-color: var(--home-color-primary);
       color: var(--home-color-primary);
       box-shadow: 0 4px 12px rgb(0 0 0 / 4%);
+
+      .home-research__icon {
+        opacity: 1;
+      }
     }
   }
 
   &__icon {
-    display: grid;
+    display: block;
     width: 28px;
     height: 28px;
     flex: none;
-    place-items: center;
-
-    img {
-      display: block;
-    }
+    background: currentcolor;
+    opacity: 0.8;
+    mask: var(--research-icon) center / contain no-repeat;
   }
 
   &__courses {

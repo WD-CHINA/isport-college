@@ -204,7 +204,7 @@ const title = computed(() =>
 
     &:not(.catalog-hero--resource) {
       min-height: 320px;
-      background-position: 30% center;
+      background-position: center;
     }
 
     &--research {

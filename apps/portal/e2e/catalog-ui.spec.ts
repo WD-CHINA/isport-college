@@ -69,25 +69,23 @@ test('资源主视觉搜索保留筛选，二级分类与重置同步地址', as
   await expect(page.locator('.catalog-hero').getByRole('searchbox')).toHaveValue('')
 })
 
-test('教研搜索可展开，分类与刷新保留真实结果', async ({ page }) => {
-  await page.goto('/research')
-  await waitForHydration(page)
-  await page.locator('.content-filters__search-toggle summary').click()
-  await page.getByRole('textbox', { name: '搜索内容名称', exact: true }).fill('资源')
-  await page
-    .locator('.content-filters__search')
-    .getByRole('button', { name: /搜\s*索/, exact: true })
-    .click()
-  await expect(page).toHaveURL(/keyword=/)
-  await page.getByRole('button', { name: '教学实践', exact: true }).click()
-  await expect(page).toHaveURL(/category=SERIES/)
-  await page.reload()
-  await expect(page.getByRole('button', { name: '教学实践', exact: true })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  )
-  await expect(page.locator('.content-card').first()).toContainText('资源示例 1')
-})
+for (const [channel, category] of [
+  ['research', 'RESEARCH'],
+  ['schools', 'CURRICULUM'],
+] as const) {
+  test(`${channel} 移除搜索入口，分类切换与刷新仍保留结果`, async ({ page }) => {
+    await page.goto(`/${channel}`)
+    await waitForHydration(page)
+    await expect(page.locator('.content-filters__search-toggle')).toHaveCount(0)
+    await expect(page.locator('.content-filters').getByRole('textbox')).toHaveCount(0)
+    const categoryButton = page.locator('.catalog-category-tabs').getByRole('button').nth(1)
+    await categoryButton.click()
+    await expect(page).toHaveURL(new RegExp(`category=${category}`))
+    await page.reload()
+    await expect(categoryButton).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.locator('.content-card').first()).toContainText('资源示例 1')
+  })
+}
 
 for (const width of [320, 390]) {
   for (const locale of ['zh', 'en']) {
@@ -98,6 +96,7 @@ for (const width of [320, 390]) {
         await page.goto(`${prefix}/${channel}`)
         await waitForHydration(page)
         await expect(page.locator('.catalog-hero h1')).toBeVisible()
+        await expect(page.locator('.content-filters__search-toggle')).toHaveCount(0)
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
           true,
         )

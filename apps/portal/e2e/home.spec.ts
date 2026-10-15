@@ -99,6 +99,26 @@ test('教研分类空状态可切换语言，未接入创作能力保持禁用',
   await expect(research.locator('.home-research__feature')).toContainText('Resource 1')
 })
 
+test('首页教研分类切换时，图标与文字同步激活和恢复默认颜色', async ({ page }) => {
+  await page.goto('/')
+  await waitForHydration(page)
+  const buttons = page.locator('.home-research__nav button')
+  for (let selected = 0; selected < (await buttons.count()); selected++) {
+    await buttons.nth(selected).click()
+    for (let index = 0; index < (await buttons.count()); index++) {
+      const active = index === selected
+      const button = buttons.nth(index)
+      const icon = button.locator('.home-research__icon')
+      const color = active ? 'rgb(0, 119, 250)' : 'rgb(28, 31, 35)'
+      await expect(button).toHaveAttribute('aria-pressed', String(active))
+      await expect(button).toHaveCSS('color', color)
+      await expect(icon).toHaveCSS('background-color', color)
+      await expect(icon).toHaveCSS('opacity', active ? '1' : '0.8')
+      await expect(icon).toHaveCSS('mask-image', /research-.*\.svg/)
+    }
+  }
+})
+
 for (const [path, numericLabel] of [
   ['/', '适用：水平三'],
   ['/en', 'For: Level 3'],

@@ -9,13 +9,6 @@ const props = defineProps<{
 }>()
 const model = defineModel<WebListQuery>({ required: true })
 const { t } = useI18n()
-const keyword = shallowRef(model.value.keyword ?? '')
-watch(
-  () => model.value.keyword,
-  value => {
-    keyword.value = value ?? ''
-  },
-)
 const resource = computed(() => props.channel === 'resource')
 const secondCategories = computed(() =>
   (props.resourceFilters?.secondCategoryList ?? []).filter(
@@ -60,7 +53,7 @@ const selectFields = computed(() => {
       ],
     }))
 })
-function set(field: Exclude<keyof WebListQuery, 'page'>, value: unknown) {
+function set(field: Exclude<keyof WebListQuery, 'page' | 'keyword'>, value: unknown) {
   const text = typeof value === 'string' ? value : ''
   const next: WebListQuery = { ...model.value, [field]: text || undefined, page: 1 }
   if (field === 'category') {
@@ -70,7 +63,6 @@ function set(field: Exclude<keyof WebListQuery, 'page'>, value: unknown) {
   model.value = next
 }
 function reset() {
-  keyword.value = ''
   model.value = {
     page: 1,
     category: props.channel !== 'school' ? model.value.category : undefined,
@@ -81,7 +73,7 @@ function reset() {
 <template>
   <section
     class="content-filters"
-    :class="resource ? 'content-filters--resource' : 'content-filters--editorial'"
+    :class="{ 'content-filters--resource': resource }"
     :aria-label="t('catalog.filters')"
   >
     <CatalogCategoryTabs
@@ -107,21 +99,6 @@ function reset() {
         {{ item.name }}
       </button>
     </div>
-    <details v-if="!resource" class="content-filters__search-toggle" :open="!!model.keyword">
-      <summary>{{ t('common.search') }}</summary>
-      <form class="content-filters__search" @submit.prevent="set('keyword', keyword)">
-        <AInput
-          v-model:value="keyword"
-          allow-clear
-          :maxlength="100"
-          :aria-label="t('catalog.search')"
-          :placeholder="t('catalog.search')"
-          @change="!keyword && set('keyword', '')"
-        />
-        <AButton type="primary" html-type="submit">{{ t('common.search') }}</AButton>
-        <AButton @click="reset">{{ t('common.reset') }}</AButton>
-      </form>
-    </details>
     <div
       v-for="field in chipFields"
       :key="field.key"
@@ -163,10 +140,6 @@ function reset() {
 <style lang="scss" scoped>
 .content-filters {
   min-width: 0;
-
-  &--editorial {
-    position: relative;
-  }
 
   &--resource {
     padding: 0 26px 20px;
@@ -289,39 +262,6 @@ function reset() {
     font-size: 12px;
     color: var(--catalog-muted) !important;
   }
-
-  &__search-toggle {
-    position: absolute;
-    top: calc(100% + 32px);
-    right: 0;
-    z-index: 1;
-    max-width: 100%;
-    color: var(--catalog-muted);
-    font-size: 14px;
-
-    summary {
-      width: fit-content;
-      margin-inline-start: auto;
-      padding: 2px 0 8px;
-      cursor: pointer;
-    }
-  }
-
-  &__search {
-    display: flex;
-    max-width: 100%;
-    gap: 8px;
-    margin-top: 8px;
-    padding: 12px;
-    border: 1px solid var(--catalog-border);
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: var(--ic-box-shadow-md);
-
-    > :first-child {
-      min-width: 0;
-    }
-  }
 }
 
 @media (max-width: 767px) {
@@ -341,6 +281,7 @@ function reset() {
 
     &--resource .content-filters__categories {
       gap: 12px;
+      padding-top: 1px;
     }
 
     &--resource .content-filters__categories > button {
@@ -354,11 +295,6 @@ function reset() {
       > .content-filters__label {
         width: 100%;
       }
-    }
-
-    &__search-toggle {
-      width: 100%;
-      margin-left: 0;
     }
 
     &__field {

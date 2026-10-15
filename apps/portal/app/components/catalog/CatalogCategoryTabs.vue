@@ -79,6 +79,10 @@ const { t } = useI18n()
     box-shadow:
       inset 0 0 0 1px var(--catalog-primary),
       0 4px 12px rgb(0 0 0 / 4%);
+
+    .catalog-category-tabs__icon {
+      opacity: 1;
+    }
   }
 
   button[aria-pressed='true'] {
@@ -86,6 +90,10 @@ const { t } = useI18n()
     box-shadow:
       inset 0 0 0 2px var(--catalog-primary),
       0 4px 12px rgb(0 0 0 / 4%);
+
+    .catalog-category-tabs__icon {
+      opacity: 1;
+    }
   }
 
   button:focus-visible {
@@ -101,6 +109,14 @@ const { t } = useI18n()
     mask-position: center;
     mask-repeat: no-repeat;
     mask-size: contain;
+
+    // 教研 SVG 共用不透明遮罩，透明度由交互状态控制。
+    &--series,
+    &--research,
+    &--topics,
+    &--products {
+      opacity: 0.8;
+    }
 
     &--all {
       mask-image: url('/catalog/ardot/school-all.svg');

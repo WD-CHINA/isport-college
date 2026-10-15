@@ -125,7 +125,6 @@ await request
     display: grid;
     gap: 12px;
     padding-top: 32px;
-    padding-right: 64px;
   }
 
   &:not(.content-list-feature--resource) .content-list-feature__count {
