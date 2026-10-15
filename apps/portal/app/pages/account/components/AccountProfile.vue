@@ -14,7 +14,7 @@ const maskedPhone = computed(() => auth.user?.phoneMask ?? '')
 function startEditing() {
   editing.value = true
 }
-async function submit(value: { nickname: string; avatarCode: number }) {
+async function submit(value: { nickname: string }) {
   if (await save(value)) {
     editing.value = false
     messageApi.success(t('account.saved'))

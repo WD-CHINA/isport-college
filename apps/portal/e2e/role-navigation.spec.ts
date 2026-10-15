@@ -5,7 +5,7 @@ test('普通前台用户只显示个人中心，不显示管理与创作入口',
   await page.goto('/resources')
   const account = page.locator('.app-header__user')
   await expect(account).toContainText('测试用户1')
-  await expect(account).toHaveAttribute('href', '/account')
+  await expect(page.locator('a.app-header__user')).toHaveCount(0)
   await expect(
     page.locator('.app-header__nav').getByRole('link', { name: /我的账号|管理后台|创作中心/ }),
   ).toHaveCount(0)

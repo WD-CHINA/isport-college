@@ -65,17 +65,13 @@ const localePath = useLocalePath()
 
     <div class="app-header__panel-account">
       <template v-if="loggedIn">
-        <NuxtLink
-          :to="localePath('/account')"
-          class="app-header__panel-profile"
-          @click="emit('close')"
-        >
+        <div class="app-header__panel-profile">
           <AccountAvatar :avatar-code="avatarCode ?? 1" />
           <span>
             <strong>{{ nickname || t('academy.account') }}</strong>
             <small v-if="nickname">{{ t('academy.account') }}</small>
           </span>
-        </NuxtLink>
+        </div>
         <button
           type="button"
           class="app-header__panel-logout"

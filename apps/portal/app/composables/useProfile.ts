@@ -15,16 +15,14 @@ export function useProfile() {
       isApiError(cause) && locale.value === 'zh' ? cause.message : t('academy.requestFailed')
   }
 
-  async function save(value: { nickname: string; avatarCode: number }) {
+  async function save(value: { nickname: string }) {
     if (pending.value) return false
     pending.value = true
     error.value = ''
     const token = auth.session?.token
     try {
       const nickname = await academy.updateNickname({ nickname: value.nickname })
-      if (!auth.updateUser(nickname, token)) return false
-      const profile = await academy.updateAvatar({ avatarCode: value.avatarCode })
-      return auth.updateUser(profile, token)
+      return auth.updateUser(nickname, token)
     } catch (cause) {
       fail(cause)
       return false

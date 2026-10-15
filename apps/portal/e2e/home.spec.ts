@@ -100,13 +100,13 @@ test('首页学段筛选无数据时显示空状态，语言切换与切回分�
   await expect(resources.locator('li')).toHaveCount(0)
 })
 
-test('教研分类空状态可切换语言，未接入创作能力保持禁用', async ({ page }) => {
+test('教研分类空状态可切换语言', async ({ page }) => {
   await page.goto('/')
   await waitForHydration(page)
   const research = page.locator('.home-research')
   await research.getByRole('button', { name: '教研与专业发展', exact: true }).click()
   await expect(research.locator('.ant-empty')).toContainText('暂无数据')
-  await expect(page.locator('.home-creation__entry')).toBeDisabled()
+  await expect(page.getByRole('heading', { name: '教师共创精选' })).toHaveCount(0)
   await switchLanguage(page, 'en')
   await expect(research.locator('.ant-empty')).toContainText('No data')
   await expect(page.locator('.home-news')).toContainText('Industry news')

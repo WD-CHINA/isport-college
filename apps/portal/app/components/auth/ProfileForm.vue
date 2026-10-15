@@ -1,28 +1,17 @@
 <script setup lang="ts">
 import { message } from 'antdv-next'
 import { useMessageFeedback } from '~/composables/useMessageFeedback'
-import { useAcademy } from '~/composables/useAcademy'
-import { AVATAR_IDS, normalizeNickname, type WebProfile } from '@isport/shared'
+import { normalizeNickname, type WebProfile } from '@isport/shared'
 
 const props = defineProps<{ user: WebProfile; pending: boolean; error?: string }>()
-const emit = defineEmits<{ save: [value: { nickname: string; avatarCode: number }] }>()
-const academy = useAcademy()
+const emit = defineEmits<{ save: [value: { nickname: string }] }>()
 const { t } = useI18n()
 const formId = useId()
 const nickname = shallowRef(props.user.nickname)
-const avatarCode = shallowRef(props.user.avatarCode)
-const avatarRequest = useAsyncData('academy:avatars', () => academy.avatars())
-const codes = computed(() =>
-  avatarRequest.data.value?.length
-    ? avatarRequest.data.value
-    : AVATAR_IDS.map((_, index) => index + 1),
-)
-const symbols = ['◉', '➜', '≈', '◎', '◈', '★', '▲', '☀']
 watch(
   () => props.user,
   user => {
     nickname.value = user.nickname
-    avatarCode.value = user.avatarCode
   },
 )
 function submit() {
@@ -31,7 +20,7 @@ function submit() {
     messageApi.error(t('academy.nicknameRule'))
     return
   }
-  emit('save', { nickname: value, avatarCode: avatarCode.value })
+  emit('save', { nickname: value })
 }
 
 const [messageApi, ContextHolder] = message.useMessage()
@@ -53,19 +42,6 @@ useMessageFeedback(
       :maxlength="20"
     />
     <p>{{ t('academy.nicknameRule') }}</p>
-    <fieldset :disabled="pending" class="profile-form__avatars">
-      <legend>{{ t('academy.avatar') }}</legend>
-      <label v-for="code in codes" :key="code" class="profile-form__avatar">
-        <input
-          v-model="avatarCode"
-          type="radio"
-          :name="`${formId}-avatar`"
-          :value="code"
-          :aria-label="t(`academy.avatars.${AVATAR_IDS[code - 1] ?? 'ball'}`)"
-        />
-        <span aria-hidden="true">{{ symbols[code - 1] || '●' }}</span>
-      </label>
-    </fieldset>
     <AButton html-type="submit" type="primary" :loading="pending">{{ t('common.save') }}</AButton>
   </form>
 </template>
@@ -74,21 +50,5 @@ useMessageFeedback(
 .profile-form {
   display: grid;
   gap: var(--ic-spacing-3, 12px);
-
-  &__avatars {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--ic-spacing-3, 12px);
-    border: 0;
-    padding: 0;
-  }
-
-  &__avatar {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    gap: var(--ic-spacing-1, 4px);
-    font-size: 24px;
-  }
 }
 </style>

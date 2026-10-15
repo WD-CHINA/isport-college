@@ -12,6 +12,7 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 
 const menuOpen = shallowRef(false)
+const userMenuOpen = shallowRef(false)
 const header = useTemplateRef<HTMLElement>('header')
 const menuToggle = useTemplateRef<HTMLButtonElement>('menuToggle')
 const menuId = useId()
@@ -20,6 +21,7 @@ watch(
   () => route.fullPath,
   () => {
     menuOpen.value = false
+    userMenuOpen.value = false
   },
 )
 
@@ -64,6 +66,7 @@ function openLogin() {
 
 function handleLogout() {
   menuOpen.value = false
+  userMenuOpen.value = false
   loginUi.logoutConfirmVisible = true
 }
 
@@ -116,13 +119,17 @@ onScopeDispose(() => {
         </span>
         <AppLocaleMenu />
         <template v-if="auth.isLoggedIn">
-          <NuxtLink :to="localePath('/account')" class="app-header__user">
-            <AccountAvatar v-if="auth.user" :avatar-code="auth.user.avatarCode" />
-            <span>{{ auth.user?.nickname || t('academy.account') }}</span>
-          </NuxtLink>
-          <button type="button" class="app-header__login" @click="handleLogout">
-            {{ t('common.logout') }}
-          </button>
+          <APopover v-model:open="userMenuOpen" trigger="click" placement="bottomRight">
+            <template #content>
+              <button type="button" class="app-header__user-logout" @click="handleLogout">
+                {{ t('common.logout') }}
+              </button>
+            </template>
+            <button type="button" class="app-header__user" aria-haspopup="dialog">
+              <AccountAvatar v-if="auth.user" :avatar-code="auth.user.avatarCode" />
+              <span>{{ auth.user?.nickname || t('academy.account') }}</span>
+            </button>
+          </APopover>
         </template>
         <button v-else type="button" class="app-header__login" @click="openLogin">
           {{ t('common.login') }}
@@ -292,8 +299,34 @@ onScopeDispose(() => {
     display: none;
     align-items: center;
     gap: 8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
     color: var(--ic-color-academy-text-primary);
+    font: inherit;
     font-size: 14px;
+    cursor: pointer;
+  }
+
+  &__user-logout {
+    min-width: 96px;
+    padding: 4px 8px;
+    border: 0;
+    background: transparent;
+    color: var(--ic-color-academy-text-primary);
+    font: inherit;
+    font-size: 14px;
+    line-height: 22px;
+    text-align: start;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--ic-color-semantic-error, #dc2626);
+    }
+  }
+
+  &__logout {
+    display: none;
   }
 
   &__burger {
@@ -354,6 +387,13 @@ onScopeDispose(() => {
     &__burger {
       width: 36px;
     }
+  }
+}
+
+@media (max-width: 1279px) {
+  .app-header__logout {
+    display: inline-flex;
+    align-items: center;
   }
 }
 

@@ -3,7 +3,6 @@ import { message } from 'antdv-next'
 import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import ContentGrid from '~/components/content/ContentGrid.vue'
 import HomeCapabilities from './HomeCapabilities.vue'
-import HomeCreation from './HomeCreation.vue'
 import HomeFeatured from './HomeFeatured.vue'
 import HomeHero from './HomeHero.vue'
 import HomeLingyue from './HomeLingyue.vue'
@@ -74,7 +73,6 @@ function selectResource(id: string) {
         @select="researchCategory = $event"
       />
       <HomePeople :people="data.teacherList" />
-      <HomeCreation />
       <HomeSchools :items="data.schoolList" />
       <HomeNews :items="data.newsList" />
     </template>
@@ -104,7 +102,6 @@ function selectResource(id: string) {
     :deep(.home-resources),
     :deep(.home-research),
     :deep(.home-people),
-    :deep(.home-creation),
     :deep(.home-schools),
     :deep(.home-news) {
       padding-block: var(--ic-spacing-8);

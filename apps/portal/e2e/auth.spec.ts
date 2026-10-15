@@ -51,7 +51,8 @@ test('短信登录、会话恢复与退出', async ({ page, context }) => {
   await page.reload()
   await waitForHydration(page)
   await expect(page.locator('.app-header__user')).toContainText('测试用户1')
-  await page.getByRole('button', { name: '退出登录', exact: true }).first().click()
+  await page.locator('.app-header__user').click()
+  await page.getByRole('button', { name: '退出登录', exact: true }).click()
   await page
     .getByRole('dialog')
     .getByRole('button', { name: /确\s*定/ })
@@ -114,8 +115,7 @@ test('登录后点赞回放与个人记录移除', async ({ page }) => {
   await expect(
     page.locator('.ant-message-notice-success').filter({ hasText: '点赞成功' }),
   ).toBeVisible()
-  await page.locator('.app-header__user').click()
-  await expect(page).toHaveURL(/\/account$/)
+  await page.goto('/account')
   await page.getByRole('button', { name: /^我的点赞/ }).click()
   await expect(page.locator('.activity-list')).toContainText('资源示例 1')
   await page.locator('.activity-list').getByRole('button').click()
@@ -154,6 +154,7 @@ test('退出接口失败仅提示本地退出警告', async ({ page, context, ba
   )
   await page.goto('/resources?category=1')
   await waitForHydration(page)
+  await page.locator('.app-header__user').click()
   await page.getByRole('button', { name: '退出登录', exact: true }).click()
   await page
     .getByRole('dialog')
@@ -172,7 +173,7 @@ test('个人收藏随语言切换重新加载，刷新后保持英文', async ({
     'aria-pressed',
     'true',
   )
-  await page.locator('.app-header__user').click()
+  await page.goto('/account')
   await expect(page.locator('.activity-list')).toContainText('资源示例 1')
   await switchLanguage(page, 'en')
   await expect(page).toHaveURL(/\/en\/account$/)
@@ -192,6 +193,7 @@ test('其他标签页退出后，个人中心恢复访客并离开私有页', as
   const other = await context.newPage()
   await other.goto('/resources')
   await waitForHydration(other)
+  await other.locator('.app-header__user').click()
   await other.getByRole('button', { name: '退出登录', exact: true }).click()
   await other
     .getByRole('dialog')
@@ -214,6 +216,7 @@ test('其他标签页重新登录后，现有页面使用新会话', async ({ pa
   const other = await context.newPage()
   await other.goto('/resources')
   await waitForHydration(other)
+  await other.locator('.app-header__user').click()
   await other.getByRole('button', { name: '退出登录', exact: true }).click()
   await other
     .getByRole('dialog')

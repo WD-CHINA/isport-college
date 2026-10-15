@@ -23,7 +23,7 @@ watch(
 async function submit() {
   const value = normalizeNickname(nickname.value)
   if (!value || !auth.user) return
-  if (await save({ nickname: value, avatarCode: auth.user.avatarCode })) {
+  if (await save({ nickname: value })) {
     loginUi.nicknameGuideVisible = false
     messageApi.success(t('account.saved'))
   }
