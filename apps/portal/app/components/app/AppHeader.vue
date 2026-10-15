@@ -131,6 +131,9 @@ onScopeDispose(() => {
             </button>
           </APopover>
         </template>
+        <button v-else type="button" class="app-header__login" @click="openLogin">
+          {{ t('common.login') }}
+        </button>
         <button
           ref="menuToggle"
           type="button"
@@ -379,6 +382,7 @@ onScopeDispose(() => {
 
     &__login {
       padding-inline: 8px;
+      display: none;
     }
 
     &__burger {
@@ -388,9 +392,16 @@ onScopeDispose(() => {
 }
 
 @media (max-width: 1279px) {
-  .app-header__logout {
-    display: inline-flex;
-    align-items: center;
+  .app-header {
+    &__logout {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    &__login {
+      padding-inline: 8px;
+      display: none;
+    }
   }
 }
 
