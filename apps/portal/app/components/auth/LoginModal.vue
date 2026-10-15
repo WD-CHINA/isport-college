@@ -62,7 +62,7 @@ const visible = computed({
     right: 16px;
     width: 36px;
     height: 36px;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
   }
 }
 
@@ -80,7 +80,7 @@ const visible = computed({
 
   .ant-modal-title {
     position: relative;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
     font-size: 24px;
     font-weight: 600;
     line-height: 34px;

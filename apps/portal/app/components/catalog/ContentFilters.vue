@@ -202,7 +202,7 @@ function reset() {
     }
 
     > button[aria-pressed='true'] {
-      background: #eaf5ff;
+      background: var(--ic-color-academy-tint);
       box-shadow: inset 0 0 0 1px var(--catalog-primary);
     }
   }
@@ -248,7 +248,7 @@ function reset() {
     }
 
     button[aria-pressed='true'] {
-      background: #eaf5ff;
+      background: var(--ic-color-academy-tint);
     }
   }
 

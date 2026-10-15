@@ -1,4 +1,36 @@
 import { expect, test, switchLanguage, waitForHydration } from './academy.fixture'
+import type { Page } from '@playwright/test'
+
+/** 只拦截当前浏览器的焦点刷新，为布局与字段回归提供完整内容。 */
+async function populateHomeLayout(page: Page) {
+  await page.route('**/api/v1/home', async route => {
+    const response = await route.fetch()
+    const envelope = await response.json()
+    const home = envelope.data
+    const resource = home.resourceGroupList[0].itemList[0]
+    home.resourceGroupList[0].itemList = [
+      { ...resource, levelName: '自定义水平', recommendedLevel: 2 },
+      { ...resource, originId: 2, contentKey: 'RESOURCE:2', levelName: '', recommendedLevel: 3 },
+      { ...resource, originId: 3, contentKey: 'RESOURCE:3', levelName: '', recommendedLevel: null },
+    ]
+    home.researchList = [1, 2, 3].map(id => ({
+      ...home.researchList[0],
+      originId: id,
+      contentKey: `RESEARCH:${id}`,
+    }))
+    home.schoolList = [1, 2, 3].map(id => ({
+      ...resource,
+      channel: 'SCHOOL',
+      originId: id,
+      contentKey: `SCHOOL:${id}`,
+    }))
+    home.teacherList = [1, 2, 3].map(id => ({ ...home.teacherList[0], id }))
+    await route.fulfill({ response, json: envelope })
+  })
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await expect(page.locator('.home-research__side article')).toHaveCount(2)
+  await expect(page.locator('.home-schools__card')).toHaveCount(3)
+}
 
 test('首页服务端直出学校案例、行业动态及服务数据', async ({ request }) => {
   const response = await request.get('/', { headers: { 'Accept-Language': 'zh-CN' } })
@@ -8,6 +40,8 @@ test('首页服务端直出学校案例、行业动态及服务数据', async ({
   expect(html).toContain('class="home-news"')
   expect(html).toContain('href="/news/1"')
   expect(html).toContain('43,000')
+  expect(html).toContain('适用：水平一')
+  expect(html).not.toContain('适用：体能')
   expect(html).not.toContain('https://www.figma.com/api/mcp/asset/')
 })
 
@@ -19,6 +53,7 @@ test('首页水平筛选展示对应接口分组，切回分类恢复原列表',
   await resources.getByRole('combobox', { name: '推荐水平', exact: true }).click()
   await page.getByRole('option', { name: '水平三', exact: true }).click()
   await expect(resources).toContainText('资源示例 3')
+  await expect(resources.locator('.home-resources__body small')).toHaveText('适用：水平三')
   await expect(resources).not.toContainText('资源示例 1')
   await resources.getByRole('button', { name: '体能', exact: true }).click()
   await expect(resources.locator('.home-resources__level')).toContainText('全部学段')
@@ -64,12 +99,48 @@ test('教研分类空状态可切换语言，未接入创作能力保持禁用',
   await expect(research.locator('.home-research__feature')).toContainText('Resource 1')
 })
 
+for (const [path, numericLabel] of [
+  ['/', '适用：水平三'],
+  ['/en', 'For: Level 3'],
+] as const) {
+  test(`${path} 首页适用信息优先使用名称，回退水平编号，未知水平不展示`, async ({ page }) => {
+    await page.goto(path)
+    await waitForHydration(page)
+    await populateHomeLayout(page)
+    const cards = page.locator('.home-resources__body')
+    await expect(cards.nth(0).locator('small')).toHaveText(
+      path === '/' ? '适用：自定义水平' : 'For: 自定义水平',
+    )
+    await expect(cards.nth(1).locator('small')).toHaveText(numericLabel)
+    await expect(cards.nth(2).locator('small')).toHaveCount(0)
+  })
+}
+
+test('1440px 首页教研、教师和学校卡片尺寸符合 Ardot', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/')
+  await waitForHydration(page)
+  await populateHomeLayout(page)
+  const feature = await page.locator('.home-research__feature').boundingBox()
+  const photo = await page.locator('.home-research__photo').boundingBox()
+  const copy = await page.locator('.home-research__feature > div').boundingBox()
+  expect(feature!.width).toBeCloseTo(720, 0)
+  expect(photo!.width).toBe(304)
+  expect(photo!.height).toBe(304)
+  expect(copy!.x - photo!.x - photo!.width).toBe(24)
+  for (const card of await page.locator('.home-people li > a').all()) {
+    expect((await card.boundingBox())!.height).toBe(236)
+  }
+  await expect(page.locator('.home-schools__cover').first()).toHaveCSS('border-radius', '6px')
+})
+
 for (const width of [320, 390]) {
   for (const path of ['/', '/en']) {
     test(`${width}px ${path} 首屏文案不被浮动能力栏遮挡`, async ({ page }) => {
       await page.setViewportSize({ width, height: 844 })
       await page.goto(path)
       await waitForHydration(page)
+      await populateHomeLayout(page)
       const lead = await page.locator('.home-hero__lead').boundingBox()
       const capabilities = await page.locator('.home-capabilities ul').boundingBox()
       expect(lead!.y + lead!.height).toBeLessThanOrEqual(capabilities!.y)

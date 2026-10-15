@@ -56,7 +56,7 @@ watch(
 <style lang="scss" scoped>
 .home-news {
   padding: 48px 0;
-  background: #f4f7fb;
+  background: var(--ic-color-academy-background-section);
 
   &__list {
     display: grid;

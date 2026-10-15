@@ -41,7 +41,7 @@ const visible = computed(() => props.items.slice(0, 3))
 <style lang="scss" scoped>
 .home-schools {
   padding: 48px 0;
-  background: #fbfdff;
+  background: var(--ic-color-academy-background-page);
 
   &__list {
     display: grid;
@@ -66,7 +66,8 @@ const visible = computed(() => props.items.slice(0, 3))
     display: block;
     overflow: hidden;
     aspect-ratio: 336 / 188;
-    background: #dce7f5;
+    border-radius: 6px;
+    background: var(--ic-color-academy-background-placeholder);
 
     img {
       display: block;
@@ -86,7 +87,7 @@ const visible = computed(() => props.items.slice(0, 3))
 
   p {
     margin: 12px 0 0;
-    color: rgb(28 31 35 / 60%);
+    color: var(--ic-color-academy-text-secondary);
     font-size: 12px;
     line-height: 22px;
   }

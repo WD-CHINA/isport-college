@@ -219,12 +219,18 @@ const server = createServer(async (req, res) => {
           {
             groupId: 1,
             groupName: english ? 'Fitness' : '体能',
-            itemList: [card(1, 'RESOURCE', english)],
+            itemList: [
+              { ...card(1, 'RESOURCE', english), levelName: english ? 'Level 1' : '水平一' },
+            ],
           },
           { groupId: 2, groupName: english ? 'Sports' : '专项运动', itemList: [] },
         ],
         levelGroupList: [
-          { groupId: 3, groupName: '水平三', itemList: [card(3, 'RESOURCE', english)] },
+          {
+            groupId: 3,
+            groupName: '水平三',
+            itemList: [{ ...card(3, 'RESOURCE', english), recommendedLevel: 3 }],
+          },
           { groupId: 5, groupName: '水平五', itemList: [] },
         ],
         researchList: [card(1, 'RESEARCH', english)],

@@ -50,41 +50,43 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
             {{ item.name }}
           </button>
         </div>
-        <article
+        <div
           v-if="featured"
-          class="home-research__feature"
-          :class="{ 'home-research__feature--full': !side.length }"
+          class="home-research__courses"
+          :class="{ 'home-research__courses--full': !side.length }"
         >
-          <span class="home-research__photo">
-            <img v-if="isContentAssetUrl(cover)" :src="cover" alt="" />
-          </span>
-          <div>
-            <h3>{{ featured.title }}</h3>
-            <p>{{ featured.summary }}</p>
-            <NuxtLink :to="localePath(webContentPath(featured))"
-              >{{ t('home.viewContent') }} <img src="/home/figma/75760.svg" alt=""
-            /></NuxtLink>
-          </div>
-        </article>
-        <div v-if="featured && side.length" class="home-research__side">
-          <article v-for="(item, row) in side" :key="item.contentKey">
-            <span v-if="row" class="home-research__divider"
-              ><img src="/home/figma/be8e9.svg" alt=""
-            /></span>
-            <span class="home-research__side-photo"
-              ><img
-                v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
-                :src="apiUrl(item.coverUrl)"
-                alt=""
-            /></span>
-            <div class="home-research__side-copy">
-              <h3>{{ item.title }}</h3>
-              <p>{{ item.summary }}</p>
-              <NuxtLink :to="localePath(webContentPath(item))"
+          <article class="home-research__feature">
+            <span class="home-research__photo">
+              <img v-if="isContentAssetUrl(cover)" :src="cover" alt="" />
+            </span>
+            <div>
+              <h3>{{ featured.title }}</h3>
+              <p>{{ featured.summary }}</p>
+              <NuxtLink :to="localePath(webContentPath(featured))"
                 >{{ t('home.viewContent') }} <img src="/home/figma/75760.svg" alt=""
               /></NuxtLink>
             </div>
           </article>
+          <div v-if="side.length" class="home-research__side">
+            <article v-for="(item, row) in side" :key="item.contentKey">
+              <span v-if="row" class="home-research__divider"
+                ><img src="/home/figma/be8e9.svg" alt=""
+              /></span>
+              <span class="home-research__side-photo"
+                ><img
+                  v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
+                  :src="apiUrl(item.coverUrl)"
+                  alt=""
+              /></span>
+              <div class="home-research__side-copy">
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.summary }}</p>
+                <NuxtLink :to="localePath(webContentPath(item))"
+                  >{{ t('home.viewContent') }} <img src="/home/figma/75760.svg" alt=""
+                /></NuxtLink>
+              </div>
+            </article>
+          </div>
         </div>
         <AppEmpty v-if="!featured" class="home-research__empty" :description="t('common.empty')" />
       </div>
@@ -95,11 +97,10 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
 <style lang="scss" scoped>
 .home-research {
   padding: 48px 0;
-  background: #f4f7fb;
+  background: var(--ic-color-academy-background-section);
 
   &__layout {
     display: grid;
-    grid-template-columns: minmax(0, 720fr) minmax(0, 456fr);
     gap: 24px;
     margin-top: 36px;
   }
@@ -145,17 +146,25 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
     }
   }
 
+  &__courses {
+    display: grid;
+    grid-template-columns: minmax(0, 720fr) minmax(0, 454fr);
+    gap: 24px;
+    border: 1px solid var(--home-color-border);
+    border-radius: 12px;
+    background: #fff;
+
+    &--full {
+      grid-template-columns: 1fr;
+    }
+  }
+
   &__feature {
     display: grid;
-    grid-template-columns: minmax(0, 304fr) minmax(0, 344fr);
+    grid-template-columns: minmax(0, 304px) minmax(0, 1fr);
     gap: 24px;
     min-height: 352px;
-    margin-right: -24px;
     padding: 24px;
-    border: 1px solid var(--home-color-border);
-    border-right: 0;
-    border-radius: 12px 0 0 12px;
-    background: #fff;
   }
 
   &__photo {
@@ -163,7 +172,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
     overflow: hidden;
     height: 304px;
     border-radius: 8px;
-    background: #dce7f5;
+    background: var(--ic-color-academy-background-placeholder);
   }
 
   &__photo img,
@@ -193,7 +202,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
 
     p {
       margin: 18px 0 auto;
-      color: rgb(28 31 35 / 60%);
+      color: var(--ic-color-academy-text-secondary);
       font-size: 14px;
       line-height: 22px;
     }
@@ -220,23 +229,10 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
     flex: none;
   }
 
-  &__feature {
-    &--full {
-      grid-column: 1 / -1;
-      margin-right: 0;
-      border-right: 1px solid var(--home-color-border);
-      border-radius: 12px;
-    }
-  }
-
   &__side {
     display: grid;
     min-height: 352px;
     align-content: start;
-    border: 1px solid var(--home-color-border);
-    border-left: 0;
-    border-radius: 0 12px 12px 0;
-    background: #fff;
 
     article {
       position: relative;
@@ -265,7 +261,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
     width: 120px;
     height: 120px;
     border-radius: 8px;
-    background: #dce7f5;
+    background: var(--ic-color-academy-background-placeholder);
   }
 
   &__side-copy {
@@ -286,7 +282,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
       margin: 8px 0 0;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
-      color: rgb(28 31 35 / 60%);
+      color: var(--ic-color-academy-text-secondary);
       font-size: 12px;
       line-height: 22px;
     }
@@ -303,21 +299,24 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
 
 @media (max-width: 1100px) {
   .home-research {
-    &__layout {
+    &__courses {
       grid-template-columns: 1fr;
+      border: 0;
+      background: transparent;
     }
 
     &__feature {
-      margin-right: 0;
-      border-right: 1px solid var(--home-color-border);
+      border: 1px solid var(--home-color-border);
       border-radius: 12px;
+      background: #fff;
     }
 
     &__side {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       min-height: 0;
-      border-left: 1px solid var(--home-color-border);
+      border: 1px solid var(--home-color-border);
       border-radius: 12px;
+      background: #fff;
 
       article {
         grid-template-columns: 100px minmax(0, 1fr);

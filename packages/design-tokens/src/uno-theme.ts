@@ -9,6 +9,7 @@ import {
   boxShadow,
   breakpoints,
   colorAccent,
+  colorAcademy,
   colorBackground,
   colorBorder,
   colorBrand,
@@ -31,6 +32,7 @@ export const unoTheme = {
     accent: colorAccent,
     ...colorSemantic,
     category: colorCategory,
+    academy: colorAcademy,
     content: {
       DEFAULT: colorText.primary,
       secondary: colorText.secondary,

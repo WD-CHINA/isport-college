@@ -60,6 +60,31 @@ export const colorBorder = {
   strong: '#cbd5e1',
 } as const
 
+/** 学苑前台 Ardot 色板，供首页、栏目和内容组件共用。 */
+export const colorAcademy = {
+  primary: '#0077fa',
+  tint: '#eaf5ff',
+  text: {
+    primary: '#1c1f23',
+    secondary: 'rgb(28 31 35 / 60%)',
+    muted: '#68788c',
+    disabled: 'rgb(28 31 35 / 35%)',
+  },
+  background: {
+    page: '#fbfdff',
+    section: '#f4f7fb',
+    placeholder: '#dce7f5',
+  },
+  border: {
+    base: 'rgb(28 31 35 / 10%)',
+  },
+  media: {
+    text: '#05a4b6',
+    accent: '#2cb8c5',
+    background: 'rgb(45 180 192 / 20%)',
+  },
+} as const
+
 /** 字体族 */
 export const fontFamily = {
   sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
@@ -177,6 +202,7 @@ export const tokens = {
   colorText,
   colorBackground,
   colorBorder,
+  colorAcademy,
   fontFamily,
   fontSize,
   fontWeight,

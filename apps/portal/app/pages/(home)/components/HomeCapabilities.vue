@@ -55,7 +55,7 @@ const items = computed(() => [
   z-index: 1;
   margin-top: -64px;
   padding-bottom: 36px;
-  background: linear-gradient(transparent 64px, #fbfdff 64px);
+  background: linear-gradient(transparent 64px, var(--ic-color-academy-background-page) 64px);
 
   ul {
     display: grid;
@@ -74,7 +74,7 @@ const items = computed(() => [
     align-items: center;
     gap: 20px;
     min-width: 0;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
   }
 
   &__icon {
@@ -84,7 +84,7 @@ const items = computed(() => [
     flex: none;
     place-items: center;
     border-radius: 6px;
-    background: #eaf5ff;
+    background: var(--ic-color-academy-tint);
     color: #3295fb;
 
     img {
@@ -105,7 +105,7 @@ const items = computed(() => [
 
   small {
     margin-top: 6px;
-    color: rgb(28 31 35 / 60%);
+    color: var(--ic-color-academy-text-secondary);
     font-size: 13px;
     line-height: 20px;
   }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { isContentAssetUrl, webContentPath, type WebContentCard } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
 import ContentMediaTag from '~/components/content/ContentMediaTag.vue'
 import ContentTypeIcon from '~/components/content/ContentTypeIcon.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
@@ -18,7 +19,12 @@ const emit = defineEmits<{ select: [id: string]; level: [id: string] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
-const visible = computed(() => (props.level ? props.levelItems : props.items).slice(0, 8))
+const getLevelLabel = useContentLevelLabel()
+const visible = computed(() =>
+  (props.level ? props.levelItems : props.items)
+    .slice(0, 8)
+    .map(item => ({ ...item, levelLabel: getLevelLabel(item) })),
+)
 const levelOptions = computed(() => [
   { value: '', label: t('home.allLevels') },
   ...props.levels.map(item => ({ value: item.id, label: item.name })),
@@ -88,8 +94,8 @@ function setLevel(value: unknown) {
             <span class="home-resources__body">
               <ContentMediaTag :type="item.detailType" />
               <strong>{{ item.title }}</strong>
-              <small v-if="item.categoryName">{{
-                t('home.suitable', { name: item.categoryName })
+              <small v-if="item.levelLabel">{{
+                t('home.suitable', { name: item.levelLabel })
               }}</small>
             </span>
           </NuxtLink>
@@ -105,7 +111,7 @@ function setLevel(value: unknown) {
 <style lang="scss" scoped>
 .home-resources {
   padding: 48px 0;
-  background: #fbfdff;
+  background: var(--ic-color-academy-background-page);
 
   &__filters {
     display: flex;
@@ -131,7 +137,7 @@ function setLevel(value: unknown) {
       border: 1px solid var(--home-color-border);
       border-radius: 6px;
       background: #fff;
-      color: #1c1f23;
+      color: var(--ic-color-academy-text-primary);
       font-size: 14px;
     }
   }
@@ -144,8 +150,8 @@ function setLevel(value: unknown) {
   &__filters {
     .is-active {
       border-color: transparent;
-      background: #eaf5ff;
-      color: #0077fa;
+      background: var(--ic-color-academy-tint);
+      color: var(--ic-color-academy-primary);
     }
   }
 
@@ -165,14 +171,14 @@ function setLevel(value: unknown) {
     border-radius: 12px;
     box-shadow: inset 0 0 0 1px var(--home-color-border);
     background: #fff;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
   }
 
   &__cover {
     display: grid;
     place-items: center;
     height: 158px !important;
-    background: #dce7f5;
+    background: var(--ic-color-academy-background-placeholder);
     overflow: hidden;
   }
 
@@ -209,7 +215,7 @@ function setLevel(value: unknown) {
 
   small {
     line-height: 22px;
-    color: #68788c;
+    color: var(--ic-color-academy-text-muted);
     font-size: 12px;
   }
 

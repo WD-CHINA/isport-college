@@ -49,7 +49,7 @@ const tools = computed(() => [
     gap: 24px;
     padding: 24px 36px;
     border-radius: 12px;
-    background: #eaf5ff url('/home/figma/df637.png') center / cover no-repeat;
+    background: var(--ic-color-academy-tint) url('/home/figma/df637.png') center / cover no-repeat;
   }
 
   &__heading {
@@ -68,7 +68,7 @@ const tools = computed(() => [
 
   p {
     margin: 6px 0 0;
-    color: rgb(28 31 35 / 60%);
+    color: var(--ic-color-academy-text-secondary);
     font-size: 14px;
     line-height: 22px;
   }

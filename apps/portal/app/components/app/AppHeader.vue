@@ -196,7 +196,7 @@ onScopeDispose(() => {
 
   &__brand {
     flex: none;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
     font-size: 22px;
     font-weight: 600;
     line-height: 35px;
@@ -232,13 +232,13 @@ onScopeDispose(() => {
     justify-content: center;
     padding: 0 12px;
     border-radius: 3px;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
     font-size: 14px;
     line-height: 20px;
     white-space: nowrap;
 
     &--active {
-      color: #0077fa;
+      color: var(--ic-color-academy-primary);
       font-weight: 600;
     }
   }
@@ -269,8 +269,8 @@ onScopeDispose(() => {
   }
 
   &__cta-creation {
-    background: #eaf5ff;
-    color: #0077fa;
+    background: var(--ic-color-academy-tint);
+    color: var(--ic-color-academy-primary);
     cursor: default;
   }
 
@@ -281,7 +281,7 @@ onScopeDispose(() => {
     border: 0;
     border-radius: 3px;
     background: transparent;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
     font-size: 14px;
     line-height: 20px;
     white-space: nowrap;
@@ -292,7 +292,7 @@ onScopeDispose(() => {
     display: none;
     align-items: center;
     gap: 8px;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
     font-size: 14px;
   }
 
@@ -305,7 +305,7 @@ onScopeDispose(() => {
     flex-shrink: 0;
     border: 0;
     background: transparent;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
     cursor: pointer;
 
     svg {

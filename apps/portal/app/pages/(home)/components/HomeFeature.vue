@@ -84,13 +84,13 @@ function selectResource(id: string) {
 
 <style lang="scss" scoped>
 .academy-home {
-  --home-color-primary: #0077fa;
-  --home-color-text: #1c1f23;
-  --home-color-muted: #68788c;
-  --home-color-tint: #eaf5ff;
-  --home-color-border: rgb(28 31 35 / 10%);
+  --home-color-primary: var(--ic-color-academy-primary);
+  --home-color-text: var(--ic-color-academy-text-primary);
+  --home-color-muted: var(--ic-color-academy-text-muted);
+  --home-color-tint: var(--ic-color-academy-tint);
+  --home-color-border: var(--ic-color-academy-border-base);
 
-  background: #fbfdff;
+  background: var(--ic-color-academy-background-page);
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 
   &__status {

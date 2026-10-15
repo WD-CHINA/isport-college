@@ -94,7 +94,7 @@ useMessageFeedback(
 .sms-form {
   display: grid;
   gap: 24px;
-  color: #1c1f23;
+  color: var(--ic-color-academy-text-primary);
 
   &__field {
     display: grid;
@@ -132,7 +132,7 @@ useMessageFeedback(
       border: 0 !important;
       border-radius: 0 !important;
       background: transparent !important;
-      color: #0077fa;
+      color: var(--ic-color-academy-primary);
       box-shadow: none;
     }
   }
@@ -147,7 +147,7 @@ useMessageFeedback(
     line-height: 20px;
 
     a {
-      color: #0077fa;
+      color: var(--ic-color-academy-primary);
     }
   }
 
@@ -155,7 +155,7 @@ useMessageFeedback(
     height: 40px;
     border: 0;
     border-radius: 6px;
-    background: #0077fa;
+    background: var(--ic-color-academy-primary);
     box-shadow: none;
   }
 
@@ -163,7 +163,7 @@ useMessageFeedback(
   & > :deep(.ant-btn-primary.ant-btn-disabled) {
     border: 0;
     background: #e6e8ea;
-    color: rgb(28 31 35 / 35%);
+    color: var(--ic-color-academy-text-disabled);
   }
 }
 </style>

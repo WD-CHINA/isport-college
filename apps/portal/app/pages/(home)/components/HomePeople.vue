@@ -66,7 +66,7 @@ watch(
 <style lang="scss" scoped>
 .home-people {
   padding: 48px 0;
-  background: #fbfdff;
+  background: var(--ic-color-academy-background-page);
 
   ul {
     display: grid;
@@ -83,13 +83,13 @@ watch(
 
   a {
     display: flex;
-    min-height: 244px;
+    min-height: 236px;
     flex-direction: column;
     justify-content: space-between;
     padding: 24px;
     border-radius: 12px;
     background: #edf3ff;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
   }
 
   p {
@@ -132,7 +132,7 @@ watch(
       height: 48px;
       flex: none;
       border-radius: 50%;
-      background: #68788c;
+      background: var(--ic-color-academy-text-muted);
       object-fit: cover;
     }
   }
@@ -159,7 +159,7 @@ watch(
   }
 
   small {
-    color: #68788c;
+    color: var(--ic-color-academy-text-muted);
     font-size: 12px;
   }
 
@@ -180,7 +180,7 @@ watch(
 
     .is-active {
       width: 16px;
-      background: #0077fa;
+      background: var(--ic-color-academy-primary);
     }
   }
 }

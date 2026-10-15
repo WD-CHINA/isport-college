@@ -104,7 +104,7 @@ const hotIcons = {
 <style lang="scss" scoped>
 .home-featured {
   padding: 48px 0;
-  background: #fbfdff;
+  background: var(--ic-color-academy-background-page);
 
   &__layout {
     display: grid;
@@ -132,7 +132,7 @@ const hotIcons = {
   &__cover,
   &__thumb {
     border-radius: 8px;
-    background: #dce7f5;
+    background: var(--ic-color-academy-background-placeholder);
   }
 
   &__cover {
@@ -157,18 +157,18 @@ const hotIcons = {
   }
 
   &__tag {
-    color: #0077fa;
+    color: var(--ic-color-academy-primary);
     font-size: 12px;
     font-style: normal;
     padding: 2px 8px;
     border-radius: 4px;
-    background: #eaf5ff;
+    background: var(--ic-color-academy-tint);
   }
 
   &__copy h3,
   &__hot h3 {
     margin: 0;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
   }
 
   &__copy {
@@ -180,7 +180,7 @@ const hotIcons = {
 
     p {
       margin: 0;
-      color: #68788c;
+      color: var(--ic-color-academy-text-muted);
       font-size: 14px;
       line-height: 24px;
     }
@@ -194,9 +194,9 @@ const hotIcons = {
       gap: 4px;
       height: 20px;
       padding: 1px 4px;
-      border: 0.5px solid #2cb8c5;
+      border: 0.5px solid var(--ic-color-academy-media-accent);
       border-radius: 3px;
-      color: #05a4b6;
+      color: var(--ic-color-academy-media-text);
       font-size: 12px;
       font-style: normal;
       line-height: 16px;
@@ -210,7 +210,7 @@ const hotIcons = {
 
   &__hot-head {
     a {
-      color: #0077fa;
+      color: var(--ic-color-academy-primary);
       font-size: 14px;
       font-weight: 500;
     }
@@ -230,7 +230,7 @@ const hotIcons = {
       margin-top: auto;
       padding: 6px 12px;
       border-radius: 6px;
-      background: #eaf5ff;
+      background: var(--ic-color-academy-tint);
     }
   }
 
@@ -251,7 +251,7 @@ const hotIcons = {
 
     .is-active {
       width: 16px;
-      background: #0077fa;
+      background: var(--ic-color-academy-primary);
     }
   }
 
@@ -284,7 +284,7 @@ const hotIcons = {
       display: flex;
       align-items: center;
       gap: 12px;
-      color: #1c1f23;
+      color: var(--ic-color-academy-text-primary);
     }
   }
 

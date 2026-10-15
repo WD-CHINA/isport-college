@@ -23,7 +23,7 @@ defineProps<{ title: string; subtitle?: string; more?: string; to?: string; more
 
   h2 {
     margin: 0;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
     font-size: 28px;
     font-weight: 600;
     line-height: 45px;
@@ -31,7 +31,7 @@ defineProps<{ title: string; subtitle?: string; more?: string; to?: string; more
 
   p {
     margin: 6px 0 0;
-    color: #68788c;
+    color: var(--ic-color-academy-text-muted);
     font-size: 14px;
     line-height: 22px;
   }
@@ -41,7 +41,7 @@ defineProps<{ title: string; subtitle?: string; more?: string; to?: string; more
     align-items: center;
     gap: 4px;
     flex: none;
-    color: #0077fa;
+    color: var(--ic-color-academy-primary);
     font-size: 14px;
     font-weight: 500;
     line-height: 32px;

@@ -29,7 +29,7 @@ const { t } = useI18n()
 <style lang="scss" scoped>
 .home-creation {
   padding: 48px 0;
-  background: #f4f7fb;
+  background: var(--ic-color-academy-background-section);
 
   &__head {
     display: flex;
@@ -46,7 +46,11 @@ const { t } = useI18n()
     padding: 12px 16px;
     border: 0;
     border-radius: 12px;
-    background: linear-gradient(105deg, #2cb8c5, #0077fa);
+    background: linear-gradient(
+      105deg,
+      var(--ic-color-academy-media-accent),
+      var(--ic-color-academy-primary)
+    );
     color: #fff;
     cursor: not-allowed;
 

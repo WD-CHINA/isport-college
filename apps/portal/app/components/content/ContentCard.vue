@@ -8,14 +8,16 @@ import {
 import ContentMediaTag from './ContentMediaTag.vue'
 import ContentTypeIcon from './ContentTypeIcon.vue'
 import { useApiUrl } from '~/utils/api-url'
+import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
 
 const props = defineProps<{
   content: WebContentCard
   variant?: 'default' | 'catalog'
 }>()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
+const getLevelLabel = useContentLevelLabel()
 const imageFailed = shallowRef(false)
 const href = computed(() => localePath(webContentPath(props.content)))
 const coverUrl = computed(() => apiUrl(props.content.coverUrl))
@@ -34,14 +36,7 @@ const published = computed(() => formatPublishedAt(props.content.publishedAt))
 const publisher = computed(
   () => props.content.publisherName || props.content.authorName || props.content.schoolName,
 )
-const levelLabel = computed(() => {
-  if (props.content.levelName) return props.content.levelName
-  const level = props.content.recommendedLevel
-  if (!level) return ''
-  const marks = ['一', '二', '三', '四', '五']
-  const mark = locale.value === 'zh' ? marks[level - 1] : String(level)
-  return mark ? t('catalog.levelBadge', { level: mark }) : ''
-})
+const levelLabel = computed(() => getLevelLabel(props.content))
 watch(
   () => props.content.coverUrl,
   () => {
@@ -260,7 +255,7 @@ watch(
     min-width: 0;
     overflow: hidden;
     flex: 1;
-    color: rgb(28 31 35 / 60%);
+    color: var(--ic-color-academy-text-secondary);
     font-size: 12px;
     font-weight: 500;
     line-height: 22px;
@@ -274,8 +269,8 @@ watch(
     margin-left: auto;
     padding: 0 6px;
     border-radius: 4px;
-    background: rgb(45 180 192 / 20%);
-    color: #05a4b6;
+    background: var(--ic-color-academy-media-background);
+    color: var(--ic-color-academy-media-text);
     font-size: 10px;
     font-weight: 500;
     line-height: 20px;
@@ -306,7 +301,7 @@ watch(
     width: fit-content;
     padding: 5px 8px;
     border-radius: 3px;
-    background: #eaf5ff;
+    background: var(--ic-color-academy-tint);
     color: var(--catalog-primary);
     font-size: 11px;
     line-height: 13px;
@@ -317,7 +312,7 @@ watch(
     margin-top: 12px;
     padding: 9px 12px;
     border-radius: 4px;
-    background: #eaf5ff;
+    background: var(--ic-color-academy-tint);
     color: var(--catalog-primary);
     font-size: 12px;
     line-height: 14px;

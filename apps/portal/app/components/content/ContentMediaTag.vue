@@ -27,9 +27,9 @@ const label = computed(() => labels[props.type])
   align-items: center;
   gap: 4px;
   padding: 1px 4px;
-  border: 0.5px solid #2cb8c5;
+  border: 0.5px solid var(--ic-color-academy-media-accent);
   border-radius: 3px;
-  color: #05a4b6;
+  color: var(--ic-color-academy-media-text);
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;

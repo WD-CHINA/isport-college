@@ -31,7 +31,7 @@ const partners = [
 </template>
 <style lang="scss" scoped>
 .home-partners {
-  background: #fbfdff;
+  background: var(--ic-color-academy-background-page);
 
   &__list {
     display: flex;

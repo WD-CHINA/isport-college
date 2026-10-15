@@ -82,12 +82,12 @@ await request
 
 <style lang="scss" scoped>
 .content-list-feature {
-  --catalog-primary: #0077fa;
-  --catalog-text: #1c1f23;
-  --catalog-muted: #68788c;
-  --catalog-border: rgb(28 31 35 / 10%);
+  --catalog-primary: var(--ic-color-academy-primary);
+  --catalog-text: var(--ic-color-academy-text-primary);
+  --catalog-muted: var(--ic-color-academy-text-muted);
+  --catalog-border: var(--ic-color-academy-border-base);
 
-  background: #fbfdff;
+  background: var(--ic-color-academy-background-page);
   color: var(--catalog-text);
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 

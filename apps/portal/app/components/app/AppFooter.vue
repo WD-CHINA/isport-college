@@ -67,7 +67,7 @@ const links = computed(() => [
 <style lang="scss" scoped>
 .app-footer {
   padding-top: 15px;
-  background: #fbfdff;
+  background: var(--ic-color-academy-background-page);
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 
   &__inner {
@@ -89,7 +89,7 @@ const links = computed(() => [
   &__brand {
     display: inline-flex;
     flex-direction: column;
-    color: #1c1f23;
+    color: var(--ic-color-academy-text-primary);
 
     strong {
       font-size: 22px;
@@ -114,7 +114,7 @@ const links = computed(() => [
     margin-top: 28px;
     padding: 12px 16px;
     border-radius: 12px;
-    background: #f4f7fb;
+    background: var(--ic-color-academy-background-section);
 
     span {
       color: #71808d;
@@ -180,7 +180,7 @@ const links = computed(() => [
 
   &__links a:hover,
   &__address a:hover {
-    color: #0077fa;
+    color: var(--ic-color-academy-primary);
   }
 
   &__social {
