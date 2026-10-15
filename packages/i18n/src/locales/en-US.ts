@@ -244,6 +244,7 @@ const messages: MessageSchema = {
     account: 'My Account',
   },
   catalog: {
+    linkUnavailable: 'External link unavailable. Please try again later.',
     clearSearch: 'Clear search',
     resourceLibrary: 'PE Teaching Resource Library',
     resourceEyebrow: 'Dream Sports Academy · Teaching Resources',

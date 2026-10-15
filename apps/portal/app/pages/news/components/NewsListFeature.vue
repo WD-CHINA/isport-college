@@ -4,20 +4,15 @@ import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { parseListPage } from '@isport/shared'
 import AppPagination from '~/components/app/AppPagination.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
+import ContentLink from '~/components/content/ContentLink.vue'
 import { useAcademy } from '~/composables/useAcademy'
-import {
-  formatPublishedAt,
-  isContentAssetUrl,
-  isPublicHttpUrl,
-  WEB_PAGE_SIZE,
-} from '@isport/shared'
+import { formatPublishedAt, isContentAssetUrl, WEB_PAGE_SIZE } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 
 const academy = useAcademy()
 const route = useRoute()
 const router = useRouter()
 const { t, locale } = useI18n()
-const localePath = useLocalePath()
 const apiUrl = useApiUrl()
 const page = computed(() => parseListPage(route.query.page))
 const request = useAsyncData(
@@ -32,10 +27,6 @@ await request
 function changePage(next: number) {
   return router.push({ path: route.path, query: next > 1 ? { page: String(next) } : {} })
 }
-function href(id: number, detailType: string, jumpUrl: string) {
-  const target = apiUrl(jumpUrl)
-  return detailType === 'LINK' && isPublicHttpUrl(target) ? target : localePath(`/news/${id}`)
-}
 </script>
 
 <template>
@@ -45,11 +36,7 @@ function href(id: number, detailType: string, jumpUrl: string) {
     <AButton v-if="error" @click="refresh()">{{ t('catalog.retry') }}</AButton>
     <ul v-else-if="data?.list.length" class="catalog-page__news">
       <li v-for="item in data.list" :key="item.id">
-        <NuxtLink
-          :to="href(item.id, item.detailType, item.jumpUrl)"
-          :external="item.detailType === 'LINK' && isPublicHttpUrl(apiUrl(item.jumpUrl))"
-          :target="item.detailType === 'LINK' ? '_blank' : undefined"
-        >
+        <ContentLink :content="item">
           <img
             v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
             :src="apiUrl(item.coverUrl)"
@@ -60,7 +47,7 @@ function href(id: number, detailType: string, jumpUrl: string) {
           <time v-if="formatPublishedAt(item.publishedAt)">{{
             formatPublishedAt(item.publishedAt)
           }}</time>
-        </NuxtLink>
+        </ContentLink>
       </li>
     </ul>
     <AppEmpty v-else :description="t('catalog.noResults')" />

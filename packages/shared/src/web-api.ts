@@ -15,6 +15,7 @@ export interface WebContentCard {
   summary: string
   coverUrl: string
   detailType: WebDetailType
+  jumpUrl?: string
   categoryCode: string
   categoryName: string
   authorName: string

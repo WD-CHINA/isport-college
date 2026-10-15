@@ -1,25 +1,16 @@
 <script setup lang="ts">
-import { isContentAssetUrl, webContentPath, type WebContentCard } from '@isport/shared'
+import { isContentAssetUrl, type WebContentCard } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import ContentLink from '~/components/content/ContentLink.vue'
 import ContentTypeIcon from '~/components/content/ContentTypeIcon.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
+import HomeCarousel from './HomeCarousel.vue'
 
-const props = defineProps<{ featured: WebContentCard[]; hot: WebContentCard[] }>()
+defineProps<{ featured: WebContentCard[]; hot: WebContentCard[] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
-const index = shallowRef(0)
-const current = computed(() => props.featured[index.value])
-const cover = computed(() => (current.value ? apiUrl(current.value.coverUrl) : ''))
-
-watch(
-  () => props.featured.length,
-  () => {
-    index.value = 0
-  },
-)
-
 const hotIcons = {
   VIDEO: 'faa76.svg',
   AUDIO: '5b8fd.svg',
@@ -35,31 +26,38 @@ const hotIcons = {
     <div class="container-page">
       <HomeSectionTitle :title="t('home.featuredTitle')" :subtitle="t('home.featuredSubtitle')" />
       <div class="home-featured__layout">
-        <article v-if="current" class="home-featured__spotlight">
-          <div class="home-featured__cover">
-            <img v-if="isContentAssetUrl(cover)" :src="cover" alt="" />
-          </div>
-          <div class="home-featured__copy">
-            <span v-if="current.categoryName" class="home-featured__tag">{{
-              current.categoryName
-            }}</span>
-            <h3>{{ current.title }}</h3>
-            <p>{{ current.summary }}</p>
-            <NuxtLink :to="localePath(webContentPath(current))"
-              >{{ t('home.viewContent') }} <img src="/home/figma/ec1cf.svg" alt=""
-            /></NuxtLink>
-          </div>
-          <div v-if="featured.length > 1" class="home-featured__dots">
-            <button
-              v-for="(item, dot) in featured"
-              :key="item.contentKey"
-              type="button"
-              :class="{ 'is-active': dot === index }"
-              :aria-label="item.title"
-              @click="index = dot"
-            />
-          </div>
-        </article>
+        <HomeCarousel
+          v-if="featured.length"
+          class="home-featured__carousel"
+          :items="featured"
+          :item-key="item => item.contentKey"
+          :label="t('home.featuredTitle')"
+          :peek="false"
+          inset-controls
+          autoplay
+        >
+          <template #default="{ item }">
+            <article class="home-featured__spotlight">
+              <div class="home-featured__cover">
+                <img
+                  v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
+                  :src="apiUrl(item.coverUrl)"
+                  alt=""
+                />
+              </div>
+              <div class="home-featured__copy">
+                <span v-if="item.categoryName" class="home-featured__tag">{{
+                  item.categoryName
+                }}</span>
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.summary }}</p>
+                <ContentLink :content="item"
+                  >{{ t('home.viewContent') }} <img src="/home/figma/ec1cf.svg" alt=""
+                /></ContentLink>
+              </div>
+            </article>
+          </template>
+        </HomeCarousel>
         <aside class="home-featured__hot">
           <div class="home-featured__hot-head">
             <h3>{{ t('home.hotTitle') }}</h3>
@@ -69,7 +67,7 @@ const hotIcons = {
           </div>
           <ul>
             <li v-for="(item, row) in hot.slice(0, 5)" :key="item.contentKey">
-              <NuxtLink :to="localePath(webContentPath(item))">
+              <ContentLink :content="item">
                 <img
                   v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
                   :src="apiUrl(item.coverUrl)"
@@ -91,7 +89,7 @@ const hotIcons = {
                   :src="`/home/figma/${row === 0 ? '49d2c.svg' : 'dd1b3.svg'}`"
                   alt=""
                 />
-              </NuxtLink>
+              </ContentLink>
             </li>
           </ul>
           <AppEmpty v-if="!hot.length" :description="t('common.empty')" />
@@ -234,27 +232,6 @@ const hotIcons = {
     }
   }
 
-  &__dots {
-    display: flex;
-    grid-column: 1 / -1;
-    justify-content: center;
-    gap: 12px;
-
-    button {
-      width: 8px;
-      height: 8px;
-      padding: 0;
-      border: 0;
-      border-radius: 4px;
-      background: #cbe7fe;
-    }
-
-    .is-active {
-      width: 16px;
-      background: var(--ic-color-academy-primary);
-    }
-  }
-
   &__hot {
     padding: 24px;
   }
@@ -355,6 +332,79 @@ const hotIcons = {
     &__layout,
     &__spotlight {
       grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .home-featured {
+    &__layout {
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    &__spotlight {
+      min-height: 0;
+      padding: 16px 16px 56px;
+      gap: 16px;
+    }
+
+    &__cover {
+      width: 100%;
+      height: auto;
+      max-height: 280px;
+      aspect-ratio: 16 / 10;
+    }
+
+    &__copy {
+      min-height: 0;
+      padding: 0;
+      gap: 10px;
+
+      h3 {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        font-size: 20px;
+        line-height: 28px;
+      }
+
+      p {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        font-size: 13px;
+        line-height: 22px;
+      }
+
+      a {
+        margin-top: 4px;
+      }
+    }
+
+    &__hot {
+      padding: 16px;
+
+      h3 {
+        font-size: 18px;
+        line-height: 26px;
+      }
+
+      ul {
+        gap: 12px;
+      }
+    }
+
+    &__hot-head {
+      margin-bottom: 16px;
+    }
+
+    &__hot li > a > img:not(.home-featured__arrow),
+    &__thumb {
+      width: 56px;
+      height: 44px;
     }
   }
 }

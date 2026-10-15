@@ -97,4 +97,22 @@ function selectResource(id: string) {
     padding: 40px 0;
   }
 }
+
+@media (max-width: 767px) {
+  .academy-home {
+    :deep(.home-featured),
+    :deep(.home-resources),
+    :deep(.home-research),
+    :deep(.home-people),
+    :deep(.home-creation),
+    :deep(.home-schools),
+    :deep(.home-news) {
+      padding-block: var(--ic-spacing-8);
+    }
+
+    :deep(.home-lingyue) {
+      padding-block: var(--ic-spacing-4);
+    }
+  }
+}
 </style>

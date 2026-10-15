@@ -1,29 +1,29 @@
 <script setup lang="ts">
 import { isContentAssetUrl, type WebNews } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import ContentLink from '~/components/content/ContentLink.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
-const props = defineProps<{ items: WebNews[] }>()
+import HomeCarousel from './HomeCarousel.vue'
+defineProps<{ items: WebNews[] }>()
 const { t } = useI18n()
-const localePath = useLocalePath()
 const apiUrl = useApiUrl()
-const page = shallowRef(0)
-const pages = computed(() => Math.ceil(props.items.length / 2))
-const visible = computed(() => props.items.slice(page.value * 2, page.value * 2 + 2))
-watch(
-  () => props.items,
-  () => {
-    page.value = 0
-  },
-)
 </script>
 <template>
   <section class="home-news">
     <div class="container-page">
       <HomeSectionTitle :title="t('academy.news')" :subtitle="t('home.newsSubtitle')" />
-      <ul v-if="visible.length" class="home-news__list">
-        <li v-for="item in visible" :key="item.id">
-          <NuxtLink class="home-news__card" :to="localePath(`/news/${item.id}`)">
+      <HomeCarousel
+        v-if="items.length"
+        class="home-news__list"
+        :items="items"
+        :item-key="item => item.id"
+        :label="t('academy.news')"
+        :desktop-slides="2"
+        :desktop-gap="36"
+      >
+        <template #default="{ item }">
+          <ContentLink class="home-news__card" :content="item">
             <img
               v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
               class="home-news__cover"
@@ -35,21 +35,10 @@ watch(
               <h3>{{ item.title }}</h3>
               <p>{{ item.summary }}</p>
             </div>
-          </NuxtLink>
-        </li>
-      </ul>
+          </ContentLink>
+        </template>
+      </HomeCarousel>
       <AppEmpty v-else :description="t('common.empty')" />
-      <div v-if="pages > 1" class="home-news__dots" :aria-label="t('academy.news')">
-        <button
-          v-for="dot in pages"
-          :key="dot"
-          type="button"
-          :class="{ 'is-active': dot - 1 === page }"
-          :aria-label="t('home.slide', { page: dot })"
-          :aria-pressed="dot - 1 === page"
-          @click="page = dot - 1"
-        />
-      </div>
     </div>
   </section>
 </template>
@@ -59,15 +48,11 @@ watch(
   background: var(--ic-color-academy-background-section);
 
   &__list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 36px;
     margin: 36px 0 0;
-    padding: 0;
-    list-style: none;
   }
 
   &__card {
+    height: 100%;
     position: relative;
     display: flex;
     overflow: hidden;
@@ -112,45 +97,36 @@ watch(
     font-size: 12px;
     line-height: 22px;
   }
-
-  &__dots {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 36px;
-
-    button {
-      width: 8px;
-      height: 8px;
-      padding: 0;
-      border: 0;
-      border-radius: 4px;
-      background: #cbe7fe;
-      cursor: pointer;
-    }
-
-    .is-active {
-      width: 16px;
-      background: var(--home-color-primary);
-    }
-  }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 767px) {
   .home-news {
     &__list {
-      grid-template-columns: 1fr;
-      gap: 24px;
+      margin-top: 20px;
     }
 
     &__card {
-      min-height: 320px;
-      padding: 24px;
+      min-height: 280px;
+      padding: 20px;
+      border-radius: var(--ic-border-radius-lg);
     }
 
     h3 {
-      font-size: 22px;
-      line-height: 32px;
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      font-size: 20px;
+      line-height: 28px;
+    }
+
+    p {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      margin-top: 10px;
+      line-height: 20px;
     }
   }
 }

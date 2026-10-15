@@ -54,18 +54,41 @@ defineProps<{ title: string; subtitle?: string; more?: string; to?: string; more
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 767px) {
   .home-section-title {
-    align-items: flex-start;
-    gap: 16px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 8px 12px;
+
+    > div {
+      display: contents;
+    }
 
     h2 {
-      font-size: 24px;
-      line-height: 36px;
+      grid-column: 1;
+      font-size: 22px;
+      line-height: 30px;
+      overflow-wrap: anywhere;
+    }
+
+    p {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      margin: 0;
+      font-size: 12px;
+      line-height: 20px;
     }
 
     a {
+      grid-column: 2;
+      grid-row: 1;
+      max-width: 100px;
+      margin-top: 3px;
+      font-size: 12px;
+      line-height: 22px;
       white-space: normal;
+      text-align: end;
     }
   }
 }

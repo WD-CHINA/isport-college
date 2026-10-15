@@ -237,6 +237,7 @@ export default {
     account: '我的账号',
   },
   catalog: {
+    linkUnavailable: '外部链接暂不可用，请稍后重试',
     clearSearch: '清除搜索',
     resourceLibrary: '体育教学资源库',
     resourceEyebrow: '融梦体育学苑 · 教学资源',

@@ -61,6 +61,7 @@ for (const cached of [false, true]) {
     await expect(page.locator('.app-header__user')).toContainText('测试用户1')
     expect(delayedLayout).toBe(true)
     expect(hydrationErrors).toEqual([])
+    await page.unrouteAll({ behavior: 'wait' })
   })
 }
 

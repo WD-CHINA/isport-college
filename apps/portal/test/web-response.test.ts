@@ -99,6 +99,12 @@ describe('调用侧协议验证', () => {
     expect(() => parseAction({ active: 'yes', count: 1 })).toThrow(ApiError)
     expect(() => parseFilters({ categoryList: {} })).toThrow(ApiError)
   })
+  it('LINK 卡片保留直接跳转地址，未提供时保持可从详情补取', () => {
+    expect(
+      parseContentCard({ ...card, detailType: 'LINK', jumpUrl: 'https://example.com' }),
+    ).toMatchObject({ detailType: 'LINK', jumpUrl: 'https://example.com' })
+    expect(parseContentCard({ ...card, detailType: 'LINK' }).jumpUrl).toBe('')
+  })
   it('可选展示字段归一化，不同媒体仍保留协议信息', () => {
     expect(parseContentCard(card)).toMatchObject({
       summary: '',

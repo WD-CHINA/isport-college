@@ -4,6 +4,7 @@ import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { useContentDetail } from '~/composables/catalog/useContentDetail'
 import { isPublicHttpUrl } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import ContentLink from '~/components/content/ContentLink.vue'
 import { RichTextContent } from '@isport/rich-text'
 import ContentDetailShell from './ContentDetailShell.vue'
 import ContentGrid from '~/components/content/ContentGrid.vue'
@@ -86,9 +87,9 @@ if (import.meta.server && notFound.value) {
           :toc-label="t('detail.toc')"
         />
         <p v-else-if="data.detail.detailType === 'LINK'">
-          <a v-if="externalUrl" :href="externalUrl" target="_blank" rel="noopener noreferrer">{{
+          <ContentLink v-if="externalUrl" :content="data.detail">{{
             t('catalog.external')
-          }}</a>
+          }}</ContentLink>
         </p>
         <MediaPreview v-else :items="mediaItems" :title="data.detail.title" />
         <template #interactions>

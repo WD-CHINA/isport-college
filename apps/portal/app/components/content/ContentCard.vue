@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import {
-  formatPublishedAt,
-  isContentAssetUrl,
-  webContentPath,
-  type WebContentCard,
-} from '@isport/shared'
+import { formatPublishedAt, isContentAssetUrl, type WebContentCard } from '@isport/shared'
 import ContentMediaTag from './ContentMediaTag.vue'
+import ContentLink from './ContentLink.vue'
 import ContentTypeIcon from './ContentTypeIcon.vue'
 import { useApiUrl } from '~/utils/api-url'
 import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
@@ -15,11 +11,9 @@ const props = defineProps<{
   variant?: 'default' | 'catalog'
 }>()
 const { t } = useI18n()
-const localePath = useLocalePath()
 const apiUrl = useApiUrl()
 const getLevelLabel = useContentLevelLabel()
 const imageFailed = shallowRef(false)
-const href = computed(() => localePath(webContentPath(props.content)))
 const coverUrl = computed(() => apiUrl(props.content.coverUrl))
 const kind = computed(() => {
   const kinds = {
@@ -54,7 +48,7 @@ watch(
     ]"
     :data-content-id="content.contentKey"
   >
-    <NuxtLink :to="href" class="content-card__link">
+    <ContentLink :content="content" class="content-card__link">
       <div class="content-card__cover">
         <img
           v-if="isContentAssetUrl(coverUrl) && !imageFailed"
@@ -106,7 +100,7 @@ watch(
           >{{ t('catalog.viewCase') }} →</span
         >
       </div>
-    </NuxtLink>
+    </ContentLink>
     <slot />
   </article>
 </template>

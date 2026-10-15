@@ -59,15 +59,25 @@ const stats = [
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 767px) {
   .home-service-stats {
     &__list {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px 16px;
+      padding-block: 28px;
     }
 
     dd {
-      font-size: 32px;
-      line-height: 44px;
+      font-size: 30px;
+      line-height: 38px;
+    }
+
+    dt {
+      margin-top: 8px;
+    }
+
+    small {
+      margin-left: 4px;
     }
   }
 }

@@ -1,4 +1,12 @@
-import { expect, test, switchLanguage, waitForHydration } from './academy.fixture'
+import {
+  expect,
+  test,
+  switchLanguage,
+  waitForHydration,
+  setSession,
+  testSession,
+  smsLogin,
+} from './academy.fixture'
 import type { Page } from '@playwright/test'
 
 /** 只拦截当前浏览器的焦点刷新，为布局与字段回归提供完整内容。 */
@@ -8,6 +16,12 @@ async function populateHomeLayout(page: Page) {
     const envelope = await response.json()
     const home = envelope.data
     const resource = home.resourceGroupList[0].itemList[0]
+    home.featuredList = [1, 2].map(id => ({
+      ...resource,
+      originId: id,
+      contentKey: `RESOURCE:${id}`,
+      title: `轮播精选 ${id}`,
+    }))
     home.resourceGroupList[0].itemList = [
       { ...resource, levelName: '自定义水平', recommendedLevel: 2 },
       { ...resource, originId: 2, contentKey: 'RESOURCE:2', levelName: '', recommendedLevel: 3 },
@@ -24,7 +38,8 @@ async function populateHomeLayout(page: Page) {
       originId: id,
       contentKey: `SCHOOL:${id}`,
     }))
-    home.teacherList = [1, 2, 3].map(id => ({ ...home.teacherList[0], id }))
+    home.teacherList = [1, 2, 3, 4, 5, 6].map(id => ({ ...home.teacherList[0], id }))
+    home.newsList = [1, 2, 3].map(id => ({ ...home.newsList[0], id }))
     await route.fulfill({ response, json: envelope })
   })
   await page.evaluate(() => window.dispatchEvent(new Event('focus')))
@@ -148,10 +163,100 @@ test('1440px 首页教研、教师和学校卡片尺寸符合 Ardot', async ({ p
   expect(photo!.width).toBe(304)
   expect(photo!.height).toBe(304)
   expect(copy!.x - photo!.x - photo!.width).toBe(24)
-  for (const card of await page.locator('.home-people li > a').all()) {
+  for (const card of await page.locator('.home-people__card').all()) {
     expect((await card.boundingBox())!.height).toBe(236)
   }
   await expect(page.locator('.home-schools__cover').first()).toHaveCSS('border-radius', '6px')
+})
+
+for (const width of [320, 390, 675, 767]) {
+  test(`${width}px 首页内容支持轮播，资源保持双列且切回桌面布局正常`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.setViewportSize({ width, height: 844 })
+    const errors: string[] = []
+    page.on('pageerror', error => errors.push(error.message))
+    await page.goto('/')
+    await waitForHydration(page)
+    await populateHomeLayout(page)
+    for (const section of ['.home-featured', '.home-people', '.home-schools', '.home-news']) {
+      const carousel = page.locator(`${section} .home-swiper`)
+      const element = carousel.locator('swiper-container')
+      await expect
+        .poll(() =>
+          element.evaluate(node => Boolean((node as HTMLElement & { swiper?: unknown }).swiper)),
+        )
+        .toBe(true)
+      await expect(carousel.getByRole('button')).toHaveCount(
+        await carousel.locator('.home-swiper__dots button').count(),
+      )
+      await carousel.getByRole('button', { name: '第 2 页', exact: true }).click()
+      await expect(carousel.getByRole('button', { name: '第 2 页', exact: true })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      )
+      await carousel.getByRole('button', { name: '第 1 页', exact: true }).click()
+      await expect(carousel.getByRole('button', { name: '第 1 页', exact: true })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      )
+    }
+    const rows = page.locator('.home-resources li')
+    const first = await rows.nth(0).boundingBox()
+    const second = await rows.nth(1).boundingBox()
+    expect(first!.y).toBe(second!.y)
+    expect(second!.x).toBeGreaterThan(first!.x)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
+    const spotlight = page.locator('.home-featured .home-swiper')
+    const cover = await spotlight.locator('.home-featured__cover').first().boundingBox()
+    const card = await spotlight.locator('.home-featured__spotlight').first().boundingBox()
+    expect(cover!.width).toBeCloseTo(card!.width - 32, 0)
+    expect(cover!.x - card!.x).toBeCloseTo(16, 0)
+    if (width === 390) {
+      const schoolSlider = page.locator('.home-schools swiper-container')
+      await schoolSlider.scrollIntoViewIfNeeded()
+      const bounds = (await schoolSlider.boundingBox())!
+      await page.mouse.move(bounds.x + bounds.width * 0.8, bounds.y + 80)
+      await page.mouse.down()
+      await page.mouse.move(bounds.x + bounds.width * 0.2, bounds.y + 80, { steps: 20 })
+      await page.mouse.up()
+      await expect(
+        page.locator('.home-schools').getByRole('button', { name: '第 2 页', exact: true }),
+      ).toHaveAttribute('aria-pressed', 'true')
+    }
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await expect(page.locator('.home-people .home-swiper__dots button')).toHaveCount(2)
+    const newsCarousel = page.locator('.home-news .home-swiper')
+    await newsCarousel.getByRole('button', { name: '第 2 页', exact: true }).click()
+    await expect(
+      newsCarousel.getByRole('button', { name: '第 2 页', exact: true }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    expect(errors).toEqual([])
+  })
+}
+
+test('精选轮播自动翻页，键盘聚焦后停止播放', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  await waitForHydration(page)
+  await populateHomeLayout(page)
+  const carousel = page.locator('.home-featured .home-swiper')
+  await expect(carousel.getByRole('button', { name: '第 2 页', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+    { timeout: 8000 },
+  )
+  await carousel.getByRole('button', { name: '第 1 页', exact: true }).focus()
+  await expect
+    .poll(() =>
+      carousel
+        .locator('swiper-container')
+        .evaluate(
+          node =>
+            (node as HTMLElement & { swiper: { autoplay: { running: boolean } } }).swiper.autoplay
+              .running,
+        ),
+    )
+    .toBe(false)
 })
 
 for (const width of [320, 390]) {
@@ -172,3 +277,68 @@ for (const width of [320, 390]) {
     })
   }
 }
+
+test('已登录时首页灵跃四个工具入口在新窗口打开外部服务，当前页保持首页', async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  await setSession(context, testSession(), baseURL!)
+  const target = 'https://lingyue.dream-sports.cn/'
+  await context.route('https://lingyue.dream-sports.cn/**', route =>
+    route.fulfill({ body: 'Lingyue service' }),
+  )
+  await page.goto('/')
+  await waitForHydration(page)
+  const panel = page.locator('.home-lingyue__panel')
+  await expect(panel).not.toContainText('该功能暂未接入')
+  const links = panel.getByRole('button')
+  await expect(links).toHaveCount(4)
+  for (const link of await links.all()) {
+    const popupPromise = page.waitForEvent('popup')
+    await link.click()
+    const popup = await popupPromise
+    await expect(popup).toHaveURL(target)
+    expect(await popup.evaluate(() => window.opener === null)).toBe(true)
+    await popup.close()
+  }
+  await expect(page).toHaveURL(/\/$/)
+})
+
+test('未登录点击灵跃先登录，成功后恢复打开外部服务', async ({ page, context }) => {
+  await context.route('https://lingyue.dream-sports.cn/**', route =>
+    route.fulfill({ body: 'Lingyue service' }),
+  )
+  await page.goto('/')
+  await waitForHydration(page)
+  await page.locator('.home-lingyue__panel').getByRole('button').first().click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  expect(context.pages()).toHaveLength(1)
+  const popupPromise = page.waitForEvent('popup')
+  await smsLogin(page)
+  const popup = await popupPromise
+  await expect(popup).toHaveURL('https://lingyue.dream-sports.cn/')
+  expect(await popup.evaluate(() => window.opener === null)).toBe(true)
+  await popup.close()
+  await expect(page).toHaveURL(/\/$/)
+})
+
+test('灵跃四个入口均有登录门禁，取消后独立登录不会打开灵跃', async ({ page, context }) => {
+  await page.goto('/')
+  await waitForHydration(page)
+  const panel = page.locator('.home-lingyue__panel')
+  await expect(panel.getByRole('link')).toHaveCount(0)
+  const buttons = panel.getByRole('button')
+  await expect(buttons).toHaveCount(4)
+  for (const button of await buttons.all()) {
+    await button.click()
+    await expect(page.getByRole('dialog')).toBeVisible()
+    expect(context.pages()).toHaveLength(1)
+    await page.locator('.ant-modal-close').click()
+    await expect(page.getByRole('dialog')).toBeHidden()
+  }
+  await page.locator('.app-header__login').click()
+  await smsLogin(page)
+  await expect(page.locator('.app-header__user')).toBeVisible()
+  expect(context.pages()).toHaveLength(1)
+})

@@ -102,4 +102,34 @@ const { t } = useI18n()
     }
   }
 }
+
+@media (max-width: 767px) {
+  .home-creation {
+    &__head {
+      gap: 16px;
+    }
+
+    &__entry {
+      padding: 10px 12px;
+      gap: 8px;
+
+      strong {
+        margin-right: 0;
+        font-size: 14px;
+        line-height: 22px;
+      }
+
+      img {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    &__unavailable {
+      min-height: 160px;
+      margin-top: 20px;
+      padding: 20px;
+    }
+  }
+}
 </style>

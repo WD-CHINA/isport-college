@@ -119,10 +119,47 @@ const items = computed(() => [
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 767px) {
   .home-capabilities {
+    margin-top: -48px;
+    padding-bottom: 16px;
+    background: linear-gradient(transparent 48px, var(--ic-color-academy-background-page) 48px);
+
     ul {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px 16px;
+      padding: 20px 16px;
+    }
+
+    a {
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    a > span:last-child {
+      min-width: 0;
+    }
+
+    &__icon {
+      width: 36px;
+      height: 36px;
+
+      img {
+        width: 28px;
+        height: 28px;
+      }
+    }
+
+    strong {
+      font-size: 14px;
+      line-height: 20px;
+      overflow-wrap: anywhere;
+    }
+
+    small {
+      margin-top: 4px;
+      font-size: 11px;
+      line-height: 17px;
     }
   }
 }

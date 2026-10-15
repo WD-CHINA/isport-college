@@ -5,6 +5,7 @@ import { useAcademy } from '~/composables/useAcademy'
 import { apiErrorCode } from '~/api/errors'
 import { formatPublishedAt, isPublicHttpUrl } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import ContentLink from '~/components/content/ContentLink.vue'
 import { RichTextContent } from '@isport/rich-text'
 
 const props = defineProps<{ id: string }>()
@@ -63,9 +64,7 @@ if (import.meta.server && notFound.value) {
       <p>{{ data.summary }}</p>
       <RichTextContent v-if="data.detailType === 'ARTICLE'" :content="data.htmlBody" />
       <p v-else-if="external">
-        <a :href="external" target="_blank" rel="noopener noreferrer">{{
-          t('catalog.external')
-        }}</a>
+        <ContentLink :content="data">{{ t('catalog.external') }}</ContentLink>
       </p>
     </article>
   </main>

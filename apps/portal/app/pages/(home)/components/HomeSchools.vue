@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { isContentAssetUrl, webContentPath, type WebContentCard } from '@isport/shared'
+import { isContentAssetUrl, type WebContentCard } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import ContentLink from '~/components/content/ContentLink.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
+import HomeCarousel from './HomeCarousel.vue'
 const props = defineProps<{ items: WebContentCard[] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -19,9 +21,16 @@ const visible = computed(() => props.items.slice(0, 3))
         :more="t('home.allSchools')"
         :to="localePath('/schools')"
       />
-      <ul v-if="visible.length" class="home-schools__list">
-        <li v-for="item in visible" :key="item.contentKey">
-          <NuxtLink class="home-schools__card" :to="localePath(webContentPath(item))">
+      <HomeCarousel
+        v-if="visible.length"
+        class="home-schools__list"
+        :items="visible"
+        :item-key="item => item.contentKey"
+        :label="t('academy.schools')"
+        :desktop-slides="3"
+      >
+        <template #default="{ item }">
+          <ContentLink class="home-schools__card" :content="item">
             <span class="home-schools__cover"
               ><img
                 v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
@@ -31,9 +40,9 @@ const visible = computed(() => props.items.slice(0, 3))
             /></span>
             <h3>{{ item.title }}</h3>
             <p>{{ item.summary }}</p>
-          </NuxtLink>
-        </li>
-      </ul>
+          </ContentLink>
+        </template>
+      </HomeCarousel>
       <AppEmpty v-else class="home-schools__empty" :description="t('common.empty')" />
     </div>
   </section>
@@ -44,15 +53,11 @@ const visible = computed(() => props.items.slice(0, 3))
   background: var(--ic-color-academy-background-page);
 
   &__list {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
     margin: 36px 0 0;
-    padding: 0;
-    list-style: none;
   }
 
   &__card {
+    height: 100%;
     display: flex;
     min-height: 368px;
     flex-direction: column;
@@ -98,14 +103,40 @@ const visible = computed(() => props.items.slice(0, 3))
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 767px) {
   .home-schools {
     &__list {
-      grid-template-columns: 1fr;
+      margin-top: 20px;
     }
 
     &__card {
       min-height: 0;
+      padding: 14px;
+    }
+
+    &__cover {
+      aspect-ratio: 16 / 10;
+      max-height: 240px;
+      border-radius: var(--ic-border-radius-md);
+    }
+
+    h3 {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      margin-top: 16px;
+      font-size: 15px;
+      line-height: 22px;
+    }
+
+    p {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      margin-top: 8px;
+      line-height: 20px;
     }
   }
 }

@@ -40,7 +40,13 @@ export default defineNuxtConfig({
     '@unocss/nuxt',
     '@nuxtjs/i18n',
     '@antdv-next/nuxt',
+    'nuxt-swiper',
   ],
+  // 打包并注册 Swiper 自定义元素；页面在客户端初始化轮播，正文保留 SSR。
+  swiper: {
+    enableComposables: true,
+    bundled: true,
+  },
   piniaPluginPersistedstate: {
     storage: 'localStorage',
   },

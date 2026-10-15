@@ -2,30 +2,28 @@
 import { isContentAssetUrl, type WebTeacher } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import HomeSectionTitle from './HomeSectionTitle.vue'
+import HomeCarousel from './HomeCarousel.vue'
 
-const props = defineProps<{ people: WebTeacher[] }>()
+defineProps<{ people: WebTeacher[] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
-const page = shallowRef(0)
-const pages = computed(() => Math.max(1, Math.ceil(props.people.length / 3)))
-const visible = computed(() => props.people.slice(page.value * 3, page.value * 3 + 3))
-
-watch(
-  () => props.people.length,
-  () => {
-    page.value = 0
-  },
-)
 </script>
 
 <template>
   <section class="home-people">
     <div class="container-page">
       <HomeSectionTitle :title="t('home.teachersTitle')" :subtitle="t('home.teachersSubtitle')" />
-      <ul>
-        <li v-for="(person, row) in visible" :key="person.id">
-          <NuxtLink :to="localePath(`/teachers/${person.id}`)">
+      <HomeCarousel
+        v-if="people.length"
+        class="home-people__carousel"
+        :items="people"
+        :item-key="person => person.id"
+        :label="t('home.teachersTitle')"
+        :desktop-slides="3"
+      >
+        <template #default="{ item: person, index: row }">
+          <NuxtLink class="home-people__card" :to="localePath(`/teachers/${person.id}`)">
             <div class="home-people__quote">
               <img :src="`/home/figma/${row === 2 ? '3f802.svg' : '5f87f.svg'}`" alt="" />
               <p>{{ person.story || person.honorTitle }}</p>
@@ -47,18 +45,8 @@ watch(
               </span>
             </span>
           </NuxtLink>
-        </li>
-      </ul>
-      <div v-if="pages > 1" class="home-people__dots">
-        <button
-          v-for="dot in pages"
-          :key="dot"
-          type="button"
-          :class="{ 'is-active': dot - 1 === page }"
-          :aria-label="String(dot)"
-          @click="page = dot - 1"
-        />
-      </div>
+        </template>
+      </HomeCarousel>
     </div>
   </section>
 </template>
@@ -68,20 +56,12 @@ watch(
   padding: 48px 0;
   background: var(--ic-color-academy-background-page);
 
-  ul {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
-    margin: 36px 0 0;
-    padding: 0;
-    list-style: none;
+  &__carousel {
+    margin-top: 36px;
   }
 
-  li {
-    min-width: 0;
-  }
-
-  a {
+  &__card {
+    height: 100%;
     display: flex;
     min-height: 236px;
     flex-direction: column;
@@ -162,33 +142,63 @@ watch(
     color: var(--ic-color-academy-text-muted);
     font-size: 12px;
   }
-
-  &__dots {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 36px;
-
-    button {
-      width: 8px;
-      height: 8px;
-      padding: 0;
-      border: 0;
-      border-radius: 4px;
-      background: #cbe7fe;
-    }
-
-    .is-active {
-      width: 16px;
-      background: var(--ic-color-academy-primary);
-    }
-  }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 767px) {
   .home-people {
-    ul {
-      grid-template-columns: 1fr;
+    &__carousel {
+      margin-top: 20px;
+    }
+
+    &__card {
+      min-height: 228px;
+      padding: 20px;
+    }
+
+    &__quote p {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+
+    &__divider {
+      margin-top: 16px;
+    }
+
+    &__who {
+      gap: 12px;
+      margin-top: 16px;
+
+      > span {
+        min-width: 0;
+      }
+
+      img,
+      i {
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    strong {
+      display: block;
+      font-size: 15px;
+      line-height: 22px;
+      overflow-wrap: anywhere;
+    }
+
+    em {
+      max-width: 100%;
+      margin: 4px 0;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    small {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 }

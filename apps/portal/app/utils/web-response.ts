@@ -53,6 +53,7 @@ export function parseContentCard(value: unknown): WebContentCard {
     summary: text(item.summary),
     coverUrl: text(item.coverUrl),
     detailType: choice(item.detailType, ['ARTICLE', 'LINK', 'VIDEO', 'AUDIO', 'DOCUMENT', 'IMAGE']),
+    jumpUrl: text(item.jumpUrl),
     categoryCode: text(item.categoryCode),
     categoryName: text(item.categoryName),
     authorName: text(item.authorName),

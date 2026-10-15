@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { isContentAssetUrl, webContentPath, type WebContentCard } from '@isport/shared'
+import { isContentAssetUrl, type WebContentCard } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import ContentLink from '~/components/content/ContentLink.vue'
 import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
 import ContentMediaTag from '~/components/content/ContentMediaTag.vue'
 import ContentTypeIcon from '~/components/content/ContentTypeIcon.vue'
@@ -81,7 +82,7 @@ function setLevel(value: unknown) {
       </div>
       <ul v-if="visible.length">
         <li v-for="item in visible" :key="item.contentKey">
-          <NuxtLink :to="localePath(webContentPath(item))">
+          <ContentLink :content="item">
             <span class="home-resources__cover">
               <img
                 v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
@@ -98,7 +99,7 @@ function setLevel(value: unknown) {
                 t('home.suitable', { name: item.levelLabel })
               }}</small>
             </span>
-          </NuxtLink>
+          </ContentLink>
         </li>
       </ul>
       <div v-else class="home-resources__empty">
@@ -249,15 +250,73 @@ function setLevel(value: unknown) {
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 767px) {
   .home-resources {
-    &__filters,
-    & ul {
-      display: grid;
+    &__filters {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    &__categories {
+      min-width: 0;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: thin;
+
+      button {
+        flex: none;
+        height: 40px;
+        font-size: 13px;
+      }
+    }
+
+    &__level {
+      min-width: 0;
+      width: 100%;
     }
 
     ul {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    li {
+      min-width: 0;
+    }
+
+    a {
+      height: 100%;
+      min-height: 0;
+    }
+
+    &__cover,
+    &__photo {
+      height: clamp(110px, 24vw, 200px) !important;
+    }
+
+    &__body {
+      gap: 8px;
+      padding: 12px;
+    }
+
+    strong {
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    small {
+      font-size: 11px;
+      line-height: 18px;
+    }
+
+    &__empty {
+      min-height: 200px;
+      margin-top: 20px;
     }
   }
 }

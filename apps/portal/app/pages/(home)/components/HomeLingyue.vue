@@ -1,6 +1,21 @@
 <script setup lang="ts">
 import { ACADEMY_CAPABILITIES } from '~/config/capabilities'
+import { useAuthGate } from '~/composables/auth/useAuthGate'
 const { t } = useI18n()
+const { requireAuth } = useAuthGate()
+let disposed = false
+onScopeDispose(() => {
+  disposed = true
+})
+function openLingyue() {
+  void requireAuth({
+    onSuccess: () => {
+      if (!disposed) {
+        window.open(ACADEMY_CAPABILITIES.lingyue.externalUrl, '_blank', 'noopener,noreferrer')
+      }
+    },
+  })
+}
 const tools = computed(() => [
   { title: t('lingyue.lesson'), icon: '9cb0e.svg' },
   { title: t('lingyue.unit'), icon: 'c11d4.svg' },
@@ -15,15 +30,10 @@ const tools = computed(() => [
         <header class="home-lingyue__heading">
           <h2>{{ t('home.lingyueTitle') }}</h2>
           <p>{{ t('home.lingyueSubtitle') }}</p>
-          <small v-if="!ACADEMY_CAPABILITIES.lingyue.enabled">{{ t('academy.unavailable') }}</small>
         </header>
         <ul class="home-lingyue__tools learning-entries__tools">
           <li v-for="tool in tools" :key="tool.icon">
-            <button
-              type="button"
-              :disabled="!ACADEMY_CAPABILITIES.lingyue.enabled"
-              :title="t('academy.unavailable')"
-            >
+            <button type="button" @click="openLingyue">
               <span class="home-lingyue__icon"
                 ><img :src="`/home/figma/${tool.icon}`" alt=""
               /></span>
@@ -73,15 +83,6 @@ const tools = computed(() => [
     line-height: 22px;
   }
 
-  small {
-    position: absolute;
-    bottom: 4px;
-    left: 36px;
-    line-height: 16px;
-    color: var(--home-color-muted);
-    font-size: 12px;
-  }
-
   &__tools {
     display: flex;
     gap: 24px;
@@ -101,7 +102,17 @@ const tools = computed(() => [
     border-radius: 8px;
     background: #fff;
     color: var(--home-color-text);
-    cursor: not-allowed;
+    cursor: pointer;
+    transition: box-shadow var(--ic-motion-duration-fast);
+
+    &:hover {
+      box-shadow: 0 0 0 1px var(--ic-color-academy-primary);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ic-color-academy-primary);
+      outline-offset: 3px;
+    }
   }
 
   &__icon {
@@ -132,12 +143,6 @@ const tools = computed(() => [
       align-items: stretch;
     }
 
-    small {
-      position: static;
-      display: block;
-      margin-top: 8px;
-    }
-
     &__heading {
       flex-basis: auto;
     }
@@ -153,15 +158,44 @@ const tools = computed(() => [
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 767px) {
   .home-lingyue {
     &__panel {
-      padding: 24px 16px;
+      padding: 20px 16px;
+      gap: 20px;
+    }
+
+    h2 {
+      font-size: 22px;
+      line-height: 32px;
+    }
+
+    p {
+      font-size: 12px;
+      line-height: 20px;
     }
 
     &__tools {
-      grid-template-columns: 1fr;
-      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    button {
+      min-height: 100px;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 8px;
+    }
+
+    button > img {
+      display: none;
+    }
+
+    strong {
+      font-size: 14px;
+      line-height: 20px;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
   }
 }

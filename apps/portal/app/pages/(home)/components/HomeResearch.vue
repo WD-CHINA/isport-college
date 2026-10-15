@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { isContentAssetUrl, webContentPath, type WebContentCard } from '@isport/shared'
+import { isContentAssetUrl, type WebContentCard } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
+import ContentLink from '~/components/content/ContentLink.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
 
@@ -64,9 +65,9 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
             <div>
               <h3>{{ featured.title }}</h3>
               <p>{{ featured.summary }}</p>
-              <NuxtLink :to="localePath(webContentPath(featured))"
+              <ContentLink :content="featured"
                 >{{ t('home.viewContent') }} <img src="/home/figma/75760.svg" alt=""
-              /></NuxtLink>
+              /></ContentLink>
             </div>
           </article>
           <div v-if="side.length" class="home-research__side">
@@ -83,9 +84,9 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
               <div class="home-research__side-copy">
                 <h3>{{ item.title }}</h3>
                 <p>{{ item.summary }}</p>
-                <NuxtLink :to="localePath(webContentPath(item))"
+                <ContentLink :content="item"
                   >{{ t('home.viewContent') }} <img src="/home/figma/75760.svg" alt=""
-                /></NuxtLink>
+                /></ContentLink>
               </div>
             </article>
           </div>
@@ -335,26 +336,100 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 767px) {
   .home-research {
+    &__layout {
+      margin-top: 20px;
+      gap: 16px;
+    }
+
     &__nav {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
 
       button {
+        min-width: 0;
+        min-height: 64px;
+        padding: 12px;
+        gap: 8px;
         font-size: 14px;
+        line-height: 22px;
+        text-align: start;
+        overflow-wrap: anywhere;
       }
+    }
+
+    &__icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    &__courses {
+      gap: 16px;
     }
 
     &__feature {
       grid-template-columns: 1fr;
+      padding: 16px;
+      gap: 16px;
+
+      > div {
+        padding: 0;
+      }
+
+      h3 {
+        font-size: 20px;
+        line-height: 28px;
+      }
+
+      p {
+        margin-top: 12px;
+        font-size: 13px;
+      }
+
+      a {
+        margin-top: 16px;
+      }
     }
 
     &__photo {
-      height: 260px;
+      height: auto;
+      max-height: 220px;
+      aspect-ratio: 16 / 10;
     }
 
     &__side {
       grid-template-columns: 1fr;
+
+      article {
+        grid-template-columns: 88px minmax(0, 1fr);
+        padding: 16px;
+        gap: 12px;
+      }
+
+      h3 {
+        font-size: 15px;
+        line-height: 22px;
+      }
+
+      p {
+        margin-top: 6px;
+      }
+
+      a {
+        font-size: 12px;
+        padding: 4px 8px;
+      }
+    }
+
+    &__side-photo {
+      width: 88px;
+      height: 88px;
+    }
+
+    &__divider {
+      left: 16px;
+      right: 16px;
     }
   }
 }

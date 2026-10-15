@@ -97,4 +97,32 @@ const partners = [
     }
   }
 }
+
+@media (max-width: 767px) {
+  .home-partners {
+    &__list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      justify-items: center;
+      gap: 12px 16px;
+      min-height: 0;
+      padding-block: 16px;
+
+      > li {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      > li > img {
+        max-width: 100%;
+        height: auto;
+      }
+    }
+
+    &__shnu {
+      transform: scale(0.7);
+      transform-origin: center;
+    }
+  }
+}
 </style>
