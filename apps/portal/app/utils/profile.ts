@@ -15,5 +15,6 @@ export function toWebProfile(value: unknown): WebProfile | null {
     nickname: typeof row.nickname === 'string' ? row.nickname : '',
     avatarCode: Number.isSafeInteger(avatarCode) && avatarCode >= 1 ? avatarCode : 1,
     nicknamePromptNeeded: row.nicknamePromptNeeded === true,
+    lingyueBound: row.lingyueBound === true,
   }
 }

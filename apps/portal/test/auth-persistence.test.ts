@@ -10,6 +10,7 @@ const profile = {
   nickname: '缓存用户',
   avatarCode: 1,
   nicknamePromptNeeded: false,
+  lingyueBound: false,
 }
 
 const memory = new Map<string, string>()

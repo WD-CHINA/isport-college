@@ -126,6 +126,7 @@ export const useAuthStore = defineStore('auth', () => {
       cached.profile?.id === current.profile?.id &&
       cached.profile?.nickname === current.profile?.nickname &&
       cached.profile?.avatarCode === current.profile?.avatarCode &&
+      cached.profile?.lingyueBound === current.profile?.lingyueBound &&
       cached.newUser === current.newUser
     ) {
       return

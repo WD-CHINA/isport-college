@@ -374,7 +374,7 @@ const messages: MessageSchema = {
     enter: 'Enter Lingyue',
     notice:
       'This simulates account linking and sign-in only. No real Lingyue service is accessed and no points are exchanged automatically.',
-    authorize: 'No linked account was found. Allow creation and linking of a demo account?',
+    authorize: 'Allow this phone number to create and link a Lingyue account?',
     authorizeAction: 'Allow and continue',
     success: 'Simulated sign-in successful',
     successDescription: 'The local simulation is complete. No real Lingyue service was opened.',

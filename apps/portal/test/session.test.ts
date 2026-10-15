@@ -16,6 +16,7 @@ const profile = (id: number) => ({
   nickname: `用户${id}`,
   avatarCode: 1,
   nicknamePromptNeeded: false,
+  lingyueBound: false,
 })
 const session = (id: number) => ({ token: `token-${id}`, profile: profile(id), newUser: false })
 let current: ReturnType<typeof context>

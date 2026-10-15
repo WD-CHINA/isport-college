@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
+import { useLingyueLaunch } from '~/composables/useLingyueLaunch'
 
 defineProps<{
   items: { to: string; label: string; active: boolean; icon: string }[]
@@ -9,7 +10,11 @@ defineProps<{
 }>()
 const emit = defineEmits<{ close: []; login: []; logout: [] }>()
 const { t } = useI18n()
-const localePath = useLocalePath()
+const { openLingyue } = useLingyueLaunch()
+function openLingyueHome() {
+  emit('close')
+  openLingyue({ target: 'home' })
+}
 </script>
 
 <template>
@@ -38,16 +43,16 @@ const localePath = useLocalePath()
     </div>
 
     <div class="app-header__panel-tools">
-      <NuxtLink
-        :to="localePath('/lingyue/simulation')"
+      <button
+        type="button"
         class="app-header__panel-tool app-header__panel-lingyue"
-        @click="emit('close')"
+        @click="openLingyueHome"
       >
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="m12 3 2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3L12 3ZM20 3v4m-2-2h4" />
         </svg>
         <span>{{ t('nav.lingyue') }}</span>
-      </NuxtLink>
+      </button>
       <span
         class="app-header__panel-tool app-header__panel-creation"
         :title="t('academy.unavailable')"
@@ -226,8 +231,11 @@ const localePath = useLocalePath()
   }
 
   &-lingyue {
+    width: 100%;
     background: linear-gradient(120deg, #eff6ff, #f5f0ff);
     color: #5843b5;
+    text-align: start;
+    cursor: pointer;
     transition: border-color var(--ic-motion-duration-fast, 150ms);
 
     &:hover {

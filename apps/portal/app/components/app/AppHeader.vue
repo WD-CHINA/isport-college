@@ -4,9 +4,11 @@ import { useAuthStore } from '~/stores/auth'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
 import AppLocaleMenu from '~/components/app/AppLocaleMenu.vue'
 import AppHeaderPanel from '~/components/app/AppHeaderPanel.vue'
+import { useLingyueLaunch } from '~/composables/useLingyueLaunch'
 
 const auth = useAuthStore()
 const loginUi = useLoginUiStore()
+const { openLingyue } = useLingyueLaunch()
 const route = useRoute()
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -111,9 +113,13 @@ onScopeDispose(() => {
       </div>
 
       <div class="app-header__actions">
-        <NuxtLink :to="localePath('/lingyue/simulation')" class="app-header__cta-lingyue">
+        <button
+          type="button"
+          class="app-header__cta-lingyue"
+          @click="openLingyue({ target: 'home' })"
+        >
           {{ t('nav.lingyue') }}
-        </NuxtLink>
+        </button>
         <span class="app-header__cta-creation" :title="t('academy.unavailable')">
           {{ t('nav.creation') }}
         </span>
@@ -271,8 +277,10 @@ onScopeDispose(() => {
   }
 
   &__cta-lingyue {
+    border: 0;
     background: linear-gradient(109deg, #0079ff 0%, #a348f3 100%);
     color: #fff;
+    cursor: pointer;
   }
 
   &__cta-creation {

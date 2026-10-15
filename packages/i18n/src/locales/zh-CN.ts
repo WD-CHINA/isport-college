@@ -354,7 +354,7 @@ export default {
     assessment: '体测报告',
     enter: '进入灵跃',
     notice: '本流程仅模拟账号关联与免登，不访问真实灵跃，不自动兑换积分。',
-    authorize: '尚无同手机号关联账号，是否授权创建并关联演示账号？',
+    authorize: '是否授权使用当前手机号创建并关联灵跃账号？',
     authorizeAction: '授权并继续',
     success: '模拟免登成功',
     successDescription: '已完成站内模拟流程，未打开真实灵跃服务。',

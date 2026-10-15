@@ -1,4 +1,5 @@
 import type {
+  LingyueLaunchRequest,
   WebActionResult,
   WebChannel,
   WebContentCard,
@@ -34,6 +35,9 @@ export function createAcademyClient(request: ApiRequest) {
     },
     me(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
       return request('GET', '/me', { query: params, signal }) as Promise<WebProfile>
+    },
+    launchLingyue(body: LingyueLaunchRequest) {
+      return request('POST', '/me/lingyue/launch', { body })
     },
     updateNickname(params: { nickname: string }) {
       return request('PUT', '/me/nickname', { body: params }) as Promise<WebProfile>

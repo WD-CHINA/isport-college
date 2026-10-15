@@ -18,6 +18,7 @@ const profile = id => ({
   nickname: `测试用户${id}`,
   avatarCode: 1,
   nicknamePromptNeeded: false,
+  lingyueBound: false,
 })
 const profiles = new Map()
 const state = token => {
@@ -155,6 +156,21 @@ const server = createServer(async (req, res) => {
       if (token.includes('slow-me') && path === '/me') await delay(3000)
       if (!token || token.includes('expired')) return send(res, null, 401, '登录已过期')
       if (path === '/me') return send(res, profiles.get(token) ?? profile(id))
+      if (path === '/me/lingyue/launch') {
+        const current = profiles.get(token) ?? profile(id)
+        if (!current.lingyueBound && body.authorized !== true)
+          return send(res, null, 400, '请先授权关联灵跃账号')
+        const target = ['home', 'agent', 'chat'].includes(body.target) ? body.target : 'home'
+        const agentCode = typeof body.agentCode === 'string' ? body.agentCode : ''
+        const updated = { ...current, lingyueBound: true }
+        profiles.set(token, updated)
+        const agentQuery = agentCode ? `&agentCode=${encodeURIComponent(agentCode)}` : ''
+        return send(res, {
+          launchUrl: `https://lingyue.dream-sports.cn/launch?token=e2e&target=${target}${agentQuery}`,
+          expiresIn: 300,
+          lingyueBound: true,
+        })
+      }
       if (path === '/me/nickname' || path === '/me/avatar') {
         const updated = {
           ...(profiles.get(token) ?? profile(id)),

@@ -1,26 +1,19 @@
 <script setup lang="ts">
-import { ACADEMY_CAPABILITIES } from '~/config/capabilities'
-import { useAuthGate } from '~/composables/auth/useAuthGate'
+import type { LingyueLaunchTarget } from '@isport/shared'
+import { useLingyueLaunch } from '~/composables/useLingyueLaunch'
+
 const { t } = useI18n()
-const { requireAuth } = useAuthGate()
-let disposed = false
-onScopeDispose(() => {
-  disposed = true
-})
-function openLingyue() {
-  void requireAuth({
-    onSuccess: () => {
-      if (!disposed) {
-        window.open(ACADEMY_CAPABILITIES.lingyue.externalUrl, '_blank', 'noopener,noreferrer')
-      }
-    },
-  })
-}
+const { openLingyue } = useLingyueLaunch()
 const tools = computed(() => [
-  { title: t('lingyue.lesson'), icon: '9cb0e.svg' },
-  { title: t('lingyue.unit'), icon: 'c11d4.svg' },
-  { title: t('lingyue.exercise'), icon: 'c9968.svg' },
-  { title: t('lingyue.assessment'), icon: '0bb5a.svg' },
+  { title: t('lingyue.lesson'), icon: '9cb0e.svg', target: 'home' as LingyueLaunchTarget },
+  { title: t('lingyue.unit'), icon: 'c11d4.svg', target: 'agent' as LingyueLaunchTarget },
+  { title: t('lingyue.exercise'), icon: 'c9968.svg', target: 'chat' as LingyueLaunchTarget },
+  {
+    title: t('lingyue.assessment'),
+    icon: '0bb5a.svg',
+    target: 'agent' as LingyueLaunchTarget,
+    agentCode: 'lesson-plan',
+  },
 ])
 </script>
 <template>
@@ -33,7 +26,10 @@ const tools = computed(() => [
         </header>
         <ul class="home-lingyue__tools learning-entries__tools">
           <li v-for="tool in tools" :key="tool.icon">
-            <button type="button" @click="openLingyue">
+            <button
+              type="button"
+              @click="openLingyue({ target: tool.target, agentCode: tool.agentCode })"
+            >
               <span class="home-lingyue__icon"
                 ><img :src="`/home/figma/${tool.icon}`" alt=""
               /></span>

@@ -102,6 +102,21 @@ export interface WebProfile {
   nickname: string
   avatarCode: number
   nicknamePromptNeeded: boolean
+  lingyueBound: boolean
+}
+
+export type LingyueLaunchTarget = 'home' | 'agent' | 'chat'
+
+export interface LingyueLaunchRequest {
+  authorized?: boolean
+  target?: LingyueLaunchTarget
+  agentCode?: string
+}
+
+export interface LingyueLaunchResult {
+  launchUrl: string
+  expiresIn: number
+  lingyueBound: boolean
 }
 
 export interface WebLoginResult {

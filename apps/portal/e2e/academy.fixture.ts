@@ -14,6 +14,7 @@ export function testSession(id = 1, suffix = randomUUID()): WebSession {
       nickname: `测试用户${id}`,
       avatarCode: 1,
       nicknamePromptNeeded: false,
+      lingyueBound: false,
     },
   }
 }

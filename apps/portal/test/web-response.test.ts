@@ -36,6 +36,7 @@ describe('展示层整理学苑响应', () => {
       nickname: '',
       avatarCode: 1,
       nicknamePromptNeeded: true,
+      lingyueBound: false,
     })
     expect(toWebProfile({ id: '8' })).toBeNull()
   })

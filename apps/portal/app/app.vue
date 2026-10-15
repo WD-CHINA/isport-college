@@ -3,6 +3,7 @@ import { refreshSessionAfterMount } from '~/composables/useAcademy'
 import LoginModal from '~/components/auth/LoginModal.vue'
 import LogoutConfirm from '~/components/auth/LogoutConfirm.vue'
 import NicknameGuide from '~/components/auth/NicknameGuide.vue'
+import LingyueAuthorize from '~/components/auth/LingyueAuthorize.vue'
 import { antdvThemeToken } from '@isport/design-tokens/antdv-theme'
 import { resolveDataLocale } from '@isport/shared'
 import enUS from 'antdv-next/locale/en_US'
@@ -36,6 +37,7 @@ useSeoMeta({
       <LoginModal />
       <NicknameGuide />
       <LogoutConfirm />
+      <LingyueAuthorize />
     </AApp>
   </AConfigProvider>
 </template>

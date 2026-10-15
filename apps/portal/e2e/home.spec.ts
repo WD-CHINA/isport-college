@@ -278,49 +278,82 @@ for (const width of [320, 390]) {
   }
 }
 
-test('已登录时首页灵跃四个工具入口在新窗口打开外部服务，当前页保持首页', async ({
-  page,
-  context,
-  baseURL,
-}) => {
-  await setSession(context, testSession(), baseURL!)
-  const target = 'https://lingyue.dream-sports.cn/'
+test('已登录未关联时先授权，再按入口打开灵跃免登地址', async ({ page, context, baseURL }) => {
   await context.route('https://lingyue.dream-sports.cn/**', route =>
     route.fulfill({ body: 'Lingyue service' }),
   )
+  await setSession(context, testSession(), baseURL!)
   await page.goto('/')
   await waitForHydration(page)
+  await expect(page.locator('.app-header__user')).toContainText('测试用户1')
   const panel = page.locator('.home-lingyue__panel')
   await expect(panel).not.toContainText('该功能暂未接入')
   const links = panel.getByRole('button')
   await expect(links).toHaveCount(4)
-  for (const link of await links.all()) {
+  await links.first().click()
+  await expect(page.getByRole('dialog')).toContainText('是否授权使用当前手机号')
+  const firstPopup = page.waitForEvent('popup')
+  await page.getByRole('button', { name: '授权并继续' }).click()
+  const popup = await firstPopup
+  await expect(popup).toHaveURL('https://lingyue.dream-sports.cn/launch?token=e2e&target=home')
+  expect(await popup.evaluate(() => window.opener === null)).toBe(true)
+  await popup.close()
+  const targets = ['agent', 'chat', 'agent']
+  for (const [index, target] of targets.entries()) {
     const popupPromise = page.waitForEvent('popup')
-    await link.click()
-    const popup = await popupPromise
-    await expect(popup).toHaveURL(target)
-    expect(await popup.evaluate(() => window.opener === null)).toBe(true)
-    await popup.close()
+    await links.nth(index + 1).click()
+    const next = await popupPromise
+    const url = new URL(next.url())
+    expect(url.origin + url.pathname).toBe('https://lingyue.dream-sports.cn/launch')
+    expect(url.searchParams.get('target')).toBe(target)
+    expect(url.searchParams.get('agentCode')).toBe(index === 2 ? 'lesson-plan' : null)
+    expect(await next.evaluate(() => window.opener === null)).toBe(true)
+    await next.close()
   }
   await expect(page).toHaveURL(/\/$/)
 })
 
-test('未登录点击灵跃先登录，成功后恢复打开外部服务', async ({ page, context }) => {
+test('未登录点击灵跃先登录，授权后打开免登地址', async ({ page, context }) => {
   await context.route('https://lingyue.dream-sports.cn/**', route =>
     route.fulfill({ body: 'Lingyue service' }),
   )
   await page.goto('/')
   await waitForHydration(page)
   await page.locator('.home-lingyue__panel').getByRole('button').first().click()
-  await expect(page.getByRole('dialog')).toBeVisible()
-  expect(context.pages()).toHaveLength(1)
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.locator('#login-phone')).toBeVisible()
+  await dialog.locator('#login-phone').fill('13800138000')
+  await dialog.getByRole('button', { name: '获取验证码' }).click()
+  await expect(dialog.getByRole('button', { name: /秒后重发/ })).toBeVisible()
+  await dialog.locator('#login-code').fill('123456')
+  await dialog.getByRole('checkbox').check()
+  await dialog.getByRole('button', { name: /登\s*录/, exact: true }).click()
+  const authorize = page.getByRole('dialog', { name: '进入灵跃' })
+  await expect(authorize).toContainText('是否授权使用当前手机号')
   const popupPromise = page.waitForEvent('popup')
-  await smsLogin(page)
+  await authorize.getByRole('button', { name: '授权并继续' }).click()
   const popup = await popupPromise
-  await expect(popup).toHaveURL('https://lingyue.dream-sports.cn/')
+  await expect(popup).toHaveURL(/\/launch\?token=e2e&target=home/)
   expect(await popup.evaluate(() => window.opener === null)).toBe(true)
   await popup.close()
   await expect(page).toHaveURL(/\/$/)
+})
+
+test('顶部灵跃入口免登打开首页', async ({ page, context, baseURL }) => {
+  await context.route('https://lingyue.dream-sports.cn/**', route =>
+    route.fulfill({ body: 'Lingyue service' }),
+  )
+  await setSession(context, testSession(), baseURL!)
+  await page.goto('/')
+  await waitForHydration(page)
+  await expect(page.locator('.app-header__user')).toContainText('测试用户1')
+  await page.locator('.app-header__cta-lingyue').click()
+  await expect(page.getByRole('dialog')).toContainText('是否授权使用当前手机号')
+  const popupPromise = page.waitForEvent('popup')
+  await page.getByRole('button', { name: '授权并继续' }).click()
+  const popup = await popupPromise
+  await expect(popup).toHaveURL('https://lingyue.dream-sports.cn/launch?token=e2e&target=home')
+  await popup.close()
 })
 
 test('灵跃四个入口均有登录门禁，取消后独立登录不会打开灵跃', async ({ page, context }) => {
