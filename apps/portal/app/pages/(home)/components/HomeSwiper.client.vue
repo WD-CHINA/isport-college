@@ -22,35 +22,59 @@ const active = shallowRef(0)
 const groupSize = computed(() => (mobile.value ? 1 : props.desktopSlides))
 const pages = computed(() => Math.ceil(props.count / groupSize.value))
 const currentPage = computed(() => Math.min(active.value, pages.value - 1))
-const options = computed<SwiperOptions>(() => ({
-  slidesPerView: props.peek && props.count > 1 ? 1.12 : 1,
-  slidesPerGroup: 1,
-  spaceBetween: 12,
-  speed: motionQuery.matches ? 0 : 350,
-  watchOverflow: true,
-  observer: true,
-  rewind: true,
-  a11y: { enabled: true },
-  autoplay:
-    props.autoplay && !motionQuery.matches
-      ? { delay: 5000, disableOnInteraction: true, pauseOnMouseEnter: true }
-      : false,
-  breakpoints: {
-    768: {
-      slidesPerView: props.desktopSlides,
-      slidesPerGroup: props.desktopSlides,
-      spaceBetween: props.desktopGap,
+const canLoop = computed(() => props.count > groupSize.value)
+const options = computed<SwiperOptions>(() => {
+  const looping = canLoop.value
+  return {
+    slidesPerView: props.peek && props.count > 1 ? 1.12 : 1,
+    slidesPerGroup: 1,
+    spaceBetween: 12,
+    speed: motionQuery.matches ? 0 : props.autoplay ? 600 : 350,
+    watchOverflow: true,
+    // loop 会改写 DOM；开着 observer 容易在换页时被重置。
+    observer: !looping,
+    observeSlideChildren: false,
+    loop: looping,
+    // 精选自动轮播用淡入淡出，末页回到首页无缝过渡。
+    effect: props.autoplay ? 'fade' : 'slide',
+    fadeEffect: props.autoplay ? { crossFade: true } : undefined,
+    a11y: { enabled: true },
+    autoplay:
+      props.autoplay && !motionQuery.matches
+        ? { delay: 5000, disableOnInteraction: true, pauseOnMouseEnter: true }
+        : false,
+    breakpoints: {
+      768: {
+        slidesPerView: props.autoplay ? 1 : props.desktopSlides,
+        slidesPerGroup: props.autoplay ? 1 : props.desktopSlides,
+        spaceBetween: props.autoplay ? 0 : props.desktopGap,
+      },
     },
-  },
-}))
+  }
+})
 function sync() {
-  active.value = container.value?.swiper?.snapIndex ?? 0
+  const swiper = container.value?.swiper
+  if (!swiper) {
+    active.value = 0
+    return
+  }
+  active.value = Math.floor(swiper.realIndex / groupSize.value)
+}
+function goToPage(page: number) {
+  const index = page * groupSize.value
+  if (canLoop.value) instance.value?.slideToLoop(index)
+  else instance.value?.slideTo(index)
 }
 function pause() {
   instance.value?.autoplay?.stop()
 }
 function resize() {
   mobile.value = mobileQuery.matches
+  if (instance.value) {
+    instance.value.params.loop = canLoop.value
+    instance.value.originalParams.loop = canLoop.value
+    instance.value.update()
+  }
   sync()
 }
 function motionChanged() {
@@ -65,9 +89,12 @@ watch(
       const perView = props.peek && props.count > 1 ? 1.12 : 1
       instance.value.originalParams.slidesPerView = perView
       instance.value.params.slidesPerView = mobile.value ? perView : props.desktopSlides
+      instance.value.params.loop = canLoop.value
+      instance.value.originalParams.loop = canLoop.value
+      instance.value.update()
+      if (canLoop.value) instance.value.slideToLoop(0, 0)
+      else instance.value.slideTo(0, 0)
     }
-    instance.value?.update()
-    instance.value?.slideTo(0, 0)
     sync()
   },
 )
@@ -115,7 +142,7 @@ onScopeDispose(() => {
           type="button"
           :aria-label="t('home.slide', { page: dot })"
           :aria-pressed="dot - 1 === currentPage"
-          @click="instance?.slideTo((dot - 1) * groupSize)"
+          @click="goToPage(dot - 1)"
         />
       </div>
     </div>

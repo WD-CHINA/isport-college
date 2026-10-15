@@ -131,9 +131,6 @@ onScopeDispose(() => {
             </button>
           </APopover>
         </template>
-        <button v-else type="button" class="app-header__login" @click="openLogin">
-          {{ t('common.login') }}
-        </button>
         <button
           ref="menuToggle"
           type="button"
