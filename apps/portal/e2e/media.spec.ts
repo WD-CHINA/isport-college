@@ -17,6 +17,30 @@ test('video 使用 xgplayer 加载', async ({ page }) => {
   await expect(host.locator('.xgplayer-poster')).toHaveCSS('background-image', /sample\.png/)
   await expect(host.locator('.xgplayer-start')).toHaveCSS('width', '56px')
 })
+
+test('播放器分块加载失败时提供重试，网络恢复后可加载播放器', async ({ page }) => {
+  let blockPlayer = true
+  let blocked = 0
+  await page.route('**/_nuxt/*.js', async route => {
+    const response = await route.fetch()
+    if (blockPlayer && (await response.text()).includes('xgplayer-loading')) {
+      blocked++
+      await route.abort('failed')
+      return
+    }
+    await route.fulfill({ response })
+  })
+  await page.goto('/preview/resource/resources/2')
+  await waitForHydration(page)
+  const retry = page.getByRole('button', { name: /重\s*试/, exact: true })
+  await expect(retry).toBeVisible()
+  expect(blocked).toBeGreaterThan(0)
+  await expect(page.getByTestId('video-preview')).toBeHidden()
+  blockPlayer = false
+  await retry.click()
+  await expect(page.getByTestId('video-preview').locator('video')).toBeVisible({ timeout: 15_000 })
+  await expect(retry).toHaveCount(0)
+})
 test('audio 使用 vue-wave-player 加载', async ({ page }) => {
   await page.goto('/preview/resource/resources/3')
   await waitForHydration(page)

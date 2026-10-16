@@ -8,33 +8,54 @@ const emit = defineEmits<{ error: [] }>()
 const { t } = useI18n()
 const host = useTemplateRef<HTMLElement>('host')
 const failed = shallowRef(false)
+const reloadRequired = shallowRef(false)
 const attempt = shallowRef(0)
 let player: { destroy: () => void; on: (event: string, handler: () => void) => void } | null = null
+let generation = 0
 
 async function mountPlayer() {
+  const current = ++generation
   player?.destroy()
   player = null
   failed.value = false
+  reloadRequired.value = false
   if (!import.meta.client || !host.value) return
-  const { default: XgPlayer } = await import('xgplayer')
-  await import('xgplayer/dist/index.min.css')
-  player = new XgPlayer({
-    el: host.value,
-    url: props.url,
-    poster: props.poster,
-    lang: 'zh-cn',
-    width: '100%',
-    height: '100%',
-    autoplay: false,
-    playsinline: true,
-    playbackRate: [0.5, 1, 1.25, 1.5, 2],
-  })
-  player.on('error', () => {
+  const element = host.value
+  let moduleLoaded = false
+  try {
+    const { default: XgPlayer } = await import('xgplayer')
+    await import('xgplayer/dist/index.min.css')
+    if (current !== generation || host.value !== element) return
+    moduleLoaded = true
+    player = new XgPlayer({
+      el: element,
+      url: props.url,
+      poster: props.poster,
+      lang: 'zh-cn',
+      width: '100%',
+      height: '100%',
+      autoplay: false,
+      playsinline: true,
+      playbackRate: [0.5, 1, 1.25, 1.5, 2],
+    })
+    player.on('error', () => {
+      if (current !== generation) return
+      failed.value = true
+      emit('error')
+    })
+  } catch {
+    if (current !== generation || host.value !== element) return
+    reloadRequired.value = !moduleLoaded
     failed.value = true
     emit('error')
-  })
+  }
 }
 function retry() {
+  if (reloadRequired.value) {
+    // 浏览器会缓存失败的模块导入；重新加载页面才能重新获取分块。
+    reloadNuxtApp({ force: true })
+    return
+  }
   attempt.value++
   void nextTick(mountPlayer)
 }
@@ -48,6 +69,7 @@ watch(
   },
 )
 onBeforeUnmount(() => {
+  generation++
   player?.destroy()
   player = null
 })

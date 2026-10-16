@@ -15,7 +15,7 @@ const localePath = useLocalePath()
 const apiUrl = useApiUrl()
 const newsId = /^[1-9]\d{0,15}$/.test(props.id) ? Number(props.id) : 0
 const request = useAsyncData(
-  () => `academy:news:${locale.value}:${props.id}`,
+  () => `academy:news:detail:${locale.value}:${props.id}`,
   () => {
     if (!newsId) throw createError({ statusCode: 404, statusMessage: t('detail.notFound') })
     return academy.newsDetail(newsId)

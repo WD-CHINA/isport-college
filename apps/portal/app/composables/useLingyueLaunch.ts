@@ -38,14 +38,17 @@ export function useLingyueLaunch() {
       isApiError(cause) && locale.value === 'zh' ? cause.message : t('academy.requestFailed')
   }
 
-  async function requestLaunch(body: LingyueLaunchRequest) {
+  async function requestLaunch(body: LingyueLaunchRequest, revision: number) {
     const token = auth.session?.token
+    if (!token || revision !== auth.revision) return false
     const result = toLaunch(await academy.launchLingyue(body))
+    if (revision !== auth.revision || token !== auth.session?.token) return false
     if (!result) throw ApiError.serviceUnavailable(t('academy.requestFailed'))
     if (result.lingyueBound && auth.user) {
       auth.updateUser({ ...auth.user, lingyueBound: true }, token)
     }
     window.open(result.launchUrl, '_blank', 'noopener,noreferrer')
+    return true
   }
 
   function openLingyue(entry: LingyueEntry) {
@@ -54,13 +57,14 @@ export function useLingyueLaunch() {
       onSuccess: async () => {
         if (auth.user?.lingyueBound) {
           if (pending.value) return
+          const revision = auth.revision
           pending.value = true
           try {
-            await requestLaunch(entry)
+            await requestLaunch(entry, revision)
           } catch (cause) {
-            fail(cause)
+            if (revision === auth.revision) fail(cause)
           } finally {
-            pending.value = false
+            if (revision === auth.revision) pending.value = false
           }
           return
         }
@@ -73,17 +77,18 @@ export function useLingyueLaunch() {
   async function confirmAuthorize() {
     const entry = launchRequest.value
     if (!entry || pending.value) return
+    const revision = auth.revision
     pending.value = true
     error.value = ''
     try {
-      await requestLaunch({ ...entry, authorized: true })
-      authorizeOpen.value = false
-      launchRequest.value = null
+      if (await requestLaunch({ ...entry, authorized: true }, revision)) {
+        authorizeOpen.value = false
+        launchRequest.value = null
+      }
     } catch (cause) {
-      fail(cause)
-      throw cause
+      if (revision === auth.revision) fail(cause)
     } finally {
-      pending.value = false
+      if (revision === auth.revision) pending.value = false
     }
   }
 
@@ -92,6 +97,15 @@ export function useLingyueLaunch() {
     launchRequest.value = null
     error.value = ''
   }
+
+  watch(
+    () => auth.revision,
+    () => {
+      cancelAuthorize()
+      pending.value = false
+    },
+    { flush: 'sync' },
+  )
 
   return {
     authorizeOpen,

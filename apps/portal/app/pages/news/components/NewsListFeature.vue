@@ -16,7 +16,7 @@ const { t, locale } = useI18n()
 const apiUrl = useApiUrl()
 const page = computed(() => parseListPage(route.query.page))
 const request = useAsyncData(
-  () => `academy:news:${locale.value}:${page.value}`,
+  () => `academy:news:list:${locale.value}:${page.value}`,
   (_app, { signal }) => academy.news({ pageNum: page.value, pageSize: WEB_PAGE_SIZE }, signal),
 )
 const { data, error, refresh } = request
