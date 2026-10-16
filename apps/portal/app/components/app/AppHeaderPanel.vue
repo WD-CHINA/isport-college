@@ -14,7 +14,7 @@ const localePath = useLocalePath()
 const { openLingyue } = useLingyueLaunch()
 function openLingyueHome() {
   emit('close')
-  openLingyue({ target: 'chat' })
+  openLingyue({ target: 'home' })
 }
 </script>
 

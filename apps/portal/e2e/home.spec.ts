@@ -11,7 +11,7 @@ import {
 import type { Page } from '@playwright/test'
 
 /** 只拦截当前浏览器恢复可见时的刷新，为布局与字段回归提供完整内容。 */
-async function populateHomeLayout(page: Page) {
+async function populateHomeLayout(page: Page, cardCount = 3) {
   await page.route('**/api/v1/home', async route => {
     const response = await route.fetch()
     const envelope = await response.json()
@@ -33,11 +33,11 @@ async function populateHomeLayout(page: Page) {
       originId: id,
       contentKey: `RESEARCH:${id}`,
     }))
-    home.schoolList = [1, 2, 3].map(id => ({
+    home.schoolList = Array.from({ length: cardCount }, (_, index) => ({
       ...resource,
       channel: 'SCHOOL',
-      originId: id,
-      contentKey: `SCHOOL:${id}`,
+      originId: index + 1,
+      contentKey: `SCHOOL:${index + 1}`,
     }))
     home.teacherList = [1, 2, 3, 4, 5, 6].map(id => ({ ...home.teacherList[0], id }))
     home.newsList = [1, 2, 3].map(id => ({ ...home.newsList[0], id }))
@@ -45,7 +45,7 @@ async function populateHomeLayout(page: Page) {
   })
   await returnFromBackground(page)
   await expect(page.locator('.home-research__side article')).toHaveCount(2)
-  await expect(page.locator('.home-schools__card')).toHaveCount(3)
+  await expect(page.locator('.home-schools__card')).toHaveCount(cardCount)
 }
 
 test('首页服务端直出学校案例、行业动态及服务数据', async ({ request }) => {
@@ -176,6 +176,9 @@ for (const width of [320, 390, 675, 767]) {
     await page.setViewportSize({ width, height: 844 })
     const errors: string[] = []
     page.on('pageerror', error => errors.push(error.message))
+    page.on('console', message => {
+      if (message.text().includes('Swiper Loop Warning')) errors.push(message.text())
+    })
     await page.goto('/')
     await waitForHydration(page)
     await populateHomeLayout(page)
@@ -231,7 +234,43 @@ for (const width of [320, 390, 675, 767]) {
     await expect(
       newsCarousel.getByRole('button', { name: '第 2 页', exact: true }),
     ).toHaveAttribute('aria-pressed', 'true')
+    await newsCarousel.press('ArrowRight')
+    await expect(
+      newsCarousel.getByRole('button', { name: '第 1 页', exact: true }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    await page.setViewportSize({ width, height: 844 })
+    await expect(page.locator('.home-schools .home-swiper__dots button')).toHaveCount(3)
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await expect(page.locator('.home-schools .home-swiper__dots button')).toHaveCount(0)
     expect(errors).toEqual([])
+  })
+}
+
+for (const count of [1, 2]) {
+  test(`${count} 条学校案例在移动端和桌面切换时无循环警告`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.setViewportSize({ width: 675, height: 954 })
+    const warnings: string[] = []
+    page.on('console', message => {
+      if (message.text().includes('Swiper Loop Warning')) warnings.push(message.text())
+    })
+    await page.goto('/')
+    await waitForHydration(page)
+    await populateHomeLayout(page, count)
+    const carousel = page.locator('.home-schools .home-swiper')
+    const dots = carousel.locator('.home-swiper__dots button')
+    await expect(dots).toHaveCount(count > 1 ? count : 0)
+    if (count > 1) {
+      await dots.nth(1).click()
+      await expect(dots.nth(1)).toHaveAttribute('aria-pressed', 'true')
+      await carousel.press('ArrowRight')
+      await expect(dots.nth(0)).toHaveAttribute('aria-pressed', 'true')
+    }
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await expect(dots).toHaveCount(0)
+    await page.setViewportSize({ width: 675, height: 954 })
+    await expect(dots).toHaveCount(count > 1 ? count : 0)
+    expect(warnings).toEqual([])
   })
 }
 
@@ -340,7 +379,7 @@ test('未登录点击灵跃先登录，授权后打开免登地址', async ({ pa
   await expect(page).toHaveURL(/\/$/)
 })
 
-test('顶部灵跃入口免登打开对话页', async ({ page, context, baseURL }) => {
+test('顶部灵跃入口免登打开首页', async ({ page, context, baseURL }) => {
   await context.route('https://lingyue.dream-sports.cn/**', route =>
     route.fulfill({ body: 'Lingyue service' }),
   )
@@ -353,7 +392,7 @@ test('顶部灵跃入口免登打开对话页', async ({ page, context, baseURL 
   const popupPromise = page.waitForEvent('popup')
   await page.getByRole('button', { name: '授权并继续' }).click()
   const popup = await popupPromise
-  await expect(popup).toHaveURL('https://lingyue.dream-sports.cn/launch?token=e2e&target=chat')
+  await expect(popup).toHaveURL('https://lingyue.dream-sports.cn/launch?token=e2e&target=home')
   await popup.close()
 })
 

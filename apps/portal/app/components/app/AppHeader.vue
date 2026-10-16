@@ -131,7 +131,7 @@ onScopeDispose(() => {
           v-if="!creationCenter"
           type="button"
           class="app-header__cta-lingyue"
-          @click="openLingyue({ target: 'chat' })"
+          @click="openLingyue({ target: 'home' })"
         >
           {{ t('nav.lingyue') }}
         </button>

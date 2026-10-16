@@ -27,6 +27,17 @@ export function useSmsLogin(options: { onSent?: () => void; onSuccess?: () => vo
     timer = undefined
   }
 
+  function reset() {
+    requestId++
+    clearTimer()
+    form.phone = ''
+    form.code = ''
+    form.agreed = false
+    sent.value = false
+    remaining.value = 0
+    error.value = ''
+  }
+
   function startCooldown(seconds = 60) {
     clearTimer()
     remaining.value = seconds
@@ -105,6 +116,7 @@ export function useSmsLogin(options: { onSent?: () => void; onSuccess?: () => vo
         agreed: form.agreed,
       })
       if (session && id === requestId) {
+        reset()
         options.onSuccess?.()
         await loginUi.resolveLoginSuccess()
       }

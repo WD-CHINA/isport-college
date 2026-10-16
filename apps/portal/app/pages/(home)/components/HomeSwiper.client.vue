@@ -19,14 +19,15 @@ const mobileQuery = window.matchMedia('(max-width: 767px)')
 const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 const mobile = shallowRef(mobileQuery.matches)
 const active = shallowRef(0)
-const groupSize = computed(() => (mobile.value ? 1 : props.desktopSlides))
+const groupSize = computed(() => (mobile.value || props.autoplay ? 1 : props.desktopSlides))
 const pages = computed(() => Math.ceil(props.count / groupSize.value))
 const currentPage = computed(() => Math.min(active.value, pages.value - 1))
-const canLoop = computed(() => props.count > groupSize.value)
+// 多列与移动端露出下一张时，少量卡片不满足 loop 缓冲要求，使用 rewind 首尾回绕。
+const canLoop = computed(() => props.autoplay && props.count > 1)
 const options = computed<SwiperOptions>(() => {
   const looping = canLoop.value
   return {
-    slidesPerView: props.peek && props.count > 1 ? 1.12 : 1,
+    slidesPerView: !props.autoplay && props.peek && props.count > 1 ? 1.12 : 1,
     slidesPerGroup: 1,
     spaceBetween: 12,
     speed: motionQuery.matches ? 0 : props.autoplay ? 600 : 350,
@@ -35,6 +36,7 @@ const options = computed<SwiperOptions>(() => {
     observer: !looping,
     observeSlideChildren: false,
     loop: looping,
+    rewind: !looping,
     // 精选自动轮播用淡入淡出，末页回到首页无缝过渡。
     effect: props.autoplay ? 'fade' : 'slide',
     fadeEffect: props.autoplay ? { crossFade: true } : undefined,
@@ -58,7 +60,9 @@ function sync() {
     active.value = 0
     return
   }
-  active.value = Math.floor(swiper.realIndex / groupSize.value)
+  active.value = swiper.params.loop
+    ? Math.floor(swiper.realIndex / groupSize.value)
+    : swiper.snapIndex
 }
 function goToPage(page: number) {
   const index = page * groupSize.value
@@ -70,11 +74,6 @@ function pause() {
 }
 function resize() {
   mobile.value = mobileQuery.matches
-  if (instance.value) {
-    instance.value.params.loop = canLoop.value
-    instance.value.originalParams.loop = canLoop.value
-    instance.value.update()
-  }
   sync()
 }
 function motionChanged() {
@@ -113,6 +112,8 @@ onScopeDispose(() => {
       ref="container"
       :init="false"
       @swiperslidechange="sync"
+      @swipersnapindexchange="sync"
+      @swiperresize="resize"
       @swiperbreakpoint="resize"
     >
       <slot />
