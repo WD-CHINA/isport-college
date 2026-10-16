@@ -1,6 +1,6 @@
 import { expect, test, waitForHydration } from './academy.fixture'
 
-test('教研首屏默认教学实践，四个图标分类与真实查询同步', async ({ page }) => {
+test('教研首屏默认教学实践，四个文字分类与真实查询同步', async ({ page }) => {
   const requests: string[] = []
   page.on('request', request => {
     if (new URL(request.url()).pathname === '/api/v1/research') requests.push(request.url())
@@ -33,7 +33,7 @@ test('教研首屏默认教学实践，四个图标分类与真实查询同步',
   )
 })
 
-test('学校案例使用三个图标分类，分类切换与查看案例保留真实路由', async ({ page }) => {
+test('学校案例使用三个文字分类，分类切换与查看案例保留真实路由', async ({ page }) => {
   await page.goto('/schools')
   await waitForHydration(page)
   const tabs = page.locator('.catalog-category-tabs')
@@ -45,8 +45,8 @@ test('学校案例使用三个图标分类，分类切换与查看案例保留�
   await tabs.getByRole('button', { name: '校本课程建设', exact: true }).click()
   await expect(page).toHaveURL(/category=CURRICULUM/)
   await expect(page.locator('.content-list-feature__heading h2')).toHaveText('校本课程建设')
-  await page.locator('.content-card__cta').first().click()
-  await expect(page).toHaveURL(/\/schools\/1$/)
+  await page.locator('.content-card__link').first().click()
+  await expect(page).toHaveURL('/preview/article/schools/1')
   await expect(
     page.getByRole('heading', { level: 1, name: '资源示例 1', exact: true }),
   ).toBeVisible()
@@ -102,8 +102,9 @@ for (const width of [320, 390]) {
         )
         await expect(page.locator('.app-footer__inner')).toBeVisible()
       }
+      await page.locator('.app-header__burger').click()
       await page
-        .locator('.app-header__actions')
+        .locator('.app-header__panel')
         .getByRole('button', { name: locale === 'en' ? 'Sign in' : /登\s*录/, exact: true })
         .click()
       const dialog = page.getByRole('dialog')

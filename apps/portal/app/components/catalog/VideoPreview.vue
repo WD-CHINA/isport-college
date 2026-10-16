@@ -23,7 +23,7 @@ async function mountPlayer() {
     url: props.url,
     lang: 'zh-cn',
     width: '100%',
-    height: 420,
+    height: '100%',
     autoplay: false,
     playsinline: true,
     playbackRate: [0.5, 1, 1.25, 1.5, 2],
@@ -59,13 +59,15 @@ useMessageFeedback(messageApi, failed, () => t('media.failed'))
   <PreviewFrame :title="title">
     <ContextHolder />
     <AButton v-if="failed" @click="retry">{{ t('catalog.retry') }}</AButton>
-    <div
-      v-show="!failed"
-      :key="attempt"
-      ref="host"
-      class="video-preview"
-      data-testid="video-preview"
-    />
+    <div class="video-preview__stage">
+      <div
+        v-show="!failed"
+        :key="attempt"
+        ref="host"
+        class="video-preview"
+        data-testid="video-preview"
+      />
+    </div>
   </PreviewFrame>
 </template>
 
@@ -74,5 +76,15 @@ useMessageFeedback(messageApi, failed, () => t('media.failed'))
   width: 100%;
   min-height: 240px;
   background: #000;
+
+  &__stage {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+
+    .video-preview {
+      min-height: 0;
+      aspect-ratio: 16 / 9;
+    }
+  }
 }
 </style>

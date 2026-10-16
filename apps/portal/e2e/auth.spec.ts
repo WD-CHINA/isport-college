@@ -94,7 +94,7 @@ test('验证码错误可纠正，未同意协议不能登录', async ({ page }) 
 })
 test('会话过期清 Cookie，公开正文继续显示', async ({ page, context, baseURL }) => {
   await setSession(context, testSession(1, 'expired'), baseURL!)
-  await page.goto('/resources/1')
+  await page.goto('/preview/article/resources/1')
   await expect(
     page.getByRole('heading', { level: 1, name: '资源示例 1', exact: true }),
   ).toBeVisible()
@@ -104,7 +104,7 @@ test('会话过期清 Cookie，公开正文继续显示', async ({ page, context
     .toBe(false)
 })
 test('登录后点赞回放与个人记录移除', async ({ page }) => {
-  await page.goto('/resources/1')
+  await page.goto('/preview/article/resources/1')
   await waitForHydration(page)
   await page.getByRole('button', { name: /^点赞/ }).click()
   await smsLogin(page)
@@ -128,7 +128,7 @@ test('登录后点赞回放与个人记录移除', async ({ page }) => {
 
 test('英文点赞、取消点赞、收藏和取消收藏显示对应成功消息', async ({ page, context, baseURL }) => {
   await setSession(context, testSession(), baseURL!)
-  await page.goto('/en/resources/1')
+  await page.goto('/en/preview/article/resources/1')
   await waitForHydration(page)
   const bar = page.locator('.interaction-bar')
   for (const [name, feedback] of [
@@ -166,7 +166,7 @@ test('退出接口失败仅提示本地退出警告', async ({ page, context, ba
 
 test('个人收藏随语言切换重新加载，刷新后保持英文', async ({ page, context, baseURL }) => {
   await setSession(context, testSession(), baseURL!)
-  await page.goto('/resources/1')
+  await page.goto('/preview/article/resources/1')
   await waitForHydration(page)
   await page.getByRole('button', { name: /^收藏/ }).click()
   await expect(page.getByRole('button', { name: /^取消收藏/ })).toHaveAttribute(
@@ -210,7 +210,7 @@ test('其他标签页退出后，个人中心恢复访客并离开私有页', as
 test('其他标签页重新登录后，现有页面使用新会话', async ({ page, context, baseURL }) => {
   const previous = testSession(2)
   await setSession(context, previous, baseURL!)
-  await page.goto('/resources/1')
+  await page.goto('/preview/article/resources/1')
   await waitForHydration(page)
   await expect(page.locator('.app-header__user')).toContainText('测试用户2')
   const other = await context.newPage()

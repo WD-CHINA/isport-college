@@ -10,10 +10,11 @@ defineProps<{
 }>()
 const emit = defineEmits<{ close: []; login: []; logout: [] }>()
 const { t } = useI18n()
+const localePath = useLocalePath()
 const { openLingyue } = useLingyueLaunch()
 function openLingyueHome() {
   emit('close')
-  openLingyue({ target: 'home' })
+  openLingyue({ target: 'chat' })
 }
 </script>
 
@@ -53,10 +54,10 @@ function openLingyueHome() {
         </svg>
         <span>{{ t('nav.lingyue') }}</span>
       </button>
-      <span
+      <NuxtLink
+        :to="localePath('/creation')"
         class="app-header__panel-tool app-header__panel-creation"
-        :title="t('academy.unavailable')"
-        aria-disabled="true"
+        @click="emit('close')"
       >
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
@@ -64,8 +65,7 @@ function openLingyueHome() {
           />
         </svg>
         <span>{{ t('nav.creation') }}</span>
-        <small>{{ t('nav.unavailable') }}</small>
-      </span>
+      </NuxtLink>
     </div>
 
     <div class="app-header__panel-account">
@@ -244,18 +244,12 @@ function openLingyueHome() {
   }
 
   &-creation {
-    background: var(--ic-color-background-page, #f8fafc);
-    color: var(--ic-color-text-secondary, #475569);
-    cursor: not-allowed;
+    background: var(--ic-color-academy-tint);
+    color: var(--ic-color-academy-primary);
+    cursor: pointer;
 
-    small {
-      margin-inline-start: auto;
-      padding: 0 5px;
-      border: 1px solid var(--ic-color-border-base, #e2e8f0);
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 400;
-      line-height: 18px;
+    &:hover {
+      border-color: currentcolor;
     }
   }
 

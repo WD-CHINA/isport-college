@@ -16,10 +16,6 @@ const { t } = useI18n()
       :aria-pressed="!category"
       @click="emit('change', '')"
     >
-      <span
-        class="catalog-category-tabs__icon catalog-category-tabs__icon--all"
-        aria-hidden="true"
-      />
       <span>{{ t('catalog.allCases') }}</span>
     </button>
     <button
@@ -29,11 +25,6 @@ const { t } = useI18n()
       :aria-pressed="category === item.id"
       @click="emit('change', item.id)"
     >
-      <span
-        class="catalog-category-tabs__icon"
-        :class="`catalog-category-tabs__icon--${item.id.toLowerCase()}`"
-        aria-hidden="true"
-      />
       <span>{{ item.name }}</span>
     </button>
   </div>
@@ -41,143 +32,62 @@ const { t } = useI18n()
 
 <style lang="scss" scoped>
 .catalog-category-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ic-spacing-4);
 
   button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
     min-width: 0;
-    min-height: 76px;
-    padding: 24px;
-    border: 0;
-    border-radius: 10px;
-    background: var(--ic-color-background-container, #fff);
+    padding: 18px 28px;
+    border: 1px solid var(--catalog-border);
+    border-radius: 6px;
+    background: var(--ic-color-background-container);
     color: var(--catalog-text);
-    box-shadow: 0 4px 12px rgb(0 0 0 / 4%);
     font-family: inherit;
     font-size: 18px;
-    font-weight: 500;
-    line-height: 28px;
-    text-align: start;
+    font-weight: 400;
+    line-height: 26px;
+    overflow-wrap: anywhere;
     cursor: pointer;
     transition:
-      color var(--ic-motion-duration-fast, 150ms),
-      box-shadow var(--ic-motion-duration-fast, 150ms);
-  }
-
-  button > span:last-child {
-    min-width: 0;
-    overflow-wrap: anywhere;
+      color var(--ic-motion-duration-fast),
+      border-color var(--ic-motion-duration-fast),
+      background-color var(--ic-motion-duration-fast);
   }
 
   button:hover {
+    border-color: var(--catalog-primary);
     color: var(--catalog-primary);
-    box-shadow:
-      inset 0 0 0 1px var(--catalog-primary),
-      0 4px 12px rgb(0 0 0 / 4%);
-
-    .catalog-category-tabs__icon {
-      opacity: 1;
-    }
   }
 
   button[aria-pressed='true'] {
+    border-color: var(--catalog-primary);
+    background: var(--ic-color-academy-tint);
     color: var(--catalog-primary);
-    box-shadow:
-      inset 0 0 0 2px var(--catalog-primary),
-      0 4px 12px rgb(0 0 0 / 4%);
-
-    .catalog-category-tabs__icon {
-      opacity: 1;
-    }
+    font-weight: 600;
   }
 
   button:focus-visible {
     outline: 2px solid var(--catalog-primary);
     outline-offset: 4px;
   }
-
-  &__icon {
-    width: 28px;
-    height: 28px;
-    flex: 0 0 28px;
-    background: currentcolor;
-    mask-position: center;
-    mask-repeat: no-repeat;
-    mask-size: contain;
-
-    // 教研 SVG 共用不透明遮罩，透明度由交互状态控制。
-    &--series,
-    &--research,
-    &--topics,
-    &--products {
-      opacity: 0.8;
-    }
-
-    &--all {
-      mask-image: url('/catalog/ardot/school-all.svg');
-    }
-
-    &--series {
-      mask-image: url('/catalog/ardot/research-practice.svg');
-    }
-
-    &--research {
-      mask-image: url('/catalog/ardot/research-development.svg');
-    }
-
-    &--topics {
-      mask-image: url('/catalog/ardot/research-events.svg');
-    }
-
-    &--products {
-      mask-image: url('/catalog/ardot/research-tutorials.svg');
-    }
-
-    &--curriculum {
-      mask-image: url('/catalog/ardot/school-curriculum.svg');
-    }
-
-    &--digital {
-      mask-image: url('/catalog/ardot/school-digital.svg');
-    }
-  }
-}
-
-@media (max-width: 1023px) {
-  .catalog-category-tabs {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
 }
 
 @media (max-width: 767px) {
   .catalog-category-tabs {
+    gap: var(--ic-spacing-2);
+
     button {
-      gap: 8px;
-      min-height: 64px;
-      padding: 16px 12px;
+      padding: 12px 16px;
       font-size: 14px;
       line-height: 22px;
-    }
-
-    &__icon {
-      width: 24px;
-      height: 24px;
-      flex-basis: 24px;
     }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .catalog-category-tabs {
-    button {
-      transition: none;
-    }
+  .catalog-category-tabs button {
+    transition: none;
   }
 }
 </style>

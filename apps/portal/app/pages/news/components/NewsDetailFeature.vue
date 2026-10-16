@@ -6,7 +6,7 @@ import { apiErrorCode } from '~/api/errors'
 import { formatPublishedAt, isPublicHttpUrl } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
 import ContentLink from '~/components/content/ContentLink.vue'
-import { RichTextContent } from '@isport/rich-text'
+import ArticleDetailLayout from '~/components/catalog/ArticleDetailLayout.vue'
 
 const props = defineProps<{ id: string }>()
 const academy = useAcademy()
@@ -48,12 +48,20 @@ if (import.meta.server && notFound.value) {
 </script>
 
 <template>
-  <main class="container-page news-detail">
+  <main
+    class="news-detail"
+    :class="data?.detailType === 'ARTICLE' ? 'news-detail--article' : 'container-page'"
+  >
     <ContextHolder />
     <template v-if="error">
       <h1 v-if="notFound">{{ t('detail.notFound') }}</h1>
       <AButton v-else @click="refresh()">{{ t('catalog.retry') }}</AButton>
     </template>
+    <ArticleDetailLayout
+      v-else-if="data?.detailType === 'ARTICLE'"
+      :content="data"
+      channel="news"
+    />
     <article v-else-if="data">
       <NuxtLink :to="localePath('/news')">{{ t('academy.news') }}</NuxtLink>
       <h1>{{ data.title }}</h1>
@@ -62,8 +70,7 @@ if (import.meta.server && notFound.value) {
         formatPublishedAt(data.publishedAt)
       }}</time>
       <p>{{ data.summary }}</p>
-      <RichTextContent v-if="data.detailType === 'ARTICLE'" :content="data.htmlBody" />
-      <p v-else-if="external">
+      <p v-if="external">
         <ContentLink :content="data">{{ t('catalog.external') }}</ContentLink>
       </p>
     </article>
@@ -76,6 +83,11 @@ if (import.meta.server && notFound.value) {
   gap: 12px;
   padding-top: 32px;
   padding-bottom: 56px;
+
+  &--article {
+    display: block;
+    padding: 0;
+  }
 
   h1 {
     margin: 12px 0 0;

@@ -8,7 +8,7 @@ import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
 
 const props = defineProps<{
   content: WebContentCard
-  variant?: 'default' | 'catalog'
+  variant?: 'default' | 'catalog' | 'resource-recommendation'
 }>()
 const { t } = useI18n()
 const apiUrl = useApiUrl()
@@ -31,6 +31,7 @@ const publisher = computed(
   () => props.content.publisherName || props.content.authorName || props.content.schoolName,
 )
 const levelLabel = computed(() => getLevelLabel(props.content))
+const defaultVariant = computed(() => !props.variant || props.variant === 'default')
 watch(
   () => props.content.coverUrl,
   () => {
@@ -44,6 +45,7 @@ watch(
     class="content-card"
     :class="[
       variant === 'catalog' && 'content-card--catalog',
+      variant === 'resource-recommendation' && 'content-card--recommendation',
       `content-card--${content.channel.toLowerCase()}`,
     ]"
     :data-content-id="content.contentKey"
@@ -61,7 +63,7 @@ watch(
           @error="imageFailed = true"
         />
         <ContentTypeIcon v-else :type="content.detailType" :size="40" />
-        <span v-if="variant !== 'catalog'" class="content-card__kind">{{
+        <span v-if="defaultVariant" class="content-card__kind">{{
           t(`catalog.media.${kind}`)
         }}</span>
       </div>
@@ -71,7 +73,7 @@ watch(
           :type="content.detailType"
         />
         <span
-          v-if="variant === 'catalog' && content.channel !== 'RESOURCE' && content.categoryName"
+          v-if="variant === 'catalog' && content.channel === 'RESEARCH' && content.categoryName"
           class="content-card__category"
           >{{ content.categoryName }}</span
         >
@@ -85,8 +87,10 @@ watch(
           <span class="content-card__publisher">{{ publisher }}</span>
           <span v-if="levelLabel" class="content-card__level">{{ levelLabel }}</span>
         </div>
-        <p v-if="variant !== 'catalog'">{{ content.summary }}</p>
-        <div v-if="variant !== 'catalog'" class="content-card__meta">
+        <p v-if="defaultVariant || (variant === 'catalog' && content.channel === 'SCHOOL')">
+          {{ content.summary }}
+        </p>
+        <div v-if="defaultVariant" class="content-card__meta">
           <span v-if="content.categoryName">{{ content.categoryName }}</span>
           <span v-if="content.channel === 'SCHOOL' && (content.provinceName || content.schoolName)"
             >{{ content.provinceName }} · {{ content.schoolName }}</span
@@ -94,8 +98,15 @@ watch(
           <span>{{ t('catalog.views', { count: content.viewCount }) }}</span>
           <time v-if="published" :datetime="published">{{ published }}</time>
         </div>
+        <div v-if="variant === 'resource-recommendation'" class="content-card__recommendation-meta">
+          <ContentTypeIcon :type="content.detailType" :size="14" />
+          <span>{{ content.categoryName }}</span>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 12h16m-6-6 6 6-6 6" />
+          </svg>
+        </div>
         <span
-          v-if="variant === 'catalog' && content.channel !== 'RESOURCE'"
+          v-if="variant === 'catalog' && content.channel === 'RESEARCH'"
           class="content-card__cta"
           >{{ t('catalog.viewCase') }} →</span
         >
@@ -275,28 +286,61 @@ watch(
     box-shadow: none;
   }
 
-  &--catalog:not(.content-card--resource) .content-card__cover {
+  &--catalog.content-card--research .content-card__cover {
     aspect-ratio: 585 / 300;
   }
 
-  &--catalog:not(.content-card--resource) .content-card__body {
+  &--catalog.content-card--research .content-card__body {
     min-height: 171.5px;
     gap: 12px;
     padding: 23px 25px 25px;
   }
 
-  &--catalog:not(.content-card--resource) h3 {
+  &--catalog.content-card--research h3 {
     font-size: 20px;
     font-weight: 500;
     line-height: 32px;
+  }
+
+  &--catalog.content-card--school {
+    min-height: 368px;
+    padding: var(--ic-spacing-6);
+    border: 0;
+    box-shadow: inset 0 0 0 1px var(--catalog-border);
+  }
+
+  &--catalog.content-card--school .content-card__cover {
+    aspect-ratio: 336 / 188;
+    border-radius: 6px;
+  }
+
+  &--catalog.content-card--school .content-card__body {
+    gap: var(--ic-spacing-3);
+    padding: var(--ic-spacing-6) 0 0;
+  }
+
+  &--catalog.content-card--school h3 {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 22px;
+  }
+
+  &--catalog.content-card--school p {
+    color: var(--ic-color-academy-text-secondary);
+    font-size: 12px;
+    line-height: 1.8;
   }
 
   &__category {
     width: fit-content;
     padding: 5px 8px;
     border-radius: 3px;
-    background: var(--ic-color-academy-tint);
-    color: var(--catalog-primary);
+    background: var(--ic-color-academy-tag-background);
+    color: var(--ic-color-academy-tag-text);
     font-size: 11px;
     line-height: 13px;
   }
@@ -311,12 +355,85 @@ watch(
     font-size: 12px;
     line-height: 14px;
   }
+
+  &--recommendation {
+    min-height: 226px;
+    border-color: var(--ic-color-academy-border-panel);
+    border-radius: var(--ic-border-radius-lg);
+    box-shadow: none;
+  }
+
+  &--recommendation:hover {
+    transform: none;
+    border-color: var(--ic-color-academy-primary);
+    box-shadow: none;
+  }
+
+  &--recommendation .content-card__cover {
+    height: 140px;
+    aspect-ratio: auto;
+    overflow: hidden;
+  }
+
+  &--recommendation .content-card__photo {
+    position: absolute;
+    inset: 0;
+  }
+
+  &--recommendation .content-card__body {
+    gap: 8px;
+    padding: 12px 18px 16px;
+  }
+
+  &--recommendation h3 {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 26px;
+  }
+
+  &__recommendation-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ic-color-academy-text-caption);
+    font-size: 12px;
+    line-height: 18px;
+
+    > svg {
+      width: 22px;
+      height: 22px;
+      margin-inline-start: auto;
+      color: var(--ic-color-academy-primary);
+      stroke: currentcolor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  }
 }
 
 @media (max-width: 767px) {
   .content-card {
-    &--catalog:not(.content-card--resource) h3 {
+    &--catalog.content-card--research h3 {
       font-size: 18px;
+      line-height: 28px;
+    }
+
+    &--catalog.content-card--research .content-card__body {
+      padding: var(--ic-spacing-5);
+    }
+
+    &--catalog.content-card--school {
+      min-height: 0;
+      padding: var(--ic-spacing-5);
+    }
+
+    &--catalog.content-card--school .content-card__body {
+      padding-top: var(--ic-spacing-4);
     }
   }
 }

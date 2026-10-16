@@ -21,6 +21,16 @@ describe('展示层整理学苑响应', () => {
     ).toBe('https://yuntiyu-test2.dream-sports.cn/academy/statics/demo.png')
   })
 
+  it('媒体地址保留查询参数、签名与片段，并保留部署前缀', () => {
+    expect(
+      resolveApiUrl(
+        '/media/demo.png?image=3&token=a%2Fb#preview',
+        'https://api.example/academy?old=1',
+      ),
+    ).toBe('https://api.example/academy/media/demo.png?image=3&token=a%2Fb#preview')
+    expect(resolveApiUrl('/media/demo.png?image=3', '')).toBe('/media/demo.png?image=3')
+  })
+
   it('资料缺字段时补成会话可用的形状', () => {
     expect(
       toWebProfile({

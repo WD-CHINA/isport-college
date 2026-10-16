@@ -185,8 +185,13 @@ const CHANNEL_PATHS: Record<WebChannel, string> = {
   SCHOOL: 'schools',
 }
 
-export function webContentPath(content: Pick<WebContentCard, 'channel' | 'originId'>): string {
-  return `/${CHANNEL_PATHS[content.channel]}/${content.originId}`
+/** 三频道共用预览入口；LINK 没有站内详情地址，由调用侧打开外链。 */
+export function webContentPath(
+  content: Pick<WebContentCard, 'channel' | 'originId' | 'detailType'>,
+): string {
+  if (content.detailType === 'LINK') return ''
+  const source = `${CHANNEL_PATHS[content.channel]}/${content.originId}`
+  return `/preview/${content.detailType === 'ARTICLE' ? 'article' : 'resource'}/${source}`
 }
 
 export function formatPublishedAt(value: number | null): string {

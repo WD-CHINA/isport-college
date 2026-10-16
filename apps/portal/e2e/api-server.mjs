@@ -76,11 +76,20 @@ function detail(id, channel, english, token) {
   return {
     ...value,
     description: value.summary,
-    htmlBody: '<h2>资源正文</h2><p>这是可独立加载的教学正文。</p><script>alert("unsafe")</script>',
+    htmlBody:
+      id === 10
+        ? '<p><img src="/media/sample.png" alt="课堂实践一"><img src="/media/sample.png" alt="课堂实践二"></p><p>文章详情布局回归正文。</p><h2>课堂实践</h2><p>保持正文、互动和推荐相互独立。</p><script>alert("unsafe")</script>'
+        : '<h2>资源正文</h2><p>这是可独立加载的教学正文。</p><script>alert("unsafe")</script>',
     jumpUrl: 'https://example.com/lesson',
     resourceType: null,
     mediaList: file
-      ? [{ mediaType, fileUrl: `/media/${file}`, coverUrl: '', durationSec: 1, pageCount: 1 }]
+      ? (id === 5 ? [1, 2, 3] : [1]).map(index => ({
+          mediaType,
+          fileUrl: `/media/${file}${id === 5 ? `?image=${index}` : ''}`,
+          coverUrl: '',
+          durationSec: 1,
+          pageCount: 1,
+        }))
       : [],
     liked: state(token).LIKE.has(value.contentKey),
     favorited: state(token).FAVORITE.has(value.contentKey),
@@ -210,7 +219,14 @@ const server = createServer(async (req, res) => {
     if (path === '/contents/recommend') {
       if (url.searchParams.get('originId') === '8')
         return send(res, null, 503, 'Service unavailable')
-      return send(res, [card(1, url.searchParams.get('channel') ?? 'RESOURCE', english)])
+      const channel = url.searchParams.get('channel') ?? 'RESOURCE'
+      const source = card(Number(url.searchParams.get('originId')), channel, english)
+      return send(
+        res,
+        (channel === 'RESOURCE' && source.detailType !== 'ARTICLE' ? [1, 2, 3] : [1]).map(id =>
+          card(id, channel, english),
+        ),
+      )
     }
     if (path === '/resources/filters')
       return send(res, {

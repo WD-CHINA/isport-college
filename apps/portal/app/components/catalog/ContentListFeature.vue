@@ -70,6 +70,7 @@ await request
         />
         <AppPagination
           v-if="data"
+          variant="catalog"
           :total="data.total"
           :page="query.page"
           :page-size="data.pageSize"
@@ -104,6 +105,10 @@ await request
     gap: 0;
   }
 
+  &--research .content-list-feature__main {
+    padding-top: 26px;
+  }
+
   &--resource .content-list-feature__main {
     gap: 18px;
     padding-top: 26px;
@@ -125,6 +130,19 @@ await request
     display: grid;
     gap: 12px;
     padding-top: 32px;
+  }
+
+  &.content-list-feature--research .content-list-feature__heading {
+    gap: 19px;
+    padding-top: 30px;
+
+    h2 {
+      font-weight: 700;
+    }
+  }
+
+  &--research :deep(.content-grid) {
+    margin-top: 29px;
   }
 
   &:not(.content-list-feature--resource) .content-list-feature__count {
@@ -158,7 +176,7 @@ await request
   &__description {
     width: 100%;
     margin: 0;
-    color: var(--catalog-muted);
+    color: var(--ic-color-academy-text-caption);
     font-size: 13px;
     line-height: 20px;
   }

@@ -13,6 +13,7 @@ export function useLocaleSwitch() {
   const localeModel = computed({
     get: () => locale.value,
     set: (code: string) => {
+      if (code === locale.value) return
       void navigateTo(switchLocalePath(code as typeof locale.value))
     },
   })

@@ -1,5 +1,6 @@
 /** 站内能力以实际后端协议为准；外部服务入口单独声明跳转地址。 */
 export const ACADEMY_CAPABILITIES = {
+  contentReport: { enabled: false, titleKey: 'detail.report' },
   admin: { enabled: false, titleKey: 'seo.adminTitle' },
   courseManagement: { enabled: false, titleKey: 'nav.courseManage' },
   creation: { enabled: false, titleKey: 'academy.creation' },

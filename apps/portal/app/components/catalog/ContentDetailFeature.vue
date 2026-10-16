@@ -2,17 +2,18 @@
 import { message } from 'antdv-next'
 import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { useContentDetail } from '~/composables/catalog/useContentDetail'
-import { isPublicHttpUrl } from '@isport/shared'
 import { useApiUrl } from '~/utils/api-url'
-import ContentLink from '~/components/content/ContentLink.vue'
-import { RichTextContent } from '@isport/rich-text'
-import ContentDetailShell from './ContentDetailShell.vue'
-import ContentGrid from '~/components/content/ContentGrid.vue'
+import ArticleDetailLayout from './ArticleDetailLayout.vue'
+import ResourceDetailLayout from './ResourceDetailLayout.vue'
 import InteractionBar from './InteractionBar.vue'
 import MediaPreview from './MediaPreview.vue'
 import { toContentMedia } from '~/utils/content-media'
 
-const props = defineProps<{ id: string; channel: 'resource' | 'research' | 'school' }>()
+const props = defineProps<{
+  id: string
+  channel: 'resource' | 'research' | 'school'
+  kind: 'article' | 'resource'
+}>()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const apiUrl = useApiUrl()
@@ -28,7 +29,7 @@ const {
   setInteraction,
   reportView,
   refresh,
-} = useContentDetail(props.id, props.channel, {
+} = useContentDetail(props.id, props.channel, props.kind, {
   onInteractionSuccess: (kind, active) => {
     const key =
       kind === 'like'
@@ -43,15 +44,7 @@ const {
 })
 const { data, error, status } = request
 const { data: recommendations } = recommendationsRequest
-const mediaItems = computed(() => {
-  const detail = data.value?.detail
-  if (!detail || detail.detailType === 'ARTICLE' || detail.detailType === 'LINK') return []
-  return toContentMedia(detail.mediaList, apiUrl)
-})
-const externalUrl = computed(() => {
-  const url = apiUrl(data.value?.detail.jumpUrl)
-  return data.value?.detail.detailType === 'LINK' && isPublicHttpUrl(url) ? url : ''
-})
+const mediaItems = computed(() => toContentMedia(data.value?.detail.mediaList ?? [], apiUrl))
 useSeoMeta({
   title: () => data.value?.detail.title || t('detail.notFound'),
   description: () => data.value?.detail.summary || '',
@@ -71,42 +64,33 @@ if (import.meta.server && notFound.value) {
 </script>
 
 <template>
-  <main class="content-detail ic-container">
+  <main class="content-detail" :class="data ? 'content-detail--layout' : 'ic-container'">
     <ContextHolder />
     <template v-if="error">
       <h1 v-if="notFound">{{ t('detail.notFound') }}</h1>
       <AButton v-else @click="refresh">{{ t('catalog.retry') }}</AButton>
       <NuxtLink :to="localePath('/')">{{ t('common.backHome') }}</NuxtLink>
     </template>
-    <template v-else-if="data">
-      <ContentDetailShell :content="data.detail">
-        <RichTextContent
-          v-if="data.detail.detailType === 'ARTICLE'"
-          :content="data.detail.htmlBody"
-          show-toc
-          :toc-label="t('detail.toc')"
+    <component
+      :is="kind === 'article' ? ArticleDetailLayout : ResourceDetailLayout"
+      v-else-if="data"
+      :content="data.detail"
+      :channel="channel"
+      :recommendations="recommendations"
+    >
+      <template v-if="kind === 'resource'" #preview>
+        <MediaPreview :items="mediaItems" :title="data.detail.title" />
+      </template>
+      <template v-if="(stats && data.detail.interactive) || viewFailed" #interactions>
+        <InteractionBar
+          v-if="stats && data.detail.interactive"
+          :stats="stats"
+          :pending="pending || status === 'pending'"
+          @change="setInteraction"
         />
-        <p v-else-if="data.detail.detailType === 'LINK'">
-          <ContentLink v-if="externalUrl" :content="data.detail">{{
-            t('catalog.external')
-          }}</ContentLink>
-        </p>
-        <MediaPreview v-else :items="mediaItems" :title="data.detail.title" />
-        <template #interactions>
-          <InteractionBar
-            v-if="stats && data.detail.interactive"
-            :stats="stats"
-            :pending="pending || status === 'pending'"
-            @change="setInteraction"
-          />
-          <AButton v-if="viewFailed" @click="reportView">{{ t('catalog.retry') }}</AButton>
-        </template>
-      </ContentDetailShell>
-      <section v-if="recommendations.length" class="content-detail__recommendations">
-        <h2>{{ t('detail.recommendations') }}</h2>
-        <ContentGrid :items="recommendations" />
-      </section>
-    </template>
+        <AButton v-if="viewFailed" @click="reportView">{{ t('catalog.retry') }}</AButton>
+      </template>
+    </component>
     <ASkeleton v-else active />
   </main>
 </template>
@@ -116,8 +100,8 @@ if (import.meta.server && notFound.value) {
   padding-top: 32px;
   padding-bottom: 56px;
 
-  &__recommendations {
-    margin-top: 40px;
+  &--layout {
+    padding: 0;
   }
 }
 </style>

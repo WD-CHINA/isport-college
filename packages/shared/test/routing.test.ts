@@ -61,6 +61,9 @@ describe('isPrivateRoutePath', () => {
     ['/account/teacher', true],
     ['/Account/Teacher', true],
     ['/en/account/teacher', true],
+    ['/creation', true],
+    ['/en/Creation/', true],
+    ['/creations', false],
     ['/account', false],
   ])('%s -> %s', (path, expected) => {
     expect(isPrivateRoutePath(path)).toBe(expected)

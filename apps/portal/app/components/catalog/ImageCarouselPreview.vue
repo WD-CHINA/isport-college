@@ -2,15 +2,21 @@
 import { message } from 'antdv-next'
 import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { isContentAssetUrl, type MediaAsset } from '@isport/shared'
-import PreviewFrame from './PreviewFrame.vue'
+import ResourceImageGallery from './ResourceImageGallery.vue'
 
 const props = defineProps<{ images: MediaAsset[]; title: string }>()
 const emit = defineEmits<{ error: [] }>()
 const { t } = useI18n()
 const safeImages = computed(() => props.images.filter(item => isContentAssetUrl(item.url)))
+const failed = shallowRef(false)
+function handleError() {
+  failed.value = true
+  emit('error')
+}
 watch(
   () => props.images,
   items => {
+    failed.value = false
     if (items.length && !safeImages.value.length) emit('error')
   },
   { immediate: true },
@@ -19,43 +25,17 @@ watch(
 const [messageApi, ContextHolder] = message.useMessage()
 useMessageFeedback(
   messageApi,
-  () => !safeImages.value.length,
+  () => !safeImages.value.length || failed.value,
   () => t('media.missing'),
 )
 </script>
 
 <template>
-  <PreviewFrame :title="title">
-    <ContextHolder />
-    <ACarousel
-      v-if="safeImages.length"
-      arrows
-      dots
-      class="image-carousel"
-      data-testid="image-carousel"
-    >
-      <div v-for="(item, index) in safeImages" :key="`${item.url}-${index}`">
-        <img class="image-carousel__image" :src="item.url" :alt="title" @error="emit('error')" />
-      </div>
-    </ACarousel>
-  </PreviewFrame>
+  <ContextHolder />
+  <ResourceImageGallery
+    v-if="safeImages.length"
+    :images="safeImages"
+    :title="title"
+    @error="handleError"
+  />
 </template>
-
-<style lang="scss" scoped>
-.image-carousel {
-  :deep(.slick-slide) {
-    text-align: center;
-    line-height: 0;
-    background: #0f172a0a;
-  }
-
-  &__image {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    max-height: 70vh;
-    margin: 0 auto;
-    object-fit: contain;
-  }
-}
-</style>

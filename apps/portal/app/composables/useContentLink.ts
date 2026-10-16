@@ -16,10 +16,8 @@ export function useContentLink(getContent: () => LinkContent, onError: () => voi
   }
   const href = computed(() => {
     const content = getContent()
-    return (
-      externalUrl(content) ||
-      localePath('channel' in content ? webContentPath(content) : `/news/${content.id}`)
-    )
+    if (content.detailType === 'LINK') return externalUrl(content) || '#'
+    return localePath('channel' in content ? webContentPath(content) : `/news/${content.id}`)
   })
 
   async function open(event: MouseEvent) {

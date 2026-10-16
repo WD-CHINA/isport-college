@@ -48,7 +48,7 @@ Cookie 为 SameSite=Lax；`siteEnv=production` 时使用 Secure。Cookie 只保�
 
 公开页不等待 `/me`：资料缓存恢复和刷新都通过 `onNuxtReady` 等待完整水合，刷新上限 2 秒。根应用的 mounted 不代表异步布局已完成水合，不能在该时机改变首屏资料。受保护路由在 SSR 门禁里刷新一次已登录会话，这次结果写入本次请求的标记，水合后不再重复请求。401 会恢复为访客登录流程；其他资料服务故障保留本地会话，实际业务接口仍由后端鉴权。
 
-详情正文独立 SSR；推荐在浏览器单独请求。推荐失败不会覆盖正文。资源、教师和动态不存在时，页面正文及 HTTP 响应均为 404。浏览计数只在浏览器提交，互动和计数的旧响应不能覆盖新会话数据。
+三频道的内容入口按 `detailType` 统一：`ARTICLE` 使用 `/preview/article/{resources|research|schools}/{id}`，`VIDEO/AUDIO/DOCUMENT/IMAGE` 使用 `/preview/resource/{resources|research|schools}/{id}`，`LINK` 由 `ContentLink` 在新窗口打开外链。预览地址中的栏目仅用于选择原始详情接口；三频道分别共用富文本与资源预览布局。旧详情路由已移除；不匹配实际内容类型的预览地址返回 404。页面仅在从后台恢复可见时主动刷新，不响应普通窗口聚焦或语言菜单展开；选定其他语言后由语言数据键加载对应内容。详情正文独立 SSR；推荐在浏览器单独请求。推荐失败不会覆盖正文。资源、教师和动态不存在时，页面正文及 HTTP 响应均为 404。浏览计数只在浏览器提交，互动和计数的旧响应不能覆盖新会话数据。
 
 `useContentDetail` 编排正文、推荐与派生数据；`useContentInteractions` 负责点赞、收藏、登录回放和记录缓存刷新；`useContentView` 负责浏览上报与重试。子组合函数读取详情引用，并通过显式更新函数写回当前数据。
 
@@ -65,6 +65,7 @@ apps/portal/app/
     account/           个人页
     resources/ research/ schools/  三个频道入口，只传入频道
     news/ teachers/    动态与教师
+    creation/         公开创作中心概览，页面与交互不要求登录或权限
     admin/ lingyue/    管理端与灵跃入口；不可用页来自 components/app
   layouts/             公开与管理端外壳
   components/
@@ -77,14 +78,16 @@ apps/portal/app/
     auth/              登录流程与登录门禁
     useAcademy.ts      当前请求的客户端
     useProfile.ts      资料更新，供个人页与昵称引导共用
-    useLocaleSwitch.ts / useRefreshOnFocus.ts
+    useLocaleSwitch.ts / useRefreshOnVisible.ts
   stores/              auth 与 login-ui
   utils/               调用侧响应验证、资料与 URL 整理
 ```
 
 业务 composable、store、工具和本地组件显式导入；Nuxt/Vue 内置 API 保留自动导入。`antdv-next` 组件由 `@antdv-next/nuxt` 以 `A` 前缀自动注册，运行时函数和静态属性仍显式导入。展示组件通过 props/emits 与业务编排通信。分页由 `components/app/AppPagination.vue` 提供，颜色优先消费 `design-tokens`。
 
-投稿、积分、教师资料、灵跃和管理端接口尚未接入。`config/capabilities.ts` 是其当前声明；灵跃操作入口禁用，已有路由保留门禁并展示统一不可用页。旧课程组件、失败接口、伪业务状态和原型模型已移除，旧 `/courses` 兼容路由与 `/rsp` 隔离响应继续保留。新增能力需要真实协议与对应测试，不能只打开声明中的开关。
+投稿、积分、教师资料、灵跃和管理端接口尚未接入。`config/capabilities.ts` 是其当前声明；灵跃操作入口禁用，已有路由保留门禁并展示统一不可用页。旧课程组件、失败接口、伪业务状态和原型模型已移除，旧 `/courses` 列表兼容路由与 `/rsp` 隔离响应继续保留。新增能力需要真实协议与对应测试，不能只打开声明中的开关。
+
+`/creation` 是独立的公开创作中心设计 Demo，按产品要求不设置登录、权限或能力开关门禁，也不接入业务接口。内容区按 Ardot `139:8112` 展示四条静态作品、13/1/0 状态数量、220/25/80 积分和五类投稿奖励；数据集中在页面目录的 `utils/creation-demo.ts`，仅用于还原原稿，不写入账号、持久化存储或后端。图标由原稿导出，作品菜单、状态切换、积分和类型选择均在当前页面内演示，弹窗说明数据为示例，不模拟提交成功。原有 `/admin/creation`、`/admin/works` 和 `/admin/points` 保持后台边界。创作中心通过 HTTP Header 与页面 Meta 禁止收录。
 
 ## Workspace 边界
 

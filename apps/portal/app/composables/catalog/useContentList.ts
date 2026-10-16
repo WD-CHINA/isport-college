@@ -9,7 +9,7 @@ import {
 } from '@isport/shared'
 import { toWebChannel } from '~/utils/web-channel'
 import { useAcademy } from '~/composables/useAcademy'
-import { useRefreshOnFocus } from '~/composables/useRefreshOnFocus'
+import { useRefreshOnVisible } from '~/composables/useRefreshOnVisible'
 
 export function useContentList(channel: 'resource' | 'research' | 'school') {
   const academy = useAcademy()
@@ -112,7 +112,7 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
     if (filterRequest.error.value) await filterRequest.refresh()
     await request.refresh()
   }
-  useRefreshOnFocus(retry)
+  useRefreshOnVisible(retry)
   return {
     query,
     request,

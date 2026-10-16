@@ -5,14 +5,29 @@ import { useLingyueLaunch } from '~/composables/useLingyueLaunch'
 const { t } = useI18n()
 const { openLingyue } = useLingyueLaunch()
 const tools = computed(() => [
-  { title: t('lingyue.lesson'), icon: '9cb0e.svg', target: 'home' as LingyueLaunchTarget },
-  { title: t('lingyue.unit'), icon: 'c11d4.svg', target: 'agent' as LingyueLaunchTarget },
-  { title: t('lingyue.exercise'), icon: 'c9968.svg', target: 'chat' as LingyueLaunchTarget },
+  {
+    title: t('lingyue.lesson'),
+    icon: '9cb0e.svg',
+    target: 'agent' as LingyueLaunchTarget,
+    agentCode: 'lesson-plan',
+  },
+  {
+    title: t('lingyue.unit'),
+    icon: 'c11d4.svg',
+    target: 'agent' as LingyueLaunchTarget,
+    agentCode: 'unit-plan',
+  },
+  {
+    title: t('lingyue.exercise'),
+    icon: 'c9968.svg',
+    target: 'agent' as LingyueLaunchTarget,
+    agentCode: 'workout-plan',
+  },
   {
     title: t('lingyue.assessment'),
     icon: '0bb5a.svg',
     target: 'agent' as LingyueLaunchTarget,
-    agentCode: 'lesson-plan',
+    agentCode: 'fitness-report',
   },
 ])
 </script>

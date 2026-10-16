@@ -1,4 +1,4 @@
-import { useRefreshOnFocus } from '~/composables/useRefreshOnFocus'
+import { useRefreshOnVisible } from '~/composables/useRefreshOnVisible'
 import { useAcademy } from '~/composables/useAcademy'
 import { useAuthStore } from '~/stores/auth'
 import type { InteractionKind, WebChannel, WebContentCard } from '@isport/shared'
@@ -69,7 +69,7 @@ export function useAccountActivity(options: { onRemoved?: (kind: InteractionKind
       removing.value = ''
     }
   }
-  useRefreshOnFocus(() => request.refresh())
+  useRefreshOnVisible(() => request.refresh())
   return { kind, channel, page, removing, failed, totals, request, filter, remove }
 }
 

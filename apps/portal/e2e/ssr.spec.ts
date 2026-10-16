@@ -11,7 +11,7 @@ function collectHydrationErrors(page: Page) {
 
 test('SSR 加载失败在水合后显示 hook 消息，保留重试入口', async ({ page }) => {
   const hydrationErrors = collectHydrationErrors(page)
-  const response = await page.goto('/resources/997')
+  const response = await page.goto('/preview/article/resources/997')
   expect(await response!.text()).not.toContain('ant-alert')
   await waitForHydration(page)
   await expect(page.locator('.ant-message-notice-error')).toContainText('请求失败，请重试')
@@ -120,7 +120,7 @@ test('SSR 的英文语言头到达外部 API', async ({ request }) => {
 })
 
 test('入站 Host 与转发地址不会改变 SSR 的固定上游', async ({ request }) => {
-  const response = await request.get('/resources/1', {
+  const response = await request.get('/preview/article/resources/1', {
     headers: {
       Host: '127.0.0.1:1',
       'X-Forwarded-Host': 'untrusted.example',

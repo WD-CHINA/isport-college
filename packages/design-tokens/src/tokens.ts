@@ -63,11 +63,25 @@ export const colorBorder = {
 /** 学苑前台 Ardot 色板，供首页、栏目和内容组件共用。 */
 export const colorAcademy = {
   primary: '#0077fa',
+  overlayControl: 'rgb(28 31 35 / 60%)',
   tint: '#eaf5ff',
+  article: {
+    background: '#f7f9fc',
+    title: '#14253a',
+    body: '#263548',
+    summary: '#7b899a',
+    asideHeading: '#526176',
+    asideText: '#637184',
+  },
+  tag: {
+    background: '#d6edfd',
+    text: '#004b83',
+  },
   text: {
     primary: '#1c1f23',
     secondary: 'rgb(28 31 35 / 60%)',
     muted: '#68788c',
+    caption: '#71808d',
     disabled: 'rgb(28 31 35 / 35%)',
   },
   background: {
@@ -77,6 +91,7 @@ export const colorAcademy = {
   },
   border: {
     base: 'rgb(28 31 35 / 10%)',
+    panel: '#e7eaee',
   },
   media: {
     text: '#05a4b6',

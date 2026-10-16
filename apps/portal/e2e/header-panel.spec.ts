@@ -14,8 +14,8 @@ for (const width of [320, 390, 768, 1024]) {
       panel.getByRole('link', { name: 'Teaching Resources', exact: true }),
     ).toHaveAttribute('aria-current', 'page')
     await expect(panel.locator('.app-header__panel-creation')).toHaveAttribute(
-      'aria-disabled',
-      'true',
+      'href',
+      '/en/creation',
     )
     const bounds = await panel.boundingBox()
     expect(bounds!.x).toBeGreaterThanOrEqual(0)

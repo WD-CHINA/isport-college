@@ -23,7 +23,7 @@ for (const path of [
 test('个人中心 SSR 与畸形 URL 保持真实状态码', async ({ context, baseURL }) => {
   await setSession(context, testSession(), baseURL!)
   expect((await context.request.get('/account')).status()).toBe(200)
-  for (const path of ['/resources/999', '/teachers/999', '/news/999']) {
+  for (const path of ['/preview/article/resources/999', '/teachers/999', '/news/999']) {
     const response = await context.request.get(path)
     expect(response.status(), path).toBe(404)
     expect(await response.text()).toContain('内容不存在')
@@ -31,7 +31,7 @@ test('个人中心 SSR 与畸形 URL 保持真实状态码', async ({ context, b
 })
 
 test('后端以 400 表示下架时，内容详情 SSR 仍返回 404', async ({ request }) => {
-  for (const path of ['/resources/998', '/teachers/998', '/news/998']) {
+  for (const path of ['/preview/article/resources/998', '/teachers/998', '/news/998']) {
     const response = await request.get(path)
     expect(response.status(), path).toBe(404)
     expect(await response.text()).toContain('内容不存在')

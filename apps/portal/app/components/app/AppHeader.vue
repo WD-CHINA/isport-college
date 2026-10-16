@@ -6,6 +6,8 @@ import AppLocaleMenu from '~/components/app/AppLocaleMenu.vue'
 import AppHeaderPanel from '~/components/app/AppHeaderPanel.vue'
 import { useLingyueLaunch } from '~/composables/useLingyueLaunch'
 
+withDefaults(defineProps<{ creationCenter?: boolean }>(), { creationCenter: false })
+
 const auth = useAuthStore()
 const loginUi = useLoginUiStore()
 const { openLingyue } = useLingyueLaunch()
@@ -57,8 +59,12 @@ const panelNav = computed(() =>
   mainNav.value.map(item => ({ ...item, active: isActive(item.to, item.exact) })),
 )
 
+const navigationPath = computed(() =>
+  route.path.replace(/\/preview\/(?:article|resource)\/(?=(?:resources|research|schools)\/)/, '/'),
+)
+
 function isActive(to: string, exact: boolean): boolean {
-  return exact ? route.path === to : route.path.startsWith(to)
+  return exact ? navigationPath.value === to : navigationPath.value.startsWith(to)
 }
 
 function openLogin() {
@@ -91,7 +97,12 @@ onScopeDispose(() => {
 </script>
 
 <template>
-  <header ref="header" class="app-header" @keydown.esc="closeMenu">
+  <header
+    ref="header"
+    class="app-header"
+    :class="{ 'app-header--creation': creationCenter }"
+    @keydown.esc="closeMenu"
+  >
     <div class="container-page app-header__inner">
       <div class="app-header__leading">
         <NuxtLink :to="localePath('/')" class="app-header__brand" :aria-label="t('nav.brand')">
@@ -99,7 +110,10 @@ onScopeDispose(() => {
             <img src="/home/figma/5aa99.svg" alt="" />
           </span>
         </NuxtLink>
-        <nav class="app-header__nav" :aria-label="t('nav.home')">
+        <span v-if="creationCenter" class="app-header__section" :title="t('nav.creation')">
+          {{ t('nav.creation') }}
+        </span>
+        <nav v-else class="app-header__nav" :aria-label="t('nav.home')">
           <NuxtLink
             v-for="item in mainNav"
             :key="item.to"
@@ -114,15 +128,23 @@ onScopeDispose(() => {
 
       <div class="app-header__actions">
         <button
+          v-if="!creationCenter"
           type="button"
           class="app-header__cta-lingyue"
-          @click="openLingyue({ target: 'home' })"
+          @click="openLingyue({ target: 'chat' })"
         >
           {{ t('nav.lingyue') }}
         </button>
-        <span class="app-header__cta-creation" :title="t('academy.unavailable')">
+        <NuxtLink
+          v-if="!creationCenter"
+          :to="localePath('/creation')"
+          class="app-header__cta-creation"
+        >
           {{ t('nav.creation') }}
-        </span>
+        </NuxtLink>
+        <NuxtLink v-else :to="localePath('/')" class="app-header__home">
+          {{ t('creation.portalHome') }}
+        </NuxtLink>
         <AppLocaleMenu />
         <template v-if="auth.isLoggedIn">
           <APopover v-model:open="userMenuOpen" trigger="click" placement="bottomRight">
@@ -207,12 +229,36 @@ onScopeDispose(() => {
     min-width: 0;
   }
 
+  &--creation &__leading {
+    gap: 24px;
+  }
+
   &__brand {
     flex: none;
     color: var(--ic-color-academy-text-primary);
     font-size: 22px;
     font-weight: 600;
     line-height: 35px;
+    white-space: nowrap;
+  }
+
+  &__section {
+    min-width: 0;
+    padding-inline-start: 24px;
+    overflow: hidden;
+    border-inline-start: 1px solid rgb(0 0 0 / 20%);
+    font-size: 18px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__home {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: var(--ic-color-academy-tint);
+    color: var(--ic-color-academy-primary);
+    font-size: 14px;
     white-space: nowrap;
   }
 
@@ -286,7 +332,7 @@ onScopeDispose(() => {
   &__cta-creation {
     background: var(--ic-color-academy-tint);
     color: var(--ic-color-academy-primary);
-    cursor: default;
+    cursor: pointer;
   }
 
   &__login {
@@ -380,6 +426,23 @@ onScopeDispose(() => {
 
 @media (max-width: 767px) {
   .app-header {
+    &__leading {
+      gap: 12px;
+    }
+
+    &--creation &__leading {
+      gap: 12px;
+    }
+
+    &__section {
+      padding-inline-start: 12px;
+      font-size: 15px;
+    }
+
+    &__home {
+      display: none;
+    }
+
     &__inner {
       gap: 8px;
     }

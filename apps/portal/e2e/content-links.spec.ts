@@ -1,5 +1,5 @@
 import type { Locator, Page } from '@playwright/test'
-import { expect, test, waitForHydration } from './academy.fixture'
+import { expect, test, waitForHydration, returnFromBackground } from './academy.fixture'
 
 async function openExternal(page: Page, link: Locator, url: string) {
   const currentUrl = page.url()
@@ -43,7 +43,7 @@ for (const path of ['/', '/en']) {
       ]
       await route.fulfill({ response, json: envelope })
     })
-    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await returnFromBackground(page)
     const selectors = [
       ['.home-featured__copy a', 'featuredList'],
       ['.home-featured__hot li a', 'hotList'],
@@ -63,7 +63,9 @@ for (const path of ['/', '/en']) {
     const article = page.locator('[data-content-id="RESOURCE:1"] a')
     await expect(article).not.toHaveAttribute('target', '_blank')
     await article.click()
-    await expect(page).toHaveURL(path === '/' ? /\/resources\/1$/ : /\/en\/resources\/1$/)
+    await expect(page).toHaveURL(
+      path === '/' ? '/preview/article/resources/1' : '/en/preview/article/resources/1',
+    )
   })
 }
 
@@ -76,6 +78,7 @@ for (const channel of ['resources', 'research', 'schools']) {
       .locator('.content-card')
       .filter({ has: page.getByRole('heading', { name: '资源示例 7', exact: true }) })
       .getByRole('link')
+    await expect(link).toHaveAttribute('href', '#')
     const detail = page.waitForRequest(`**/api/v1/${channel}/7`)
     await openExternal(page, link, 'https://example.com/lesson')
     await detail

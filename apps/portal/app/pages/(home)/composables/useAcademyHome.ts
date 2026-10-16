@@ -1,4 +1,4 @@
-import { useRefreshOnFocus } from '~/composables/useRefreshOnFocus'
+import { useRefreshOnVisible } from '~/composables/useRefreshOnVisible'
 import { useAcademy } from '~/composables/useAcademy'
 import { RESEARCH_CATEGORIES } from '@isport/shared'
 import { storeToRefs } from 'pinia'
@@ -51,7 +51,7 @@ export function useAcademyHome() {
     },
   })
 
-  useRefreshOnFocus(request.refresh)
+  useRefreshOnVisible(request.refresh)
   return {
     request,
     resourceCategory,

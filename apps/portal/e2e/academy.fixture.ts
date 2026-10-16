@@ -31,6 +31,22 @@ export async function waitForHydration(page: Page) {
     return element?.__vue_app__?.$nuxt?.isHydrating === false
   })
 }
+/** 模拟浏览器的后台→可见事件，不依赖无头浏览器的标签页可见性策略。 */
+export async function returnFromBackground(page: Page) {
+  await page.evaluate(() => {
+    const original = Object.getOwnPropertyDescriptor(document, 'visibilityState')
+    try {
+      for (const value of ['hidden', 'visible']) {
+        Object.defineProperty(document, 'visibilityState', { configurable: true, value })
+        document.dispatchEvent(new Event('visibilitychange'))
+      }
+    } finally {
+      if (original) Object.defineProperty(document, 'visibilityState', original)
+      else Reflect.deleteProperty(document, 'visibilityState')
+    }
+  })
+}
+
 export async function smsLogin(page: Page) {
   const dialog = page.getByRole('dialog')
   await expect(dialog).toBeVisible()

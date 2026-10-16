@@ -1,4 +1,5 @@
 import {
+  returnFromBackground,
   expect,
   test,
   switchLanguage,
@@ -9,7 +10,7 @@ import {
 } from './academy.fixture'
 import type { Page } from '@playwright/test'
 
-/** 只拦截当前浏览器的焦点刷新，为布局与字段回归提供完整内容。 */
+/** 只拦截当前浏览器恢复可见时的刷新，为布局与字段回归提供完整内容。 */
 async function populateHomeLayout(page: Page) {
   await page.route('**/api/v1/home', async route => {
     const response = await route.fetch()
@@ -42,7 +43,7 @@ async function populateHomeLayout(page: Page) {
     home.newsList = [1, 2, 3].map(id => ({ ...home.newsList[0], id }))
     await route.fulfill({ response, json: envelope })
   })
-  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await returnFromBackground(page)
   await expect(page.locator('.home-research__side article')).toHaveCount(2)
   await expect(page.locator('.home-schools__card')).toHaveCount(3)
 }
@@ -295,18 +296,20 @@ test('已登录未关联时先授权，再按入口打开灵跃免登地址', as
   const firstPopup = page.waitForEvent('popup')
   await page.getByRole('button', { name: '授权并继续' }).click()
   const popup = await firstPopup
-  await expect(popup).toHaveURL('https://lingyue.dream-sports.cn/launch?token=e2e&target=home')
+  await expect(popup).toHaveURL(
+    'https://lingyue.dream-sports.cn/launch?token=e2e&target=agent&agentCode=lesson-plan',
+  )
   expect(await popup.evaluate(() => window.opener === null)).toBe(true)
   await popup.close()
-  const targets = ['agent', 'chat', 'agent']
-  for (const [index, target] of targets.entries()) {
+  const agentCodes = ['unit-plan', 'workout-plan', 'fitness-report']
+  for (const [index, agentCode] of agentCodes.entries()) {
     const popupPromise = page.waitForEvent('popup')
     await links.nth(index + 1).click()
     const next = await popupPromise
     const url = new URL(next.url())
     expect(url.origin + url.pathname).toBe('https://lingyue.dream-sports.cn/launch')
-    expect(url.searchParams.get('target')).toBe(target)
-    expect(url.searchParams.get('agentCode')).toBe(index === 2 ? 'lesson-plan' : null)
+    expect(url.searchParams.get('target')).toBe('agent')
+    expect(url.searchParams.get('agentCode')).toBe(agentCode)
     expect(await next.evaluate(() => window.opener === null)).toBe(true)
     await next.close()
   }
@@ -333,13 +336,13 @@ test('未登录点击灵跃先登录，授权后打开免登地址', async ({ pa
   const popupPromise = page.waitForEvent('popup')
   await authorize.getByRole('button', { name: '授权并继续' }).click()
   const popup = await popupPromise
-  await expect(popup).toHaveURL(/\/launch\?token=e2e&target=home/)
+  await expect(popup).toHaveURL(/\/launch\?token=e2e&target=agent&agentCode=lesson-plan/)
   expect(await popup.evaluate(() => window.opener === null)).toBe(true)
   await popup.close()
   await expect(page).toHaveURL(/\/$/)
 })
 
-test('顶部灵跃入口免登打开首页', async ({ page, context, baseURL }) => {
+test('顶部灵跃入口免登打开对话页', async ({ page, context, baseURL }) => {
   await context.route('https://lingyue.dream-sports.cn/**', route =>
     route.fulfill({ body: 'Lingyue service' }),
   )
@@ -352,7 +355,7 @@ test('顶部灵跃入口免登打开首页', async ({ page, context, baseURL }) 
   const popupPromise = page.waitForEvent('popup')
   await page.getByRole('button', { name: '授权并继续' }).click()
   const popup = await popupPromise
-  await expect(popup).toHaveURL('https://lingyue.dream-sports.cn/launch?token=e2e&target=home')
+  await expect(popup).toHaveURL('https://lingyue.dream-sports.cn/launch?token=e2e&target=chat')
   await popup.close()
 })
 

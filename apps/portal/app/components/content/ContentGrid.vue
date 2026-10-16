@@ -6,7 +6,7 @@ import type { ContentChannel, WebContentCard } from '@isport/shared'
 defineProps<{
   items: WebContentCard[]
   loading?: boolean
-  variant?: 'default' | 'catalog'
+  variant?: 'default' | 'catalog' | 'resource-recommendation'
   channel?: ContentChannel
 }>()
 const { t } = useI18n()
@@ -17,8 +17,10 @@ const { t } = useI18n()
     :aria-busy="loading"
     class="content-grid"
     :class="{
-      'content-grid--wide': variant === 'catalog' && channel !== 'resource',
+      'content-grid--wide': variant === 'catalog' && channel === 'research',
+      'content-grid--school': variant === 'catalog' && channel === 'school',
       'content-grid--catalog': variant === 'catalog',
+      'content-grid--recommendations': variant === 'resource-recommendation',
     }"
   >
     <template v-if="loading"><ASkeleton v-for="index in 4" :key="index" active /></template>
@@ -45,13 +47,27 @@ const { t } = useI18n()
   &--wide {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 26px;
-    margin-top: 24px;
+  }
+
+  &--school {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  &--recommendations {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  &--wide,
+  &--school {
+    margin-top: var(--ic-spacing-6);
+    row-gap: var(--ic-spacing-6);
   }
 }
 
 @media (max-width: 1023px) {
   .content-grid {
-    &--catalog {
+    &--catalog,
+    &--recommendations {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
@@ -59,7 +75,8 @@ const { t } = useI18n()
 
 @media (max-width: 767px) {
   .content-grid {
-    &--catalog {
+    &--catalog,
+    &--recommendations {
       grid-template-columns: 1fr;
     }
   }
