@@ -29,7 +29,7 @@ pnpm --filter @isport/portal build
 test -f apps/portal/.output/server/index.mjs && test -f apps/portal/.output/ecosystem.config.cjs && echo OK
 ```
 
-`apps/portal/.output/nitro.json` 的 `preset` 必须是 `node-server`。没有 `server/index.mjs` 的静态目录不能上传。构建会把模板 `apps/portal/ecosystem.config.cjs` 复制为 `apps/portal/.output/ecosystem.config.cjs`。
+`apps/portal/.output/nitro.json` 的 `preset` 必须是 `node-server`。没有 `server/index.mjs` 的静态目录不能上传。构建会把模板 `apps/portal/ecosystem.config.cjs` 复制为 `apps/portal/.output/ecosystem.config.cjs`，并把 `server/node_modules` 里的软链展开成真实目录。上传时不要丢掉点开头的目录，解压前先删除服务器上的旧目录。
 
 ```bash
 tar -czf isport-college.tar.gz -C apps/portal/.output .

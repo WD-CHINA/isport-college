@@ -55,6 +55,11 @@ export default defineNuxtConfig({
       // h3 会去掉匹配前缀，因此把前缀放进 target，避免 /api/v1 变成 /v1。
       '/api': { target: `${process.env.NUXT_API_BASE}/api`, changeOrigin: true },
     },
+    externals: {
+      // vue-router 的 devtools 分块在运行时导入 @vue/devtools-api。
+      // 外置复制不会带上 pnpm 里的间接依赖，服务器启动会 ERR_MODULE_NOT_FOUND。
+      inline: ['vue-router', '@vue/devtools-api', '@vue/devtools-kit', '@vue/devtools-shared'],
+    },
   },
   runtimeConfig: {
     /** SSR 的固定学苑上游；开发由 .env 注入，生产由部署环境注入。 */

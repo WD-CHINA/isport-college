@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "nuxi dev --dotenv .env.development",
-    "build": "nuxi build --dotenv .env.production && cp ecosystem.config.cjs .output/ecosystem.config.cjs",
+    "build": "nuxi build --dotenv .env.production && node ../../scripts/dereference-output.mjs && cp ecosystem.config.cjs .output/ecosystem.config.cjs",
     "postinstall": "nuxi prepare",
     "lint": "eslint .",
     "typecheck": "nuxi typecheck",
