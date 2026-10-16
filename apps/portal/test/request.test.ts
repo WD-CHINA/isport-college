@@ -29,7 +29,7 @@ describe('createRequest', () => {
     expect(new Headers(calls[0]?.init.headers).get('x-locale')).toBe('en-US')
   })
 
-  it('保留开发代理上游的路径前缀', async () => {
+  it('保留接口地址的路径前缀', async () => {
     const calls: string[] = []
     const request = createRequest({
       baseURL: 'https://yuntiyu-test2.dream-sports.cn/academy',

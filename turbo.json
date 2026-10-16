@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["NUXT_API_BASE", "NUXT_PUBLIC_API_BASE", "NUXT_PUBLIC_SITE_ENV"],
+      "env": ["NUXT_API_BASE", "NUXT_PUBLIC_SITE_ENV"],
       "outputs": ["dist/**", ".output/**", "src/css-vars.css", "src/tokens.json"]
     },
     "dev": {

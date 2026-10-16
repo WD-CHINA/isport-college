@@ -4,6 +4,7 @@ import { toWebProfile } from '~/utils/profile'
 import { useAuthStore } from '~/stores/auth'
 import { LOCALE_URL_CODES, resolveDataLocale } from '@isport/shared'
 import { createAcademyDataClient } from '~/utils/academy-data'
+import { resolveBrowserApiBase } from '~/utils/api-url'
 declare module '#app' {
   interface NuxtApp {
     $academy?: AcademyClient
@@ -30,11 +31,11 @@ export function useAcademy() {
 
   const config = useRuntimeConfig()
   const requestURL = useRequestURL()
-  // SSR 上游只能来自环境配置；浏览器同源请求仍由开发代理或 Nginx 转发。
+  // SSR 上游只能来自环境配置。浏览器绝对地址直连；空或 `/` 请求当前站点。
   const request = createRequest({
     baseURL: import.meta.server
       ? config.apiBase
-      : new URL(config.public.apiBase || '/', requestURL).origin,
+      : resolveBrowserApiBase(config.public.apiBase, requestURL),
     getToken: () => auth.session?.token,
     // 客户端语言先于 currentRoute 完成切换；与 useAsyncData 的语言键读取同一来源。
     getLocale: () =>

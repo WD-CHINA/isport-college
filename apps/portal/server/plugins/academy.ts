@@ -1,8 +1,6 @@
 export default defineNitroPlugin(() => {
   const config = useRuntimeConfig()
   validateApiBase(config.apiBase, 'NUXT_API_BASE')
-  const publicBase = config.public.apiBase
-  if (publicBase && publicBase !== '/') validateApiBase(publicBase, 'NUXT_PUBLIC_API_BASE')
 })
 
 function validateApiBase(base: string, name: string) {

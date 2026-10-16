@@ -20,10 +20,9 @@ export default defineNuxtConfig({
     host: '0.0.0.0',
   },
   devtools: {
-    enabled: true,
-
+    enabled: false,
     timeline: {
-      enabled: true,
+      enabled: false,
     },
   },
   // 本地业务组件仍显式导入。空 dirs 让组件模块保持启用，@antdv-next/nuxt 才能把组件注册为 A 前缀。
@@ -55,7 +54,6 @@ export default defineNuxtConfig({
     devProxy: {
       // h3 会去掉匹配前缀，因此把前缀放进 target，避免 /api/v1 变成 /v1。
       '/api': { target: `${process.env.NUXT_API_BASE}/api`, changeOrigin: true },
-      '/statics': { target: `${process.env.NUXT_API_BASE}/statics`, changeOrigin: true },
     },
   },
   runtimeConfig: {
@@ -65,8 +63,8 @@ export default defineNuxtConfig({
       /** 部署环境：非 production 环境全站禁止收录 */
       siteEnv: 'development',
       /**
-       * 空或 `/`：请求当前站点，开发由 devProxy 转发，生产由 Nginx 转发。
-       * 绝对地址：测试或直连时使用，不经过开发服务器代理。
+       * 空或 `/`：浏览器请求当前站点，由部署侧 Nginx 转发。
+       * 绝对地址：浏览器直连该地址。开发环境在 .env.development 中配置。
        */
       apiBase: '',
       /**

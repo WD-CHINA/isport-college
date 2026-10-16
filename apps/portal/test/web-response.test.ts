@@ -1,7 +1,21 @@
 import { describe, expect, it } from 'vitest'
 
-import { resolveApiUrl } from '../app/utils/api-url'
+import { resolveApiUrl, resolveBrowserApiBase } from '../app/utils/api-url'
 import { toWebProfile } from '../app/utils/profile'
+
+describe('浏览器接口地址', () => {
+  const page = new URL('http://localhost:3000/resources')
+
+  it.each(['', '/'])('空地址请求当前站点 %s', apiBase => {
+    expect(resolveBrowserApiBase(apiBase, page)).toBe('http://localhost:3000')
+  })
+
+  it('绝对地址保留部署前缀', () => {
+    expect(resolveBrowserApiBase('https://yuntiyu-test2.dream-sports.cn/academy', page)).toBe(
+      'https://yuntiyu-test2.dream-sports.cn/academy',
+    )
+  })
+})
 
 describe('展示层整理学苑响应', () => {
   it.each(['', '/'])('同源部署保留静态资源相对路径 %s', baseURL => {
