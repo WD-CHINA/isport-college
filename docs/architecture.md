@@ -4,7 +4,7 @@
 
 ## 数据与部署边界
 
-SSR 始终请求私有 Runtime Config 的 `apiBase`，不使用入站 Host 决定上游。开发环境由 `.env.development` 提供 `NUXT_API_BASE`，生产由部署环境注入；未配置固定 HTTP/HTTPS 地址时服务启动失败。地址可以带部署前缀，例如 `/academy`。浏览器默认请求当前站点。开发环境由 `nitro.devProxy` 只转发 `/api`，目标为 `${NUXT_API_BASE}/api`，从而保留部署前缀；不转发 `/statics`。生产由 Nginx 转发 `/api` 与 `/statics`。`NUXT_PUBLIC_API_BASE` 为绝对地址时浏览器改为直连，E2E 用它访问测试协议服务器，因为生产产物没有 devProxy；它不影响 SSR 上游。响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。生产应用没有同源业务 mock。
+SSR 始终请求私有 Runtime Config 的 `apiBase`，不使用入站 Host 决定上游。开发环境由 `.env.development` 提供 `NUXT_API_BASE`，生产由部署环境注入；未配置固定 HTTP/HTTPS 地址时服务启动失败。地址可以带部署前缀，例如 `/academy`。浏览器默认请求当前站点。开发环境由 `nitro.devProxy` 只转发 `/api`，目标为 `${NUXT_API_BASE}/api`，从而保留部署前缀；不转发 `/statics`。生产 Nginx 同样只转发 `/api`，不转发 `/statics`。部署步骤见 `docs/deploy.md`。`NUXT_PUBLIC_API_BASE` 为绝对地址时浏览器改为直连，E2E 用它访问测试协议服务器，因为生产产物没有 devProxy；它不影响 SSR 上游。响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。生产应用没有同源业务 mock。
 
 SSR 与浏览器统一使用标准 `fetch`，只携带当前会话的 Bearer，不继承入站 Cookie/Authorization。接口地址在 Nitro 启动时检查；接口信封和响应数据各在其边界校验一次，展示层直接使用整理后的类型。
 
