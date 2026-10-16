@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T">
 import HomeSwiper from './HomeSwiper.client.vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     items: T[]
     itemKey: (item: T) => string | number
@@ -14,6 +14,8 @@ withDefaults(
   }>(),
   { desktopSlides: 1, desktopGap: 24, peek: true, insetControls: false, autoplay: false },
 )
+// Swiper 的循环模式会调整 DOM；条目变化后重建实例，避免沿用旧循环状态。
+const slideKey = computed(() => JSON.stringify(props.items.map(props.itemKey)))
 defineSlots<{ default(props: { item: T; index: number }): unknown }>()
 </script>
 
@@ -28,6 +30,7 @@ defineSlots<{ default(props: { item: T; index: number }): unknown }>()
   >
     <ClientOnly>
       <HomeSwiper
+        :key="slideKey"
         :count="items.length"
         :label="label"
         :desktop-slides="desktopSlides"

@@ -29,11 +29,11 @@ test('资料校验失败和保存成功使用 hook 消息', async ({ page, conte
   await page.getByRole('button', { name: /编\s*辑/, exact: true }).click()
   const form = page.locator('.profile-form')
   await form.getByRole('textbox').fill('!')
-  await form.getByRole('button', { name: /保\s*存/, exact: true }).click()
+  await form.getByRole('button', { name: /确\s*定/, exact: true }).click()
   await expect(page.locator('.ant-message-notice-error')).toBeVisible()
   await expect(form).toBeVisible()
   await form.getByRole('textbox').fill('新昵称')
-  await form.getByRole('button', { name: /保\s*存/, exact: true }).click()
+  await form.getByRole('button', { name: /确\s*定/, exact: true }).click()
   await expect(page.locator('.ant-message-notice-success')).toContainText('资料已保存')
   await expect(page.getByRole('heading', { name: '新昵称', exact: true })).toBeVisible()
   await expect(form).toHaveCount(0)
@@ -116,7 +116,7 @@ test('登录后点赞回放与个人记录移除', async ({ page }) => {
     page.locator('.ant-message-notice-success').filter({ hasText: '点赞成功' }),
   ).toBeVisible()
   await page.goto('/account')
-  await page.getByRole('button', { name: /^我的点赞/ }).click()
+  await page.getByRole('tab', { name: /^我的点赞/ }).click()
   await expect(page.locator('.activity-list')).toContainText('资源示例 1')
   await page.locator('.activity-list').getByRole('button').click()
   await expect(

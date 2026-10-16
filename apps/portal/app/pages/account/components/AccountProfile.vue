@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { message } from 'antdv-next'
+import AvatarPicker from './AvatarPicker.vue'
+import { useAcademy } from '~/composables/useAcademy'
 import { useProfile } from '~/composables/useProfile'
 import { useAuthStore } from '~/stores/auth'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
@@ -7,11 +9,19 @@ import ProfileForm from '~/components/auth/ProfileForm.vue'
 
 const auth = useAuthStore()
 const { t } = useI18n()
-const { pending, error, save } = useProfile()
+const { pending, error, save, saveAvatar } = useProfile()
+const academy = useAcademy()
+const {
+  data: avatars,
+  error: avatarError,
+  refresh: refreshAvatars,
+} = useAsyncData('academy:avatars', () => academy.avatars(), { default: () => [] })
+const choosingAvatar = shallowRef(false)
 const editing = shallowRef(false)
 const [messageApi, ContextHolder] = message.useMessage()
 const maskedPhone = computed(() => auth.user?.phoneMask ?? '')
 function startEditing() {
+  choosingAvatar.value = false
   editing.value = true
 }
 async function submit(value: { nickname: string }) {
@@ -20,13 +30,36 @@ async function submit(value: { nickname: string }) {
     messageApi.success(t('account.saved'))
   }
 }
+function toggleAvatar() {
+  editing.value = false
+  choosingAvatar.value = !choosingAvatar.value
+}
+async function chooseAvatar(code: number) {
+  if (code === auth.user?.avatarCode) {
+    choosingAvatar.value = false
+    return
+  }
+  if (await saveAvatar(code)) {
+    choosingAvatar.value = false
+    messageApi.success(t('account.saved'))
+  } else if (error.value) messageApi.error(error.value)
+}
 </script>
 
 <template>
   <section v-if="auth.user" class="account-profile">
     <ContextHolder />
     <header class="account-profile__head">
-      <AccountAvatar :avatar-code="auth.user.avatarCode" />
+      <button
+        type="button"
+        class="account-profile__avatar"
+        :aria-label="t('academy.avatar')"
+        :aria-expanded="choosingAvatar"
+        :disabled="pending"
+        @click="toggleAvatar"
+      >
+        <AccountAvatar :avatar-code="auth.user.avatarCode" />
+      </button>
       <div class="account-profile__ident">
         <h2>{{ auth.user.nickname || t('academy.anonymous') }}</h2>
         <p>{{ t('academy.phone') }}：{{ maskedPhone }}</p>
@@ -35,8 +68,18 @@ async function submit(value: { nickname: string }) {
         {{ t('common.edit') }}
       </AButton>
     </header>
+    <div v-if="choosingAvatar" class="account-profile__form">
+      <AButton v-if="avatarError" @click="refreshAvatars()">{{ t('catalog.retry') }}</AButton>
+      <AvatarPicker
+        v-else
+        :options="avatars"
+        :value="auth.user.avatarCode"
+        :pending="pending"
+        @select="chooseAvatar"
+      />
+    </div>
     <div v-if="editing" class="account-profile__form">
-      <ProfileForm :user="auth.user" :pending="pending" :error="error" @save="submit" />
+      <ProfileForm :user="auth.user" :pending="pending" :error="error" confirm @save="submit" />
       <AButton :disabled="pending" @click="editing = false">{{ t('common.cancel') }}</AButton>
     </div>
   </section>
@@ -49,6 +92,19 @@ async function submit(value: { nickname: string }) {
   border-radius: var(--ic-border-radius-xl, 14px);
   background: var(--ic-color-background-container, #fff);
   box-shadow: var(--ic-box-shadow-sm, 0 1px 2px 0 rgb(15 23 42 / 6%));
+
+  &__avatar {
+    display: grid;
+    padding: 4px;
+    border: 1px solid var(--ic-color-border-base);
+    border-radius: var(--ic-border-radius-full);
+    background: transparent;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--ic-color-academy-primary);
+    }
+  }
 
   &__head {
     display: flex;

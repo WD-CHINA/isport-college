@@ -370,6 +370,12 @@ const messages: MessageSchema = {
     viewFailed: 'View tracking is not confirmed. Retrying will not count this visit twice.',
   },
   account: {
+    avatarOption: 'Avatar {code}',
+    channels: {
+      resource: 'Teaching Resources',
+      research: 'Research Centre',
+      school: 'School Stories',
+    },
     profile: 'Personal information',
     favorites: 'Saved items',
     likes: 'Liked items',

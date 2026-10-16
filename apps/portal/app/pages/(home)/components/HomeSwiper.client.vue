@@ -81,23 +81,6 @@ function motionChanged() {
   if (motionQuery.matches) pause()
   if (instance.value) instance.value.params.speed = motionQuery.matches ? 0 : 350
 }
-watch(
-  () => props.count,
-  async () => {
-    await nextTick()
-    if (instance.value) {
-      const perView = props.peek && props.count > 1 ? 1.12 : 1
-      instance.value.originalParams.slidesPerView = perView
-      instance.value.params.slidesPerView = mobile.value ? perView : props.desktopSlides
-      instance.value.params.loop = canLoop.value
-      instance.value.originalParams.loop = canLoop.value
-      instance.value.update()
-      if (canLoop.value) instance.value.slideToLoop(0, 0)
-      else instance.value.slideTo(0, 0)
-    }
-    sync()
-  },
-)
 onMounted(async () => {
   await customElements.whenDefined('swiper-container')
   if (disposed || !container.value) return

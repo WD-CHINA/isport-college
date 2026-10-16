@@ -5,14 +5,13 @@ import {
   type CreationContentType,
 } from '../utils/content-types'
 
-withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
 const emit = defineEmits<{ select: [type: CreationContentType] }>()
 const { t } = useI18n()
 </script>
 
 <template>
-  <section class="creation-content" :class="{ 'creation-content--compact': compact }">
-    <div v-if="!compact" class="creation-content__heading">
+  <section class="creation-content">
+    <div class="creation-content__heading">
       <div>
         <div class="creation-content__title">
           <h2>{{ t('creation.overview.contentTitle') }}</h2>
@@ -254,16 +253,6 @@ const { t } = useI18n()
   &:lang(en-US) &__art {
     top: auto;
     bottom: -20px;
-  }
-
-  &--compact {
-    padding: 0;
-    border: 0;
-
-    .creation-content__groups {
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
   }
 }
 

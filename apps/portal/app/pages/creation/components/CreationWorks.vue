@@ -6,7 +6,6 @@ import {
   type CreationWorkStatus,
 } from '../utils/creation-demo'
 
-withDefaults(defineProps<{ inDialog?: boolean }>(), { inDialog: false })
 const emit = defineEmits<{ viewAll: []; preview: [work: CreationDemoWork] }>()
 const { t } = useI18n()
 const activeKey = shallowRef<CreationWorkStatus>('published')
@@ -23,8 +22,8 @@ const works = computed(() => CREATION_DEMO_WORKS_BY_STATUS[activeKey.value])
 </script>
 
 <template>
-  <section class="creation-works" :class="{ 'creation-works--dialog': inDialog }">
-    <div v-if="!inDialog" class="creation-works__heading">
+  <section class="creation-works">
+    <div class="creation-works__heading">
       <h2>{{ t('creation.myWorksCard.title') }}</h2>
       <button type="button" @click="emit('viewAll')">
         {{ t('creation.myWorksCard.viewAll') }} <span aria-hidden="true">›</span>
@@ -85,13 +84,6 @@ const works = computed(() => CREATION_DEMO_WORKS_BY_STATUS[activeKey.value])
   border: 1px solid rgb(28 31 35 / 10%);
   border-radius: 12px;
   background: #fff;
-
-  &--dialog {
-    height: auto;
-    min-height: 300px;
-    padding: 0;
-    border: 0;
-  }
 
   &__heading {
     display: flex;

@@ -3,7 +3,12 @@ import { message } from 'antdv-next'
 import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { normalizeNickname, type WebProfile } from '@isport/shared'
 
-const props = defineProps<{ user: WebProfile; pending: boolean; error?: string }>()
+const props = defineProps<{
+  user: WebProfile
+  pending: boolean
+  error?: string
+  confirm?: boolean
+}>()
 const emit = defineEmits<{ save: [value: { nickname: string }] }>()
 const { t } = useI18n()
 const formId = useId()
@@ -42,7 +47,9 @@ useMessageFeedback(
       :maxlength="20"
     />
     <p>{{ t('academy.nicknameRule') }}</p>
-    <AButton html-type="submit" type="primary" :loading="pending">{{ t('common.save') }}</AButton>
+    <AButton html-type="submit" type="primary" :loading="pending">{{
+      t(confirm ? 'common.confirm' : 'common.save')
+    }}</AButton>
   </form>
 </template>
 

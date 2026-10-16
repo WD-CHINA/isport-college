@@ -351,6 +351,8 @@ export default {
     viewFailed: '浏览统计暂未确认，可安全重试，不会重复计数。',
   },
   account: {
+    avatarOption: '头像 {code}',
+    channels: { resource: '教学资源', research: '教研中心', school: '学校案例' },
     profile: '个人信息',
     favorites: '我的收藏',
     likes: '我的点赞',

@@ -13,9 +13,11 @@ const { t } = useI18n()
 
 <template>
   <div class="activity-filters">
-    <div class="activity-filters__row" :aria-label="t('academy.account')">
+    <div class="activity-filters__row" role="tablist" :aria-label="t('academy.account')">
       <AButton
         :aria-pressed="kind === 'favorite'"
+        role="tab"
+        :aria-selected="kind === 'favorite'"
         :type="kind === 'favorite' ? 'primary' : 'default'"
         :disabled="disabled"
         @click="emit('change', 'favorite', channel)"
@@ -23,6 +25,8 @@ const { t } = useI18n()
       >
       <AButton
         :aria-pressed="kind === 'like'"
+        role="tab"
+        :aria-selected="kind === 'like'"
         :type="kind === 'like' ? 'primary' : 'default'"
         :disabled="disabled"
         @click="emit('change', 'like', channel)"
@@ -39,7 +43,7 @@ const { t } = useI18n()
         :aria-pressed="channel === value"
         :disabled="disabled"
         @click="emit('change', kind, value)"
-        >{{ t(`catalog.channels.${value}`) }}</AButton
+        >{{ t(`account.channels.${value}`) }}</AButton
       >
     </div>
   </div>

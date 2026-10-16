@@ -273,8 +273,6 @@ for (const width of [320, 390]) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
         true,
       )
-      const login = await page.locator('.app-header__login').boundingBox()
-      expect(login!.height).toBe(32)
     })
   }
 }

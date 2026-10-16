@@ -9,12 +9,12 @@ import AppPagination from '~/components/app/AppPagination.vue'
 
 const { t } = useI18n()
 const [messageApi, ContextHolder] = message.useMessage()
-const { kind, channel, page, removing, failed, totals, request, filter, remove } =
+const { kind, channel, page, removing, failed, totals, items, total, request, filter, remove } =
   useAccountActivity({
     onRemoved: kind =>
       messageApi.success(t(kind === 'like' ? 'detail.unlikeSuccess' : 'detail.unfavoriteSuccess')),
   })
-const { data, error, status, refresh } = request
+const { error, status, refresh } = request
 useSeoMeta({ title: () => t('academy.account') })
 useMessageFeedback(messageApi, failed, () => t('detail.interactionFailed'))
 useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))
@@ -37,19 +37,14 @@ await request
       <AButton v-if="error" @click="refresh()">{{ t('catalog.retry') }}</AButton>
       <template v-else>
         <ActivityList
-          :items="data?.list ?? []"
+          :items="items"
           :kind="kind"
           :channel="channel"
           :loading="status === 'pending'"
           :removing="removing"
           @remove="remove"
         />
-        <AppPagination
-          :total="data?.total ?? 0"
-          :page="page"
-          :page-size="12"
-          @change="page = $event"
-        />
+        <AppPagination :total="total" :page="page" :page-size="12" @change="page = $event" />
       </template>
     </section>
   </main>

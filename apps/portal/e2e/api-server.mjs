@@ -195,12 +195,16 @@ const server = createServer(async (req, res) => {
         const action = url.searchParams.get('action') ?? 'FAVORITE'
         const channel = url.searchParams.get('channel')
         const rows = [...state(token)[action]]
+          .reverse()
           .map(key => {
             const [kind, value] = key.split(':')
             return card(Number(value), kind, english)
           })
           .filter(row => !channel || row.channel === channel)
-        return send(res, page(rows, url.searchParams))
+        const result = page(rows, url.searchParams)
+        // 与接口文档一致：total 为原始关系数，先分页再过滤下架内容。
+        result.list = result.list.filter(row => row.originId <= 24)
+        return send(res, result)
       }
       if (path === '/actions/like' || path === '/actions/favorite') {
         const kind = path.endsWith('like') ? 'LIKE' : 'FAVORITE'
@@ -214,7 +218,7 @@ const server = createServer(async (req, res) => {
         })
       }
     }
-    if (path === '/avatars') return send(res, [1, 2, 3, 4])
+    if (path === '/avatars') return send(res, [1, 2, 3, 4, 5, 6, 7, 8])
     if (path === '/contents/view') return send(res, undefined)
     if (path === '/contents/recommend') {
       if (url.searchParams.get('originId') === '8')
