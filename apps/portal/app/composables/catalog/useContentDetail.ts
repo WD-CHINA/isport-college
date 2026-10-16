@@ -64,7 +64,7 @@ export function useContentDetail(
           origin: content.origin,
           originId: content.originId,
           categoryCode: content.channel === 'RESOURCE' ? undefined : content.categoryCode,
-          limit: content.detailType === 'ARTICLE' ? 5 : 3,
+          limit: content.detailType === 'ARTICLE' && content.channel !== 'SCHOOL' ? 5 : 3,
         },
         signal,
       )

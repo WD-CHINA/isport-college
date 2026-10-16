@@ -12,7 +12,7 @@ test('从首页进入资源列表，补齐默认分类只请求一次，切换�
     .getByRole('link', { name: '教学资源', exact: true })
     .click()
   await expect(page).toHaveURL(/\/resources\?category=1$/)
-  await expect(page.locator('.content-card')).toHaveCount(12)
+  await expect(page.locator('.content-card')).toHaveCount(8)
   expect(requests).toHaveLength(1)
   expect(new URL(requests[0]!).searchParams.get('firstCategoryId')).toBe('1')
   const changed = page.waitForResponse(response => {
@@ -22,7 +22,7 @@ test('从首页进入资源列表，补齐默认分类只请求一次，切换�
   await page.getByRole('button', { name: '专项运动', exact: true }).click()
   await changed
   await expect(page).toHaveURL(/category=2/)
-  await expect(page.locator('.content-card')).toHaveCount(12)
+  await expect(page.locator('.content-card')).toHaveCount(8)
   expect(requests).toHaveLength(2)
   expect(new URL(requests[1]!).searchParams.get('firstCategoryId')).toBe('2')
 })
@@ -35,7 +35,7 @@ test('直接打开资源列表复用 SSR 数据，URL 补齐分类不会重复�
   await page.goto('/resources')
   await waitForHydration(page)
   await expect(page).toHaveURL(/\/resources\?category=1$/)
-  await expect(page.locator('.content-card')).toHaveCount(12)
+  await expect(page.locator('.content-card')).toHaveCount(8)
   expect(requests).toHaveLength(0)
 })
 
@@ -59,10 +59,10 @@ test('首页和栏目 SSR 打到独立学苑协议服务器', async ({ context }
 test('资源分类筛选更新查询参数', async ({ page }) => {
   await page.goto('/resources')
   await waitForHydration(page)
-  await expect(page.getByRole('status')).toContainText(/共\s*\d+\s*条内容/)
+  await expect(page.getByRole('status')).toContainText(/\d+\s*个资源/)
   await page.getByRole('button', { name: /体\s*能/, exact: true }).click()
   await expect(page).toHaveURL(/category=1/)
-  await expect(page.getByRole('status')).toContainText(/共\s*\d+\s*条内容/)
+  await expect(page.getByRole('status')).toContainText(/\d+\s*个资源/)
 })
 
 test('手机导航无横向溢出', async ({ page }) => {

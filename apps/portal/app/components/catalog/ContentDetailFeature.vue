@@ -44,7 +44,9 @@ const {
 })
 const { data, error, status } = request
 const { data: recommendations } = recommendationsRequest
-const mediaItems = computed(() => toContentMedia(data.value?.detail.mediaList ?? [], apiUrl))
+const mediaItems = computed(() =>
+  toContentMedia(data.value?.detail.mediaList ?? [], apiUrl, data.value?.detail.coverUrl),
+)
 useSeoMeta({
   title: () => data.value?.detail.title || t('detail.notFound'),
   description: () => data.value?.detail.summary || '',

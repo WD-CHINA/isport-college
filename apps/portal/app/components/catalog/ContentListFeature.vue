@@ -15,11 +15,14 @@ const { query, request, filterRequest, categories, update, search, changePage, r
 const { data, status, error } = request
 const { data: resourceFilters, error: filterError } = filterRequest
 const title = computed(() => t(`catalog.channels.${props.channel}`))
-const sectionTitle = computed(
-  () =>
-    categories.value.find(item => item.id === query.value.category)?.name ??
-    t(props.channel === 'school' ? 'catalog.allCases' : `catalog.channels.${props.channel}`),
-)
+const sectionTitle = computed(() => {
+  const category = categories.value.find(item => item.id === query.value.category)?.name
+  if (props.channel === 'resource' && category) return t('catalog.resourceSection', { category })
+  return (
+    category ??
+    t(props.channel === 'school' ? 'catalog.allCases' : `catalog.channels.${props.channel}`)
+  )
+})
 const listStart = useTemplateRef<HTMLElement>('listStart')
 watch(
   () => JSON.stringify(contentQueryToUrl(query.value)),
@@ -55,7 +58,9 @@ await request
             {{
               status === 'pending'
                 ? t('common.loading')
-                : t('catalog.total', { count: data?.total ?? 0 })
+                : t(channel === 'resource' ? 'catalog.resourceTotal' : 'catalog.total', {
+                    count: data?.total ?? 0,
+                  })
             }}
           </p>
           <p v-if="channel !== 'resource'" class="content-list-feature__description">
@@ -97,7 +102,7 @@ await request
     width: min(100% - 48px, 1200px);
     gap: 24px;
     margin-inline: auto;
-    padding: 32px 0 50px;
+    padding: 32px 0 0;
   }
 
   &:not(.content-list-feature--resource) .content-list-feature__main {

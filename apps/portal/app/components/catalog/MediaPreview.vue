@@ -34,6 +34,7 @@ useMessageFeedback(
       <VideoPreview
         v-if="item.kind === 'video' && isContentAssetUrl(item.url)"
         :url="item.url"
+        :poster="isContentAssetUrl(item.poster ?? '') ? item.poster : undefined"
         :title="title"
         @error="emit('error')"
       />

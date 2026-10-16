@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import AppFooter from '~/components/app/AppFooter.vue'
 import AppHeader from '~/components/app/AppHeader.vue'
+
+const route = useRoute()
+const compactFooter = computed(() =>
+  /^\/(?:en\/)?(?:resources|research|schools|preview\/(?:article|resource)\/(?:resources|research|schools))(?:\/|$)/.test(
+    route.path,
+  ),
+)
 </script>
 
 <template>
@@ -9,6 +16,6 @@ import AppHeader from '~/components/app/AppHeader.vue'
     <main class="flex-1">
       <slot />
     </main>
-    <AppFooter />
+    <AppFooter :compact="compactFooter" />
   </div>
 </template>

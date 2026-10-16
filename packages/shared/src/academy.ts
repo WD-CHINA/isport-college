@@ -7,6 +7,7 @@ export type InteractionKind = 'like' | 'favorite'
 export interface MediaAsset {
   kind: MediaKind
   url: string
+  poster?: string
   fileId?: string
   filename?: string
   mime?: string

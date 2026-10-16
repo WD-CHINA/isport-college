@@ -4,6 +4,7 @@ import LoginModal from '~/components/auth/LoginModal.vue'
 import LogoutConfirm from '~/components/auth/LogoutConfirm.vue'
 import NicknameGuide from '~/components/auth/NicknameGuide.vue'
 import LingyueAuthorize from '~/components/auth/LingyueAuthorize.vue'
+import AppModalCloseIcon from '~/components/app/AppModalCloseIcon.vue'
 import { antdvThemeToken } from '@isport/design-tokens/antdv-theme'
 import { resolveDataLocale } from '@isport/shared'
 import enUS from 'antdv-next/locale/en_US'
@@ -22,6 +23,9 @@ useHead(() => ({
 
 const antdLocale = computed(() => (resolveDataLocale(locale.value) === 'en-US' ? enUS : zhCN))
 
+// 每次生成新图标节点，避免 Modal 销毁重开时复用已卸载的默认 VNode。
+const modalConfig = { closeIcon: () => h(AppModalCloseIcon) }
+
 useSeoMeta({
   titleTemplate: title => (title ? `${title} - ${t('seo.siteName')}` : t('seo.siteName')),
   robots: preventIndexing ? 'noindex, nofollow, noarchive' : undefined,
@@ -29,7 +33,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <AConfigProvider :locale="antdLocale" :theme="{ token: antdvThemeToken }">
+  <AConfigProvider :locale="antdLocale" :theme="{ token: antdvThemeToken }" :modal="modalConfig">
     <AApp class="min-h-screen">
       <NuxtLayout>
         <NuxtPage />

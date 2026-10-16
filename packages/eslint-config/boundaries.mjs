@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { isBuiltin } from 'node:module'
 
@@ -15,7 +15,10 @@ export function loadWorkspaces(root) {
   const projects = [readPackage(root)]
   for (const group of ['apps', 'packages']) {
     for (const item of readdirSync(resolve(root, group), { withFileTypes: true })) {
-      if (item.isDirectory()) projects.push(readPackage(resolve(root, group, item.name)))
+      const directory = resolve(root, group, item.name)
+      if (item.isDirectory() && existsSync(resolve(directory, 'package.json'))) {
+        projects.push(readPackage(directory))
+      }
     }
   }
   return projects

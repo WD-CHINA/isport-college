@@ -14,6 +14,8 @@ test('video 使用 xgplayer 加载', async ({ page }) => {
   const host = page.getByTestId('video-preview')
   await expect(host).toBeVisible()
   await expect(host.locator('.xgplayer, video').first()).toBeVisible({ timeout: 15_000 })
+  await expect(host.locator('.xgplayer-poster')).toHaveCSS('background-image', /sample\.png/)
+  await expect(host.locator('.xgplayer-start')).toHaveCSS('width', '56px')
 })
 test('audio 使用 vue-wave-player 加载', async ({ page }) => {
   await page.goto('/preview/resource/resources/3')

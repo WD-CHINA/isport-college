@@ -44,6 +44,22 @@ function plain(nodes: SafeContentNode[]): string {
   return nodes.map(node => (typeof node === 'string' ? node : plain(node.children))).join('')
 }
 
+/** 卡片摘要复用正文解析规则，保留实体文字与段落边界。 */
+export function richTextToPlainText(content: string): string {
+  function read(nodes: SafeContentNode[]): string {
+    return nodes
+      .map(node => {
+        if (typeof node === 'string') return node
+        const text = read(node.children)
+        return ['p', 'h2', 'h3', 'li', 'blockquote', 'pre', 'br', 'hr'].includes(node.tag)
+          ? `${text} `
+          : text
+      })
+      .join('')
+  }
+  return read(parseSafeContent(content).nodes).replace(/\s+/g, ' ').trim()
+}
+
 /** SSR 与浏览器共用解析器，所有用户属性默认丢弃，目录来自相同安全节点树。 */
 export function parseSafeContent(content: string, anchorPrefix = 'article') {
   const headings: ContentHeading[] = []

@@ -2,6 +2,7 @@
 import { RichTextContent } from '@isport/rich-text'
 import type { WebContentCard } from '@isport/shared'
 import ContentRecommendation from '~/components/content/ContentRecommendation.vue'
+import ContentGrid from '~/components/content/ContentGrid.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -28,7 +29,7 @@ const recommendationsTitle = computed(() =>
 </script>
 
 <template>
-  <div class="article-detail">
+  <div class="article-detail" :class="{ 'article-detail--case': channel === 'school' }">
     <nav class="article-detail__breadcrumb" :aria-label="t('detail.breadcrumb')">
       <NuxtLink :to="localePath('/')">{{ t('nav.home') }}</NuxtLink>
       <span aria-hidden="true">›</span>
@@ -50,7 +51,7 @@ const recommendationsTitle = computed(() =>
         <RichTextContent class="article-detail__body" :content="content.htmlBody" />
       </article>
       <aside
-        v-if="recommendations.length"
+        v-if="channel !== 'school' && recommendations.length"
         class="article-detail__recommendations"
         :aria-label="recommendationsTitle"
       >
@@ -65,11 +66,21 @@ const recommendationsTitle = computed(() =>
         </NuxtLink>
       </aside>
     </div>
+    <section
+      v-if="channel === 'school' && recommendations.length"
+      class="article-detail__related"
+      :aria-label="t('detail.popularCases')"
+    >
+      <h2>{{ t('detail.popularCases') }}</h2>
+      <ContentGrid :items="recommendations" variant="catalog" channel="school" />
+    </section>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .article-detail {
+  --catalog-border: var(--ic-color-academy-border-base);
+
   padding: var(--ic-spacing-10) 0 var(--ic-spacing-16);
   background: var(--ic-color-academy-article-background);
 
@@ -206,6 +217,28 @@ const recommendationsTitle = computed(() =>
     font-size: 14px;
     line-height: 24px;
   }
+
+  &--case .article-detail__layout {
+    width: min(100% - 48px, 1200px);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  &--case .article-detail__body :deep(p:has(> img:nth-of-type(2)):not(:has(> :not(img, br)))) {
+    gap: 20px;
+  }
+
+  &__related {
+    width: min(100% - 48px, 1200px);
+    margin: 48px auto 0;
+
+    h2 {
+      margin: 0;
+      color: var(--ic-color-academy-text-primary);
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 36px;
+    }
+  }
 }
 
 @media (max-width: 1023px) {
@@ -225,7 +258,9 @@ const recommendationsTitle = computed(() =>
     padding-block: var(--ic-spacing-6) var(--ic-spacing-10);
 
     &__breadcrumb,
-    &__layout {
+    &__layout,
+    &--case .article-detail__layout,
+    &__related {
       width: calc(100% - 32px);
     }
 

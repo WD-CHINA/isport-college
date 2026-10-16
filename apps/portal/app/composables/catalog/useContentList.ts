@@ -1,7 +1,6 @@
 import {
   RESEARCH_CATEGORIES,
   SCHOOL_CATEGORIES,
-  WEB_PAGE_SIZE,
   contentQueryToUrl,
   normalizeContentQuery,
   resolveDataLocale,
@@ -17,6 +16,7 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
   const route = useRoute()
   const router = useRouter()
   const remoteChannel = toWebChannel(channel)
+  const pageSize = { resource: 8, research: 4, school: 6 }[channel]
   const filterRequest = useAsyncData(
     () => `academy:resource-filters:${locale.value}`,
     (_app, { signal }) => academy.resourceFilters(undefined, signal),
@@ -42,7 +42,7 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
     const paging = {
       keyword: current.keyword,
       pageNum: current.page,
-      pageSize: WEB_PAGE_SIZE,
+      pageSize,
     }
     if (remoteChannel === 'RESOURCE') {
       return academy.resources(

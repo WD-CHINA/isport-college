@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { isContentAssetUrl, type WebTeacher } from '@isport/shared'
+import { richTextToPlainText } from '@isport/rich-text'
 import { useApiUrl } from '~/utils/api-url'
 import HomeSectionTitle from './HomeSectionTitle.vue'
 import HomeCarousel from './HomeCarousel.vue'
@@ -26,7 +27,7 @@ const apiUrl = useApiUrl()
           <NuxtLink class="home-people__card" :to="localePath(`/teachers/${person.id}`)">
             <div class="home-people__quote">
               <img :src="`/home/figma/${row === 2 ? '3f802.svg' : '5f87f.svg'}`" alt="" />
-              <p>{{ person.story || person.honorTitle }}</p>
+              <p>{{ richTextToPlainText(person.story) || person.honorTitle }}</p>
             </div>
             <span class="home-people__divider"><img src="/home/figma/e84bd.svg" alt="" /></span>
             <span class="home-people__who">
@@ -73,6 +74,10 @@ const apiUrl = useApiUrl()
   }
 
   p {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
     margin: 0;
     font-size: 14px;
     line-height: 22px;

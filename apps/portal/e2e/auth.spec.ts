@@ -137,6 +137,7 @@ test('登录后点赞回放与个人记录移除', async ({ page }) => {
     page.locator('.ant-message-notice-success').filter({ hasText: '点赞成功' }),
   ).toBeVisible()
   await page.goto('/account')
+  await waitForHydration(page)
   await page.getByRole('tab', { name: /^我的点赞/ }).click()
   await expect(page.locator('.activity-list')).toContainText('资源示例 1')
   await page.locator('.activity-list').getByRole('button').click()

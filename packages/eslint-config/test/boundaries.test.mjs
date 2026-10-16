@@ -2,12 +2,35 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { fileURLToPath, URL } from 'node:url'
 import { resolve } from 'node:path'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { Linter } from 'eslint'
 import { boundaryPlugin, importViolation, loadWorkspaces, workspaceCycles } from '../boundaries.mjs'
 
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const projects = loadWorkspaces(root)
 const file = path => resolve(root, path)
+
+test('workspace discovery ignores removed packages with only generated directories', () => {
+  const fixture = mkdtempSync(resolve(tmpdir(), 'isport-boundaries-'))
+  try {
+    mkdirSync(resolve(fixture, 'apps'))
+    mkdirSync(resolve(fixture, 'packages', 'removed', 'node_modules'), { recursive: true })
+    mkdirSync(resolve(fixture, 'packages', 'current'))
+    writeFileSync(resolve(fixture, 'package.json'), JSON.stringify({ name: 'root' }))
+    writeFileSync(
+      resolve(fixture, 'packages', 'current', 'package.json'),
+      JSON.stringify({ name: 'current' }),
+    )
+    assert.deepEqual(
+      loadWorkspaces(fixture).map(project => project.name),
+      ['root', 'current'],
+    )
+  } finally {
+    assert.ok(fixture.startsWith(resolve(tmpdir(), 'isport-boundaries-')))
+    rmSync(fixture, { recursive: true, force: true })
+  }
+})
 
 test('relative imports cannot bypass app or package boundaries', () => {
   assert.match(

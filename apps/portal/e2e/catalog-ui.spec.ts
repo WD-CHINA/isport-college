@@ -1,5 +1,26 @@
 import { expect, test, waitForHydration } from './academy.fixture'
 
+for (const [channel, count] of [
+  ['resources', 8],
+  ['research', 4],
+  ['schools', 6],
+] as const) {
+  test(`${channel} 按设计稿分页，内页仅保留版权页脚`, async ({ page }) => {
+    await page.goto('/')
+    await waitForHydration(page)
+    await expect(page.locator('.app-footer__inner')).toBeVisible()
+    const response = page.waitForResponse(response => {
+      const url = new URL(response.url())
+      return url.pathname === `/api/v1/${channel}`
+    })
+    await page.locator(`.app-header__nav a[href="/${channel}"]`).click()
+    expect(new URL((await response).url()).searchParams.get('pageSize')).toBe(String(count))
+    await expect(page.locator('.content-card')).toHaveCount(count)
+    await expect(page.locator('.app-footer--compact .app-footer__copy')).toBeVisible()
+    await expect(page.locator('.app-footer__inner')).toHaveCount(0)
+  })
+}
+
 test('教研首屏默认教学实践，四个文字分类与真实查询同步', async ({ page }) => {
   const requests: string[] = []
   page.on('request', request => {
@@ -100,7 +121,7 @@ for (const width of [320, 390]) {
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
           true,
         )
-        await expect(page.locator('.app-footer__inner')).toBeVisible()
+        await expect(page.locator('.app-footer--compact .app-footer__copy')).toBeVisible()
       }
       await page.locator('.app-header__burger').click()
       await page

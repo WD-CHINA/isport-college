@@ -1,8 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { isLocalImageUrl, safeRichTextHref } from '@isport/shared'
-import { parseSafeContent } from '../src/safe-content'
+import { parseSafeContent, richTextToPlainText } from '../src/safe-content'
 
 describe('富文本白名单和目录', () => {
+  it('卡片摘要保留段落与实体文字，不展示标签或脚本内容', () => {
+    expect(
+      richTextToPlainText(
+        '<p>一线<strong>教师</strong>&amp;课堂</p><p>练习<br>反馈</p><script>hidden()</script>',
+      ),
+    ).toBe('一线教师&课堂 练习 反馈')
+    expect(richTextToPlainText('<p></p>')).toBe('')
+  })
   it('移除脚本、事件属性和主动嵌入，并保留正文里的 https 图片', () => {
     const parsed = parseSafeContent(
       '<script>alert(1)</script><style>body{display:none}</style><iframe src="https://example.org"><h2>隐藏</h2></iframe><svg onload="alert(1)"></svg><p onclick="alert(1)">正文<a href="java&#x73;cript:alert(1)">链接</a><img src="https://example.org/tracker.png" /><img src="/media/sample.png" onerror="alert(1)" /></p>',

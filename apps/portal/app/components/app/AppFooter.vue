@@ -1,4 +1,6 @@
 <script setup lang="ts">
+withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
+
 const { t } = useI18n()
 const localePath = useLocalePath()
 const year = new Date().getFullYear()
@@ -14,8 +16,8 @@ const links = computed(() => [
 ])
 </script>
 <template>
-  <footer class="app-footer">
-    <div class="app-footer__inner">
+  <footer class="app-footer" :class="{ 'app-footer--compact': compact }">
+    <div v-if="!compact" class="app-footer__inner">
       <section class="app-footer__contact" :aria-label="t('footer.contact')">
         <NuxtLink class="app-footer__brand" :to="localePath('/')">
           <strong>{{ t('footer.brand') }}</strong>
@@ -61,7 +63,10 @@ const links = computed(() => [
         </figure>
       </div>
     </div>
-    <div class="app-footer__copy">© {{ year }} {{ t('footer.company') }}</div>
+    <div class="app-footer__copy">
+      <template v-if="compact">{{ t('footer.brand') }} </template>© {{ year }}
+      {{ t('footer.company') }}
+    </div>
   </footer>
 </template>
 <style lang="scss" scoped>
@@ -69,6 +74,15 @@ const links = computed(() => [
   padding-top: 15px;
   background: var(--ic-color-academy-background-page);
   font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  &--compact {
+    padding-top: 0;
+
+    .app-footer__copy {
+      padding-block: 27px;
+      line-height: 15px;
+    }
+  }
 
   &__inner {
     display: grid;

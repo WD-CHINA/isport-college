@@ -3,7 +3,7 @@ import { message } from 'antdv-next'
 import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import PreviewFrame from './PreviewFrame.vue'
 
-const props = defineProps<{ url: string; title: string }>()
+const props = defineProps<{ url: string; title: string; poster?: string }>()
 const emit = defineEmits<{ error: [] }>()
 const { t } = useI18n()
 const host = useTemplateRef<HTMLElement>('host')
@@ -21,6 +21,7 @@ async function mountPlayer() {
   player = new XgPlayer({
     el: host.value,
     url: props.url,
+    poster: props.poster,
     lang: 'zh-cn',
     width: '100%',
     height: '100%',
@@ -40,7 +41,7 @@ function retry() {
 
 onMounted(mountPlayer)
 watch(
-  () => props.url,
+  () => [props.url, props.poster],
   () => {
     attempt.value++
     void nextTick(mountPlayer)
@@ -76,6 +77,19 @@ useMessageFeedback(messageApi, failed, () => t('media.failed'))
   width: 100%;
   min-height: 240px;
   background: #000;
+
+  :deep(.xgplayer-start) {
+    width: 56px;
+    height: 56px;
+
+    xg-start-inner {
+      background: var(--ic-color-academy-primary);
+    }
+  }
+
+  :deep(.xgplayer-poster) {
+    background-size: cover;
+  }
 
   &__stage {
     width: 100%;

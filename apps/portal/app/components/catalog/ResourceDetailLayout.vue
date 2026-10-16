@@ -156,7 +156,7 @@ const publisher = computed(
     min-width: 0;
     min-height: 450px;
     flex-direction: column;
-    padding: 32px 28px 50px;
+    padding: 32px 28px 8px;
     border-radius: var(--ic-border-radius-lg);
     background: var(--ic-color-background-container);
     box-shadow: inset 0 0 0 1px var(--ic-color-academy-border-panel);
@@ -246,7 +246,7 @@ const publisher = computed(
     min-height: 52px;
     margin-top: auto;
     border-radius: var(--ic-border-radius-md);
-    background: var(--ic-color-academy-background-section);
+    background: transparent;
   }
 
   &__report {

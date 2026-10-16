@@ -4,6 +4,7 @@ import type { MediaAsset, WebMediaItem } from '@isport/shared'
 export function toContentMedia(
   items: readonly WebMediaItem[],
   resolveUrl: (url: string) => string,
+  coverUrl = '',
 ): MediaAsset[] {
   return items.map(item => {
     const documentKind = /\.pptx?($|\?)/i.test(item.fileUrl) ? 'ppt' : 'pdf'
@@ -16,6 +17,7 @@ export function toContentMedia(
     return {
       kind: kinds[item.mediaType],
       url: resolveUrl(item.fileUrl),
+      poster: item.mediaType === 'VIDEO' ? resolveUrl(item.coverUrl || coverUrl) : undefined,
       duration: item.durationSec ?? undefined,
       pageCount: item.pageCount ?? undefined,
     }
