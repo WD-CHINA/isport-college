@@ -30,6 +30,8 @@ export default defineConfig({
       env: {
         NUXT_PUBLIC_SITE_ENV: 'test',
         NUXT_API_BASE: `http://127.0.0.1:${apiPort}`,
+        // 生产产物没有 devProxy，浏览器需要直连测试协议服务器。
+        NUXT_PUBLIC_API_BASE: `http://127.0.0.1:${apiPort}`,
       },
       port,
       timeout: 300_000,

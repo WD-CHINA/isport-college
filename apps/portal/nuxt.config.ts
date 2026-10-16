@@ -63,8 +63,8 @@ export default defineNuxtConfig({
       /** 部署环境：非 production 环境全站禁止收录 */
       siteEnv: 'development',
       /**
-       * 空或 `/`：浏览器请求当前站点，由部署侧 Nginx 转发。
-       * 绝对地址：浏览器直连该地址。开发环境在 .env.development 中配置。
+       * 空或 `/`：浏览器请求当前站点。开发由 devProxy 转发 /api，生产由 Nginx 转发。
+       * 绝对地址：浏览器直连。E2E 用来访问测试协议服务器，生产产物没有 devProxy。
        */
       apiBase: '',
       /**

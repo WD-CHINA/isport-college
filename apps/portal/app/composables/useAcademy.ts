@@ -31,7 +31,7 @@ export function useAcademy() {
 
   const config = useRuntimeConfig()
   const requestURL = useRequestURL()
-  // SSR 上游只能来自环境配置。浏览器绝对地址直连；空或 `/` 请求当前站点。
+  // SSR 上游只能来自环境配置。浏览器在空或 `/` 时请求当前站点，由开发代理或 Nginx 转发 /api。
   const request = createRequest({
     baseURL: import.meta.server
       ? config.apiBase

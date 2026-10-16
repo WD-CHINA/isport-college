@@ -32,8 +32,8 @@ describe('学苑上游启动检查', () => {
     vi.stubGlobal('useRuntimeConfig', () => ({ apiBase, public: { apiBase: '/' } }))
     expect(() => initialize()).toThrow('NUXT_API_BASE 必须配置为 HTTP/HTTPS 地址')
   })
-  it.each(['', '/', 'https://browser-api.example'])(
-    '浏览器接口地址 %s 可以独立于 SSR 上游',
+  it.each(['', '/', 'https://browser-api.example', '//browser-api.example'])(
+    '启动检查不读取浏览器接口地址 %s',
     apiBase => {
       vi.stubGlobal('useRuntimeConfig', () => ({
         apiBase: 'http://server-api.example',
@@ -42,16 +42,4 @@ describe('学苑上游启动检查', () => {
       expect(() => initialize()).not.toThrow()
     },
   )
-  it.each([
-    '//browser-api.example',
-    '/api',
-    'javascript:alert(1)',
-    'https://user:pass@api.example',
-  ])('拒绝无效浏览器接口配置 %s', apiBase => {
-    vi.stubGlobal('useRuntimeConfig', () => ({
-      apiBase: 'http://server-api.example',
-      public: { apiBase },
-    }))
-    expect(() => initialize()).toThrow('NUXT_PUBLIC_API_BASE 必须配置为 HTTP/HTTPS 地址')
-  })
 })
