@@ -78,7 +78,7 @@ export default defineNuxtConfig({
        */
       documentPreviewBase:
         process.env.NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE ??
-        'http://8.133.231.181:11001/?showHeader=0&showImport=0&showUrlImport=0&showToolbar=1&showErrors=0',
+        'https://viewer.grilledfish.asia/?showHeader=0&showImport=0&showUrlImport=0&showToolbar=1&showErrors=0',
     },
   },
   app: {
