@@ -41,7 +41,8 @@ const selectFields = computed(() => {
     {
       key: 'resourceType' as const,
       label: t('catalog.kind'),
-      items: props.resourceFilters.typeList,
+      // 接口中的 5 为链接类型，仅在资源筛选下拉框中隐藏。
+      items: props.resourceFilters.typeList.filter(item => item.id !== '5'),
     },
   ]
     .filter(field => field.items.length)

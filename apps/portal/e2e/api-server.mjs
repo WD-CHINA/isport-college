@@ -244,7 +244,13 @@ const server = createServer(async (req, res) => {
           name: `水平 ${id}`,
         })),
         bodyPartList: [{ id: '4', name: '上肢' }],
-        typeList: ['0', '1', '2', '5', '6'].map(id => ({ id, name: `类型 ${id}` })),
+        typeList: [
+          ['0', english ? 'Video' : '视频'],
+          ['1', english ? 'Audio' : '音频'],
+          ['2', english ? 'Document' : '文档'],
+          ['5', english ? 'Link' : '链接'],
+          ['6', english ? 'Image' : '图片'],
+        ].map(([id, name]) => ({ id, name })),
       })
     if (path === '/home')
       return send(res, {

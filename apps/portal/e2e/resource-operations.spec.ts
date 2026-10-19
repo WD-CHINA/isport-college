@@ -1,5 +1,35 @@
 import { expect, test, waitForHydration } from './academy.fixture'
 
+for (const english of [false, true]) {
+  test(`${english ? '英文' : '中文'} 资源类型隐藏链接，保留全部和其他类型且筛选正常`, async ({
+    page,
+  }) => {
+    await page.goto(`${english ? '/en' : ''}/resources?category=1`)
+    await waitForHydration(page)
+    const select = page.getByRole('combobox', {
+      name: english ? /Resource type/ : /资源类型/,
+    })
+    await select.click()
+    const dropdown = page.locator('.ant-select-dropdown:visible')
+    await expect(dropdown.locator('.ant-select-item-option-content')).toHaveText(
+      english
+        ? ['All', 'Video', 'Audio', 'Document', 'Image']
+        : ['全部', '视频', '音频', '文档', '图片'],
+    )
+    await expect(dropdown.getByText(english ? 'Link' : '链接', { exact: true })).toHaveCount(0)
+    const filtered = page.waitForRequest(request => {
+      const url = new URL(request.url())
+      return url.pathname === '/api/v1/resources' && url.searchParams.get('type') === '6'
+    })
+    await dropdown.getByText(english ? 'Image' : '图片', { exact: true }).click()
+    await filtered
+    await expect(page).toHaveURL(/resourceType=6/)
+    await select.click()
+    await dropdown.getByText(english ? 'All' : '全部', { exact: true }).click()
+    await expect(page).not.toHaveURL(/resourceType=/)
+  })
+}
+
 test('资源仍支持新窗口打开详情，其他栏目卡片保持路由导航', async ({ page, context }) => {
   await page.goto('/resources?category=1')
   await waitForHydration(page)
