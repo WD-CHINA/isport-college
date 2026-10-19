@@ -153,6 +153,37 @@ curl -sI http://127.0.0.1/api/v1/home -H 'Host: yuntiyu-test2.dream-sports.cn' |
 
 ## 再次发版
 
-本机重新 `pnpm --filter @isport/portal build`，确认 `echo OK` 通过后重新打包上传。服务器上重复「发布到服务器」一节：删除旧目录、解压、`pm2 start ecosystem.config.cjs --env production`。
+Node、PM2 和 Nginx 已经就绪时，不要重装，也不要改 Nginx。只重新构建、替换目录、再启动进程。
+
+本机：
+
+```bash
+pnpm install --frozen-lockfile
+pnpm --filter @isport/portal build
+test -f apps/portal/.output/server/index.mjs \
+  && test -f apps/portal/.output/ecosystem.config.cjs \
+  && test -f apps/portal/.output/server/node_modules/hookable/package.json \
+  && echo OK
+tar -czf isport-college.tar.gz -C apps/portal/.output .
+scp isport-college.tar.gz root@<ECS公网IP>:/data/isport-test2/isport-college.tar.gz
+```
+
+看到 `OK`，且 `apps/portal/.output/nitro.json` 的 `preset` 为 `node-server` 后再上传。
+
+服务器：
+
+```bash
+pm2 delete isport-college || true
+rm -rf /data/isport-test2/web/isport-college
+mkdir -p /data/isport-test2/web/isport-college
+tar -xzf /data/isport-test2/isport-college.tar.gz -C /data/isport-test2/web/isport-college
+cd /data/isport-test2/web/isport-college
+pm2 start ecosystem.config.cjs --env production
+pm2 save
+pm2 logs isport-college --lines 20 --nostream
+curl -sI http://127.0.0.1:8040/ | head
+```
+
+不要把新包直接解压到旧目录上。旧的 `server/node_modules` 会留下来，页面会继续报缺包。日志里应有 `Listening on http://127.0.0.1:8040`，`curl` 应是 `200` 和 `text/html`。然后再打开首页并切换一次页面，确认 `/api/v1/...` 返回 JSON。
 
 端口和上游改 `apps/portal/ecosystem.config.cjs`，并同步本文的配置块，重新构建后才会进入压缩包。
