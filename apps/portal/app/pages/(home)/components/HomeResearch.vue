@@ -299,6 +299,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
 
   &__empty {
     grid-column: 1 / -1;
+    padding-block: 112px;
   }
 }
 
@@ -338,6 +339,10 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
 
 @media (max-width: 767px) {
   .home-research {
+    &__empty {
+      padding-block: 32px;
+    }
+
     &__layout {
       margin-top: 20px;
       gap: 16px;
@@ -395,7 +400,6 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
     &__photo {
       height: auto;
       max-height: 220px;
-      aspect-ratio: 16 / 10;
     }
 
     &__side {

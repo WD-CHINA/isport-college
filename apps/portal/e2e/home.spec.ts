@@ -70,6 +70,8 @@ for (const prefix of ['', '/en']) {
     const teachersHtml = html.match(/<section class="home-people"[\s\S]*?<\/section>/)?.[0]
     expect(teachersHtml).toContain('home-people__card')
     expect(teachersHtml).not.toContain('href=')
+    expect(teachersHtml).toContain('优秀教师')
+    expect(teachersHtml).not.toContain('教师故事')
     const capabilitiesHtml = html.match(
       /<section class="home-capabilities"[\s\S]*?<\/section>/,
     )?.[0]
@@ -87,6 +89,8 @@ for (const prefix of ['', '/en']) {
     }
     const people = page.locator('.home-people__card')
     await expect(people.first()).toContainText('张老师')
+    await expect(people.first().locator('.home-people__quote p')).toHaveText('优秀教师')
+    await expect(people.first().locator('.home-people__who em')).toHaveText('体育教师')
     await expect(people.getByRole('link')).toHaveCount(0)
     await people.first().click()
     await expect(page).toHaveURL(url)
@@ -204,6 +208,68 @@ for (const [path, numericLabel] of [
     await expect(cards.nth(2).locator('small')).toHaveCount(0)
   })
 }
+
+test('名师荣誉与职务分别展示，空荣誉留白且分隔线位置一致', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/')
+  await waitForHydration(page)
+  const teachers = [
+    {
+      id: 12,
+      name: '刘梦婷',
+      schoolOrg: '石嘴山市第十五中学',
+      jobTitle: '体育组教研组长',
+      honorTitle: '',
+      avatarUrl: '/media/sample.png',
+    },
+    {
+      id: 11,
+      name: '梁华宇',
+      schoolOrg: '深圳市新安中学（集团）高中部',
+      jobTitle: '体育组教研组长',
+      honorTitle: '宝安区优秀教师',
+      avatarUrl: '/media/sample.png',
+      story: '<p>旧版教师故事不应覆盖荣誉</p>',
+    },
+    {
+      id: 4,
+      name: '李玉振',
+      schoolOrg: '上海市闸北第八中学',
+      jobTitle: '曾任教研组长，现任总务处主任',
+      honorTitle: '',
+      avatarUrl: '/media/sample.png',
+    },
+  ]
+  await page.route('**/api/v1/home', async route => {
+    const response = await route.fetch()
+    const envelope = await response.json()
+    envelope.data.teacherList = teachers
+    await route.fulfill({ response, json: envelope })
+  })
+  await returnFromBackground(page)
+  const cards = page.locator('.home-people__card')
+  await expect(cards).toHaveCount(teachers.length)
+  const dividers: number[] = []
+  for (const teacher of teachers) {
+    const card = cards.filter({ has: page.locator('strong', { hasText: teacher.name }) })
+    await expect(card.locator('strong')).toHaveText(teacher.name)
+    await expect(card.locator('em')).toHaveText(teacher.jobTitle)
+    await expect(card.locator('em')).toHaveAttribute('title', teacher.jobTitle)
+    await expect(card.locator('small')).toHaveText(teacher.schoolOrg)
+    await expect(card.locator('.home-people__who img')).toHaveAttribute(
+      'src',
+      /\/media\/sample.png$/,
+    )
+    if (teacher.honorTitle) {
+      await expect(card.locator('.home-people__quote p')).toHaveText(teacher.honorTitle)
+    } else {
+      await expect(card.locator('.home-people__quote p')).toHaveCount(0)
+    }
+    dividers.push((await card.locator('.home-people__divider').boundingBox())!.y)
+  }
+  expect(Math.max(...dividers) - Math.min(...dividers)).toBeLessThan(1)
+  await expect(page.locator('.home-people').getByRole('link')).toHaveCount(0)
+})
 
 test('1440px 首页教研、教师和学校卡片尺寸符合 Ardot', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { isContentAssetUrl, type WebTeacher } from '@isport/shared'
-import { richTextToPlainText } from '@isport/rich-text'
 import { useApiUrl } from '~/utils/api-url'
 import HomeSectionTitle from './HomeSectionTitle.vue'
 import HomeCarousel from './HomeCarousel.vue'
@@ -26,7 +25,7 @@ const apiUrl = useApiUrl()
           <article class="home-people__card">
             <div class="home-people__quote">
               <img :src="`/home/figma/${row === 2 ? '3f802.svg' : '5f87f.svg'}`" alt="" />
-              <p>{{ richTextToPlainText(person.story) || person.honorTitle }}</p>
+              <p v-if="person.honorTitle">{{ person.honorTitle }}</p>
             </div>
             <span class="home-people__divider" aria-hidden="true" />
             <span class="home-people__who">
@@ -38,11 +37,7 @@ const apiUrl = useApiUrl()
               <i v-else aria-hidden="true" />
               <span>
                 <strong>{{ person.name }}</strong>
-                <em
-                  v-if="person.jobTitle || person.honorTitle"
-                  :title="person.honorTitle || person.jobTitle"
-                  >{{ person.honorTitle || person.jobTitle }}</em
-                >
+                <em v-if="person.jobTitle" :title="person.jobTitle">{{ person.jobTitle }}</em>
                 <small>{{ person.schoolOrg }}</small>
               </span>
             </span>
