@@ -52,10 +52,14 @@ test('播放器分块加载失败时提供重试，网络恢复后可加载播�
   await expect(retry).toHaveCount(0)
   await page.unrouteAll({ behavior: 'wait' })
 })
-test('audio 使用 vue-wave-player 加载', async ({ page }) => {
+test('audio 使用 wavesurfer 绘制真实波形', async ({ page }) => {
   await page.goto('/preview/resource/resources/3')
   await waitForHydration(page)
   await expect(page.getByTestId('audio-preview')).toBeVisible({ timeout: 15_000 })
+  await expect(
+    page.getByTestId('audio-preview').getByRole('button', { name: '播放', exact: true }),
+  ).toBeEnabled()
+  await expect(page.getByTestId('audio-preview').locator('canvas').first()).toBeVisible()
 })
 test('文档通过预览服务 iframe 接入', async ({ page }) => {
   await page.goto('/preview/resource/resources/4')

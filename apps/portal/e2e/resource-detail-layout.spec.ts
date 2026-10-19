@@ -7,7 +7,7 @@ test('资源图片详情使用独立预览、真实来源信息与图标互动',
   await expect(page.locator('.resource-detail__information h1')).toHaveText('资源示例 5')
   await expect(page.locator('.resource-detail__publisher strong')).toHaveText('测试作者')
   await expect(page.getByTestId('view-count')).toContainText('11')
-  await expect(page.locator('.resource-detail__report')).toBeDisabled()
+  await expect(page.locator('.resource-detail__report')).toHaveCount(0)
   await expect(page.getByRole('button', { name: /^收藏/ })).toHaveCount(1)
   await expect(page.locator('.resource-detail__recommendations .content-card')).toHaveCount(3)
   await expect(

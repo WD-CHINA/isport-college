@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ContentChannel, WebContentCard, WebContentDetail } from '@isport/shared'
 import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
-import { ACADEMY_CAPABILITIES } from '~/config/capabilities'
+//import { ACADEMY_CAPABILITIES } from '~/config/capabilities'
 import ContentGrid from '~/components/content/ContentGrid.vue'
 
 const props = defineProps<{
@@ -60,7 +60,7 @@ const publisher = computed(
           </p>
           <div v-if="$slots.interactions" class="resource-detail__actions">
             <slot name="interactions" />
-            <button
+            <!--<button
               v-if="!ACADEMY_CAPABILITIES.contentReport.enabled"
               class="resource-detail__report"
               type="button"
@@ -68,7 +68,7 @@ const publisher = computed(
               :title="t('detail.reportUnavailable')"
             >
               {{ t('detail.report') }}
-            </button>
+            </button>-->
           </div>
         </article>
       </div>

@@ -85,6 +85,8 @@ apps/portal/app/
 
 业务 composable、store、工具和本地组件显式导入；Nuxt/Vue 内置 API 保留自动导入。`antdv-next` 组件由 `@antdv-next/nuxt` 以 `A` 前缀自动注册，运行时函数和静态属性仍显式导入。展示组件通过 props/emits 与业务编排通信。分页由 `components/app/AppPagination.vue` 提供，颜色优先消费 `design-tokens`。
 
+音频播放器由 `packages/ui-core` 的 `UiAudioPlayer` 与 `useWaveSurfer` 提供，通过公开 exports 导入；wavesurfer.js 依赖只声明在 `ui-core`。`AudioPreview.vue` 传入媒体地址、标题及当前语言文案。播放器不调用业务接口，不访问会话或路由；音频解码只读取传入的媒体资源。SSR 渲染加载占位，挂载后加载 wavesurfer；切换音源或卸载时销毁实例、取消加载并暂停媒体，旧响应和事件不能覆盖当前音源。
+
 投稿、积分、教师资料、灵跃和管理端接口尚未接入。`config/capabilities.ts` 是其当前声明；灵跃操作入口禁用，已有路由保留门禁并展示统一不可用页。旧课程组件、失败接口、伪业务状态和原型模型已移除，旧 `/courses` 列表兼容路由与 `/rsp` 隔离响应继续保留。新增能力需要真实协议与对应测试，不能只打开声明中的开关。
 
 `/creation` 只保留公开概览页，不设置登录、权限或能力开关门禁，也不接入投稿、作品或积分接口。概览沿用 Ardot 示例展示，上传、五类内容、查看作品／全部、积分明细及兑换入口统一通过 hook message 提示“敬请期待”，不打开演示弹窗或表单。原有 `/admin/creation`、`/admin/works` 和 `/admin/points` 保持后台边界。创作中心通过 HTTP Header 与页面 Meta 禁止收录。

@@ -1,26 +1,36 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
+import { UiAudioPlayer } from '@isport/ui-core'
 import PreviewFrame from './PreviewFrame.vue'
 
 defineProps<{ url: string; title: string }>()
-const VueWavePlayer = defineAsyncComponent(() =>
-  import('vue-wave-player').then(module => module.VueWavePlayer),
-)
+const { t } = useI18n()
+const labels = computed(() => ({
+  play: t('media.play'),
+  pause: t('media.pause'),
+  seek: t('media.seek'),
+  mute: t('media.mute'),
+  unmute: t('media.unmute'),
+  volume: t('media.volume'),
+  speed: t('media.speed'),
+  more: t('media.moreAudio'),
+  restart: t('media.restart'),
+  loop: t('media.loop'),
+  loading: t('common.loading'),
+  failed: t('media.failed'),
+  playbackFailed: t('media.playbackFailed'),
+  retry: t('catalog.retry'),
+}))
 </script>
 
 <template>
   <PreviewFrame :title="title">
-    <ClientOnly>
-      <VueWavePlayer
-        class="audio-preview"
-        data-testid="audio-preview"
-        :src="url"
-        show-playback-rate
-        :playback-rates="[0.5, 1, 1.25, 1.5, 2]"
-        primary-color="var(--ic-color-brand-500)"
-        background-color="#fff"
-      />
-    </ClientOnly>
+    <UiAudioPlayer
+      class="audio-preview"
+      data-testid="audio-preview"
+      :src="url"
+      :title="title"
+      :labels="labels"
+    />
   </PreviewFrame>
 </template>
 
