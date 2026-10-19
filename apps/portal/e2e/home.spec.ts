@@ -61,6 +61,59 @@ test('首页服务端直出学校案例、行业动态及服务数据', async ({
   expect(html).not.toContain('https://www.figma.com/api/mcp/asset/')
 })
 
+for (const prefix of ['', '/en']) {
+  test(`${prefix || '中文'} 首页功能说明和名师卡片不跳转，页脚仅保留四个栏目入口`, async ({
+    page,
+  }) => {
+    const response = await page.goto(prefix || '/')
+    const html = await response!.text()
+    const teachersHtml = html.match(/<section class="home-people"[\s\S]*?<\/section>/)?.[0]
+    expect(teachersHtml).toContain('home-people__card')
+    expect(teachersHtml).not.toContain('href=')
+    const capabilitiesHtml = html.match(
+      /<section class="home-capabilities"[\s\S]*?<\/section>/,
+    )?.[0]
+    expect(capabilitiesHtml).toContain('home-capabilities__icon')
+    expect(capabilitiesHtml).not.toContain('href=')
+    await waitForHydration(page)
+    const url = page.url()
+    const capabilities = page.locator('.home-capabilities')
+    await expect(capabilities.locator('li')).toHaveCount(4)
+    await expect(capabilities.getByRole('link')).toHaveCount(0)
+    await expect(capabilities.getByRole('button')).toHaveCount(0)
+    for (const item of await capabilities.locator('li').all()) {
+      await item.click()
+      await expect(page).toHaveURL(url)
+    }
+    const people = page.locator('.home-people__card')
+    await expect(people.first()).toContainText('张老师')
+    await expect(people.getByRole('link')).toHaveCount(0)
+    await people.first().click()
+    await expect(page).toHaveURL(url)
+    expect(
+      await page
+        .locator('.app-footer__links a')
+        .evaluateAll(links => links.map(a => a.getAttribute('href'))),
+    ).toEqual([prefix || '/', `${prefix}/resources`, `${prefix}/research`, `${prefix}/schools`])
+  })
+
+  test(`${prefix || '中文'} 页脚移除入口后，名师、动态与协议路由仍可直接访问`, async ({
+    request,
+  }) => {
+    for (const path of [
+      '/teachers',
+      '/teachers/1',
+      '/news',
+      '/news/1',
+      '/legal/terms',
+      '/legal/privacy',
+    ]) {
+      const response = await request.get(`${prefix}${path}`)
+      expect(response.status(), path).toBe(200)
+    }
+  })
+}
+
 test('首页水平筛选展示对应接口分组，切回分类恢复原列表', async ({ page }) => {
   await page.goto('/')
   await waitForHydration(page)

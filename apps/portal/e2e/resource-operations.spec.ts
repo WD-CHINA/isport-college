@@ -9,6 +9,7 @@ test('资源仍支持新窗口打开详情，其他栏目卡片保持路由导�
     .click({ modifiers: ['ControlOrMeta'] })
   const detail = await newTab
   await expect(detail).toHaveURL('/preview/resource/resources/2')
+  await waitForHydration(detail)
   await expect(detail.getByTestId('video-preview')).toBeVisible()
   await expect(page).toHaveURL(/\/resources\?category=1$/)
   await expect(page.getByRole('dialog')).toHaveCount(0)

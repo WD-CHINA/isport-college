@@ -8,7 +8,7 @@ import CreationContent from './CreationContent.vue'
 const { t } = useI18n()
 const [messageApi, ContextHolder] = message.useMessage()
 function comingSoon() {
-  messageApi.info(t('creation.comingSoon'))
+  messageApi.info({ key: 'creation-coming-soon', content: t('creation.comingSoon') })
 }
 </script>
 

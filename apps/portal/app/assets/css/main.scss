@@ -38,6 +38,11 @@ body {
   padding-inline: 0;
 }
 
+.xgplayer .xg-right-grid .xgplayer .xg-left-grid,
+.xgplayer .xg-right-grid {
+  padding-right: 10px !important;
+}
+
 @media (max-width: 1200px) {
   .container-page,
   .ic-container {

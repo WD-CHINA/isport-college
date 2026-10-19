@@ -73,6 +73,22 @@ test('学校案例使用三个文字分类，分类切换与查看案例保留�
   ).toBeVisible()
 })
 
+test('学校案例副标题读取 summary，空值不显示副标题', async ({ page }) => {
+  const response = await page.goto('/schools')
+  expect(await response!.text()).toContain('教学资源示例</p>')
+  await waitForHydration(page)
+  const summary = page.locator('[data-content-id="SCHOOL:1"] .content-card__summary')
+  await expect(summary).toHaveText('教学资源示例')
+  await expect(summary).toBeVisible()
+  await expect(page.locator('[data-content-id="SCHOOL:2"] .content-card__summary')).toHaveCount(0)
+  await page.locator('.content-grid--school').screenshot({
+    path: 'test-results/school-card-summary.png',
+  })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(summary).toBeVisible()
+  await expect(summary).toHaveCSS('-webkit-line-clamp', '2')
+})
+
 test('资源主视觉搜索保留筛选，二级分类与重置同步地址', async ({ page }) => {
   await page.goto('/resources?category=1&recommendedLevel=3')
   await waitForHydration(page)

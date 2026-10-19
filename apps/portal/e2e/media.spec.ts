@@ -1,4 +1,5 @@
 import { expect, test, waitForHydration } from './academy.fixture'
+import { readFile, readdir } from 'node:fs/promises'
 
 test('推荐服务失败不影响 SSR 正文，HTML 脚本被过滤', async ({ page }) => {
   const response = await page.goto('/preview/article/resources/8')
@@ -21,15 +22,24 @@ test('video 使用 xgplayer 加载', async ({ page }) => {
 test('播放器分块加载失败时提供重试，网络恢复后可加载播放器', async ({ page }) => {
   let blockPlayer = true
   let blocked = 0
-  await page.route('**/_nuxt/*.js', async route => {
-    const response = await route.fetch()
-    if (blockPlayer && (await response.text()).includes('xgplayer-loading')) {
-      blocked++
-      await route.abort('failed')
-      return
-    }
-    await route.fulfill({ response })
-  })
+  const assets = new URL('../.output/public/_nuxt/', import.meta.url)
+  const scripts = await Promise.all(
+    (await readdir(assets))
+      .filter(name => name.endsWith('.js'))
+      .map(async name => ({ name, source: await readFile(new URL(name, assets), 'utf8') })),
+  )
+  const playerChunks = scripts.filter(script => script.source.includes('xgplayer-loading'))
+  expect(playerChunks.length).toBeGreaterThan(0)
+  // 只拦截播放器分块，避免重试刷新时取消其他 JS 请求造成路由处理竞态。
+  for (const { name } of playerChunks) {
+    await page.route(`**/_nuxt/${name}`, route => {
+      if (blockPlayer) {
+        blocked++
+        return route.abort('failed')
+      }
+      return route.continue()
+    })
+  }
   await page.goto('/preview/resource/resources/2')
   await waitForHydration(page)
   const retry = page.getByRole('button', { name: /重\s*试/, exact: true })
@@ -40,6 +50,7 @@ test('播放器分块加载失败时提供重试，网络恢复后可加载播�
   await retry.click()
   await expect(page.getByTestId('video-preview').locator('video')).toBeVisible({ timeout: 15_000 })
   await expect(retry).toHaveCount(0)
+  await page.unrouteAll({ behavior: 'wait' })
 })
 test('audio 使用 vue-wave-player 加载', async ({ page }) => {
   await page.goto('/preview/resource/resources/3')

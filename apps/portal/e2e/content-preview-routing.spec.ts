@@ -20,7 +20,7 @@ for (const [source, channel] of channels) {
       page.on('request', request => {
         if (request.url().endsWith('/api/v1/contents/view')) views.push(request.postDataJSON())
       })
-      await page.goto(`/${source}`)
+      await page.goto(`/${source}${source === 'research' && id > 4 ? '?page=2' : ''}`)
       await waitForHydration(page)
       const link = page.locator(`[data-content-id="${channel}:${id}"] .content-card__link`)
       await expect(link).toHaveAttribute('href', `/preview/${kind}/${source}/${id}`)

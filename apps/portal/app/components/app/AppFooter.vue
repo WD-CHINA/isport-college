@@ -9,10 +9,6 @@ const links = computed(() => [
   { to: localePath('/resources'), label: t('academy.resources') },
   { to: localePath('/research'), label: t('nav.research') },
   { to: localePath('/schools'), label: t('academy.schools') },
-  { to: localePath('/teachers'), label: t('academy.teachers') },
-  { to: localePath('/news'), label: t('academy.news') },
-  { to: localePath('/legal/terms'), label: t('academy.terms') },
-  { to: localePath('/legal/privacy'), label: t('academy.privacy') },
 ])
 </script>
 <template>

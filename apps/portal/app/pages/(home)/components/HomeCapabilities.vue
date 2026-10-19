@@ -1,29 +1,24 @@
 <script setup lang="ts">
 const { t } = useI18n()
-const localePath = useLocalePath()
 const items = computed(() => [
   {
     title: t('home.capabilityDesign'),
     desc: t('home.capabilityDesignDesc'),
-    to: localePath('/resources'),
     icon: 'eb337.svg',
   },
   {
     title: t('home.capabilityPractice'),
     desc: t('home.capabilityPracticeDesc'),
-    to: localePath('/schools'),
     icon: 'a8f62.svg',
   },
   {
     title: t('home.capabilityStudy'),
     desc: t('home.capabilityStudyDesc'),
-    to: localePath('/research'),
     icon: 'd91b1.svg',
   },
   {
     title: t('home.capabilityExpert'),
     desc: t('home.capabilityExpertDesc'),
-    to: localePath('/teachers'),
     icon: 'cf724.svg',
   },
 ])
@@ -34,15 +29,13 @@ const items = computed(() => [
     <div class="container-page">
       <ul>
         <li v-for="item in items" :key="item.icon">
-          <NuxtLink :to="item.to">
-            <span class="home-capabilities__icon" aria-hidden="true">
-              <img :src="`/home/figma/${item.icon}`" alt="" />
-            </span>
-            <span>
-              <strong>{{ item.title }}</strong>
-              <small>{{ item.desc }}</small>
-            </span>
-          </NuxtLink>
+          <span class="home-capabilities__icon" aria-hidden="true">
+            <img :src="`/home/figma/${item.icon}`" alt="" />
+          </span>
+          <span>
+            <strong>{{ item.title }}</strong>
+            <small>{{ item.desc }}</small>
+          </span>
         </li>
       </ul>
     </div>
@@ -69,7 +62,7 @@ const items = computed(() => [
     list-style: none;
   }
 
-  a {
+  li {
     display: flex;
     align-items: center;
     gap: 20px;
@@ -131,12 +124,12 @@ const items = computed(() => [
       padding: 20px 16px;
     }
 
-    a {
+    li {
       align-items: flex-start;
       gap: 10px;
     }
 
-    a > span:last-child {
+    li > span:last-child {
       min-width: 0;
     }
 

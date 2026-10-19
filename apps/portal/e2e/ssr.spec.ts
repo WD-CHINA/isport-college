@@ -81,6 +81,14 @@ test('课程列表页 SSR 直出', async ({ page }) => {
   expect(html).toContain('教学资源')
 })
 
+test('组件库升级后，SSR HTML 仍包含分页样式', async ({ request }) => {
+  const response = await request.get('/resources?category=1')
+  expect(response.status()).toBe(200)
+  const head = (await response.text()).split('</head>')[0]!
+  expect(head).toContain('data-css-hash=')
+  expect(head).toContain('.ant-pagination')
+})
+
 test('英文路由带 /en 前缀且 html[lang] 正确', async ({ page }) => {
   const response = await page.goto('/en/courses')
   const html = await response!.text()

@@ -72,7 +72,7 @@ for (const path of ['/', '/en']) {
 for (const channel of ['resources', 'research', 'schools']) {
   test(`${channel} LINK 卡片缺少 jumpUrl 时读取详情并在新窗口打开`, async ({ page, context }) => {
     await context.route('https://example.com/**', route => route.fulfill({ body: 'External page' }))
-    await page.goto(`/${channel}`)
+    await page.goto(`/${channel}${channel === 'resources' ? '' : '?page=2'}`)
     await waitForHydration(page)
     const link = page
       .locator('.content-card')
@@ -96,7 +96,7 @@ for (const failure of ['unavailable', 'unsafe'] as const) {
             await route.fulfill({ response, json: envelope })
           }),
     )
-    await page.goto('/research')
+    await page.goto('/research?page=2')
     await waitForHydration(page)
     const currentUrl = page.url()
     const link = page

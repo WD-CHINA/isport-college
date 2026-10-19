@@ -7,7 +7,6 @@ import HomeCarousel from './HomeCarousel.vue'
 
 defineProps<{ people: WebTeacher[] }>()
 const { t } = useI18n()
-const localePath = useLocalePath()
 const apiUrl = useApiUrl()
 </script>
 
@@ -24,7 +23,7 @@ const apiUrl = useApiUrl()
         :desktop-slides="3"
       >
         <template #default="{ item: person, index: row }">
-          <NuxtLink class="home-people__card" :to="localePath(`/teachers/${person.id}`)">
+          <article class="home-people__card">
             <div class="home-people__quote">
               <img :src="`/home/figma/${row === 2 ? '3f802.svg' : '5f87f.svg'}`" alt="" />
               <p>{{ richTextToPlainText(person.story) || person.honorTitle }}</p>
@@ -45,7 +44,7 @@ const apiUrl = useApiUrl()
                 <small>{{ person.schoolOrg }}</small>
               </span>
             </span>
-          </NuxtLink>
+          </article>
         </template>
       </HomeCarousel>
     </div>

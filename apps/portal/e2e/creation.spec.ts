@@ -22,18 +22,39 @@ test('访客可直接浏览创作中心，所有 P0 入口仅提示敬请期待'
     '教学实践案例',
   ]) {
     await page.getByRole('button', { name: new RegExp(name) }).click()
-    await expect(page.locator('.ant-message-notice-info').last()).toContainText('敬请期待')
+    await expect(page.locator('.ant-message-notice-info')).toHaveCount(1)
+    await expect(page.locator('.ant-message-notice-info')).toHaveText('敬请期待')
     await expect(page.getByRole('dialog')).toHaveCount(0)
     await expect(page).toHaveURL('/creation')
   }
   await page.locator('.creation-works__name').first().click()
-  await expect(page.locator('.ant-message-notice-info').last()).toContainText('敬请期待')
+  await expect(page.locator('.ant-message-notice-info')).toHaveCount(1)
+  await expect(page.locator('.ant-message-notice-info')).toHaveText('敬请期待')
   await page.locator('.creation-works__more').first().click()
   await page.getByRole('menuitem', { name: '查看作品', exact: true }).click()
-  await expect(page.locator('.ant-message-notice-info').last()).toContainText('敬请期待')
+  await expect(page.locator('.ant-message-notice-info')).toHaveCount(1)
+  await expect(page.locator('.ant-message-notice-info')).toHaveText('敬请期待')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page.locator('input[type="file"]')).toHaveCount(0)
   expect(apiRequests).toEqual([])
+})
+
+test('创作入口连续点击十次只显示一条提示，自动消失后可再次触发', async ({ page }) => {
+  await page.goto('/creation')
+  await waitForHydration(page)
+  const upload = page.getByRole('button', { name: '上传我的创作', exact: true })
+  const notice = page.locator('.ant-message-notice-info')
+  for (let click = 0; click < 10; click++) {
+    await upload.click()
+    await expect(notice).toHaveCount(1)
+    await expect(notice).toHaveText('敬请期待')
+  }
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page).toHaveURL('/creation')
+  await expect(notice).toHaveCount(0, { timeout: 5000 })
+  await upload.click()
+  await expect(notice).toHaveCount(1)
+  await expect(notice).toHaveText('敬请期待')
 })
 
 test('普通账号同样只浏览概览，不出现投稿表单或额外页面', async ({ page, context, baseURL }) => {

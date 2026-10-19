@@ -87,7 +87,13 @@ watch(
           <span class="content-card__publisher">{{ publisher }}</span>
           <span v-if="levelLabel" class="content-card__level">{{ levelLabel }}</span>
         </div>
-        <p v-if="defaultVariant || (variant === 'catalog' && content.channel === 'SCHOOL')">
+        <p
+          v-if="
+            content.summary.trim() &&
+            (defaultVariant || (variant === 'catalog' && content.channel === 'SCHOOL'))
+          "
+          class="content-card__summary"
+        >
           {{ content.summary }}
         </p>
         <div v-if="defaultVariant" class="content-card__meta">

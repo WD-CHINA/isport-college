@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useBreakpoint } from 'antdv-next'
+import AppPaginationJumpIcon from './AppPaginationJumpIcon.vue'
 
 withDefaults(
   defineProps<{
@@ -30,6 +31,13 @@ const screens = useBreakpoint()
       responsive
       @change="value => emit('change', value)"
     >
+      <!-- 组件库会缓存图标插槽，随页码重新创建，避免复用已经卸载的 VNode。 -->
+      <template #jumpPrevIcon>
+        <AppPaginationJumpIcon :key="`prev-${page}`" direction="prev" />
+      </template>
+      <template #jumpNextIcon>
+        <AppPaginationJumpIcon :key="`next-${page}`" direction="next" />
+      </template>
       <template v-if="variant === 'catalog'" #prevIcon>
         <button class="ant-pagination-item-link" type="button" tabindex="-1">
           <svg class="app-pagination__arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -101,7 +109,8 @@ const screens = useBreakpoint()
       color: var(--ic-color-academy-primary);
     }
 
-    :deep(.ant-pagination-item-link) {
+    :deep(.ant-pagination-prev .ant-pagination-item-link),
+    :deep(.ant-pagination-next .ant-pagination-item-link) {
       display: grid;
       place-items: center;
       border: 0;
@@ -120,7 +129,7 @@ const screens = useBreakpoint()
       color: var(--ic-color-academy-text-disabled);
     }
 
-    :deep(.ant-pagination-item-ellipsis) {
+    :deep(.ant-pagination .ant-pagination-item-container .ant-pagination-item-ellipsis) {
       color: var(--ic-color-academy-text-primary);
     }
 

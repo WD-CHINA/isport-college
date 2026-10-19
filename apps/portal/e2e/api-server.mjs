@@ -40,7 +40,7 @@ function card(id, channel = 'RESOURCE', english = false) {
     originId: id,
     contentKey: `${channel}:${id}`,
     title: english ? `Resource ${id}` : `资源示例 ${id}`,
-    summary: english ? 'Teaching example' : '教学资源示例',
+    summary: channel === 'SCHOOL' && id === 2 ? '' : english ? 'Teaching example' : '教学资源示例',
     coverUrl: '/media/sample.png',
     detailType,
     categoryCode: channel === 'RESOURCE' ? '1' : channel === 'RESEARCH' ? 'SERIES' : 'DIGITAL',
@@ -289,7 +289,7 @@ const server = createServer(async (req, res) => {
       }
       const keyword = url.searchParams.get('keyword')
       const paginationFixture = channel === 'RESOURCE' && keyword === '分页样例'
-      let rows = Array.from({ length: paginationFixture ? 72 : 24 }, (_, index) => ({
+      let rows = Array.from({ length: paginationFixture ? 296 : 24 }, (_, index) => ({
         ...card(index + 1, channel, english),
         ...(paginationFixture ? { title: `分页样例 ${index + 1}` } : {}),
       }))
