@@ -10,6 +10,7 @@ const props = defineProps<{
   confirm?: boolean
 }>()
 const emit = defineEmits<{ save: [value: { nickname: string }] }>()
+defineSlots<{ actions?: () => unknown }>()
 const { t } = useI18n()
 const formId = useId()
 const nickname = shallowRef(props.user.nickname)
@@ -47,9 +48,12 @@ useMessageFeedback(
       :maxlength="20"
     />
     <p>{{ t('academy.nicknameRule') }}</p>
-    <AButton html-type="submit" type="primary" :loading="pending">{{
-      t(confirm ? 'common.confirm' : 'common.save')
-    }}</AButton>
+    <div class="profile-form__actions">
+      <AButton html-type="submit" type="primary" :loading="pending">{{
+        t(confirm ? 'common.confirm' : 'common.save')
+      }}</AButton>
+      <slot name="actions" />
+    </div>
   </form>
 </template>
 
@@ -57,5 +61,11 @@ useMessageFeedback(
 .profile-form {
   display: grid;
   gap: var(--ic-spacing-3, 12px);
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--ic-spacing-3, 12px);
+  }
 }
 </style>

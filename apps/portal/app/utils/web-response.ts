@@ -186,4 +186,3 @@ export function parseAction(value: unknown): WebActionResult {
   return { active: item.active, count: number(item.count) }
 }
 export const parseCards = (value: unknown) => list(value, parseContentCard)
-export const parseAvatars = (value: unknown) => list(value, id)

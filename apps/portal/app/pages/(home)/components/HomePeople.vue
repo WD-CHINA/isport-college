@@ -64,10 +64,10 @@ const apiUrl = useApiUrl()
 
   &__card {
     height: 100%;
-    display: flex;
+    display: grid;
     min-height: 236px;
-    flex-direction: column;
-    justify-content: space-between;
+    grid-template-rows: 1fr 1px 48px;
+    row-gap: 24px;
     padding: 24px;
     border-radius: 12px;
     background: #edf3ff;
@@ -86,6 +86,7 @@ const apiUrl = useApiUrl()
 
   &__quote {
     display: grid;
+    align-content: start;
     gap: 12px;
 
     img {
@@ -98,8 +99,6 @@ const apiUrl = useApiUrl()
 
   &__divider {
     display: block;
-    flex: none;
-    margin-top: 24px;
     border-top: 1px solid var(--ic-color-academy-border-base);
   }
 
@@ -107,7 +106,6 @@ const apiUrl = useApiUrl()
     display: flex;
     align-items: center;
     gap: 16px;
-    margin-top: 24px;
 
     > span {
       display: grid;
@@ -131,13 +129,20 @@ const apiUrl = useApiUrl()
 
   strong {
     display: inline;
+    min-width: 0;
+    overflow: hidden;
     font-size: 16px;
     font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   small {
     display: block;
+    overflow: hidden;
     grid-column: 1 / -1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   em {
@@ -170,6 +175,8 @@ const apiUrl = useApiUrl()
 
     &__card {
       min-height: 228px;
+      grid-template-rows: 1fr 1px 72px;
+      row-gap: 16px;
       padding: 20px;
     }
 
@@ -180,13 +187,8 @@ const apiUrl = useApiUrl()
       -webkit-line-clamp: 3;
     }
 
-    &__divider {
-      margin-top: 16px;
-    }
-
     &__who {
       gap: 12px;
-      margin-top: 16px;
 
       > span {
         grid-template-columns: minmax(0, 1fr);
@@ -204,18 +206,11 @@ const apiUrl = useApiUrl()
       display: block;
       font-size: 15px;
       line-height: 22px;
-      overflow-wrap: anywhere;
     }
 
     em {
       margin: 4px 0;
       font-size: 11px;
-    }
-
-    small {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
   }
 }

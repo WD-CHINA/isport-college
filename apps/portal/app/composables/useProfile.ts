@@ -40,10 +40,6 @@ export function useProfile() {
     return update(() => academy.updateNickname(value))
   }
 
-  function saveAvatar(avatarCode: number) {
-    return update(() => academy.updateAvatar({ avatarCode }))
-  }
-
   async function skipNickname() {
     if (pending.value || !auth.user) return false
     pending.value = true
@@ -62,5 +58,5 @@ export function useProfile() {
     }
   }
 
-  return { pending, error, save, saveAvatar, skipNickname }
+  return { pending, error, save, skipNickname }
 }

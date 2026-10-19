@@ -43,7 +43,7 @@ test('首页和栏目 SSR 打到独立学苑协议服务器', async ({ context }
   for (const [path, marker] of [
     ['/', '资源示例 1'],
     ['/resources', '体能'],
-    ['/research', '教研学习'],
+    ['/research', '教研中心'],
     ['/schools', '学校案例'],
     ['/teachers', '名师风采'],
     ['/news', '行业动态'],

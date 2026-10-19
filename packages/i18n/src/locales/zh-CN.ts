@@ -213,6 +213,7 @@ export default {
     nicknamePlaceholder: '2-6 个字，支持中文、英文和数字',
     saveNickname: '保存昵称',
     avatar: '选择头像',
+    defaultAvatar: '默认头像',
     avatars: {
       ball: '运动球',
       star: '星星',

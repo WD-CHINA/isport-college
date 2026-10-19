@@ -152,7 +152,7 @@ onScopeDispose(() => {
               </button>
             </template>
             <button type="button" class="app-header__user" aria-haspopup="dialog">
-              <AccountAvatar v-if="auth.user" :avatar-code="auth.user.avatarCode" />
+              <AccountAvatar />
               <span>{{ auth.user?.nickname || t('academy.account') }}</span>
             </button>
           </APopover>
@@ -196,7 +196,6 @@ onScopeDispose(() => {
         :items="panelNav"
         :logged-in="auth.isLoggedIn"
         :nickname="auth.user?.nickname"
-        :avatar-code="auth.user?.avatarCode"
         @close="menuOpen = false"
         @login="openLogin"
         @logout="handleLogout"

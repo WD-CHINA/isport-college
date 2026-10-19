@@ -2,7 +2,6 @@ import type { AcademyClient } from '~/api/academy'
 import { ApiError } from '~/api/errors'
 import {
   parseAction,
-  parseAvatars,
   parseCards,
   parseContentCard,
   parseContentDetail,
@@ -60,6 +59,5 @@ export function createAcademyDataClient(client: AcademyClient) {
     teacher: withContentErrors(decode(client.teacher, parseTeacher)),
     news: decode(client.news, value => parsePage(value, parseNews)),
     newsDetail: withContentErrors(decode(client.newsDetail, parseNews)),
-    avatars: decode(client.avatars, parseAvatars),
   }
 }

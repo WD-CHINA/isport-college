@@ -36,6 +36,7 @@ useMessageFeedback(
       :src="previewUrl"
       :title="title"
       loading="lazy"
+      allow="fullscreen"
       referrerpolicy="no-referrer"
     />
   </PreviewFrame>

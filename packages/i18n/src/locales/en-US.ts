@@ -220,6 +220,7 @@ const messages: MessageSchema = {
     nicknamePlaceholder: '2–6 characters: Chinese, English or digits',
     saveNickname: 'Save nickname',
     avatar: 'Choose an avatar',
+    defaultAvatar: 'Default avatar',
     avatars: {
       ball: 'Ball',
       star: 'Star',
