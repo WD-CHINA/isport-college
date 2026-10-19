@@ -3,7 +3,6 @@ import { useLoginUiStore } from '~/stores/login-ui'
 import { useAuthStore } from '~/stores/auth'
 import { UiBrandLogo } from '@isport/ui-core'
 import { useBreakpoint } from 'antdv-next'
-import AppLocaleMenu from '~/components/app/AppLocaleMenu.vue'
 
 const auth = useAuthStore()
 const loginUi = useLoginUiStore()
@@ -170,7 +169,6 @@ function goHome() {
         <span class="admin-header__divider" aria-hidden="true"></span>
         <span class="admin-header__title">{{ t('seo.adminTitle') }}</span>
         <div class="admin-header__right">
-          <AppLocaleMenu />
           <ADropdown
             v-if="auth.isLoggedIn"
             :trigger="['click']"

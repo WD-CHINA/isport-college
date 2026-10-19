@@ -92,14 +92,15 @@ test('移动端可从菜单进入创作中心，Toast 与内容不溢出', async
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
 })
 
-test('英文窄屏标题与语言菜单不重叠，菜单可回到学苑首页', async ({ page }) => {
+test('英文窄屏标题与导航按钮不重叠，不显示语言入口且可回到学苑首页', async ({ page }) => {
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 })
     await page.goto('/en/creation')
     await waitForHydration(page)
     const title = await page.locator('.app-header__section').boundingBox()
-    const language = await page.getByRole('button', { name: 'Language English' }).boundingBox()
-    expect(title!.x + title!.width).toBeLessThanOrEqual(language!.x)
+    const menu = await page.getByRole('button', { name: 'Menu', exact: true }).boundingBox()
+    expect(title!.x + title!.width).toBeLessThanOrEqual(menu!.x)
+    await expect(page.getByRole('button', { name: /Language English/ })).toHaveCount(0)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
       width,
     )

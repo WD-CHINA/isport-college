@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import type { BrowserContext, Page } from '@playwright/test'
+import type { Router } from 'vue-router'
 import { randomUUID } from 'node:crypto'
 import { AUTH_COOKIE_NAME } from '@isport/shared'
 import type { WebSession } from '@isport/shared'
@@ -59,17 +60,21 @@ export async function smsLogin(page: Page) {
   await expect(dialog).toBeHidden()
 }
 
-export async function switchLanguage(page: Page, locale: 'zh' | 'en') {
+/** 页面不再提供手动切换入口，使用语言路由验证 SPA 数据与筛选状态。 */
+export async function navigateToLocale(page: Page, locale: 'zh' | 'en') {
   await waitForHydration(page)
-  const current = locale === 'en' ? '语言 简体中文' : 'Language English'
-  const target = locale === 'en' ? 'English' : '简体中文'
-  await page.getByRole('button', { name: current, exact: true }).click()
-  await page.getByRole('menuitem', { name: target, exact: true }).click()
-  await expect(
-    page.getByRole('button', {
-      name: locale === 'en' ? 'Language English' : '语言 简体中文',
-      exact: true,
-    }),
-  ).toBeVisible()
+  const url = new URL(page.url())
+  const path = url.pathname.replace(/^\/en(?=\/|$)/, '') || '/'
+  url.pathname = locale === 'en' ? `/en${path === '/' ? '' : path}` : path
+  await page.evaluate(async target => {
+    const root = document.querySelector('#__nuxt') as Element & {
+      __vue_app__?: { $nuxt?: { $router: Router } }
+    }
+    const router = root?.__vue_app__?.$nuxt?.$router
+    if (!router) throw new Error('Nuxt router is not ready')
+    await router.push(target)
+  }, `${url.pathname}${url.search}${url.hash}`)
+  await expect(page).toHaveURL(url.href)
+  await expect(page.locator('html')).toHaveAttribute('lang', locale === 'en' ? 'en-US' : 'zh-CN')
 }
 export { expect, test }

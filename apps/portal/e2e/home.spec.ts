@@ -2,7 +2,7 @@ import {
   returnFromBackground,
   expect,
   test,
-  switchLanguage,
+  navigateToLocale,
   waitForHydration,
   setSession,
   testSession,
@@ -141,7 +141,7 @@ test('首页学段筛选无数据时显示空状态，语言切换与切回分�
   await page.getByRole('option', { name: '水平五', exact: true }).click()
   await expect(resources.locator('.home-resources__empty .ant-empty')).toContainText('暂无数据')
   await expect(resources.locator('li')).toHaveCount(0)
-  await switchLanguage(page, 'en')
+  await navigateToLocale(page, 'en')
   await expect(resources.locator('.home-resources__empty .ant-empty')).toContainText('No data')
   await expect(
     resources.getByRole('combobox', { name: 'Recommended level', exact: true }),
@@ -161,7 +161,7 @@ test('教研分类空状态可切换语言', async ({ page }) => {
   await research.getByRole('button', { name: '教研与专业发展', exact: true }).click()
   await expect(research.locator('.ant-empty')).toContainText('暂无数据')
   await expect(page.getByRole('heading', { name: '教师共创精选' })).toHaveCount(0)
-  await switchLanguage(page, 'en')
+  await navigateToLocale(page, 'en')
   await expect(research.locator('.ant-empty')).toContainText('No data')
   await expect(page.locator('.home-news')).toContainText('Industry news')
   await research.getByRole('button', { name: 'Teaching practice', exact: true }).click()

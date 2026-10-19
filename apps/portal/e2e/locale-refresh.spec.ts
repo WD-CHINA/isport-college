@@ -1,11 +1,17 @@
-import { expect, test, returnFromBackground, waitForHydration } from './academy.fixture'
+import {
+  expect,
+  test,
+  navigateToLocale,
+  returnFromBackground,
+  waitForHydration,
+} from './academy.fixture'
 
 for (const [path, englishPath, endpoint] of [
   ['/', '/en', '/api/v1/home'],
   ['/resources?category=1', '/en/resources?category=1', '/api/v1/resources'],
   ['/preview/article/research/1', '/en/preview/article/research/1', '/api/v1/research/1'],
 ] as const) {
-  test(`${path} 展开语言菜单不刷新，确认其他语言后才请求对应语言`, async ({ page }) => {
+  test(`${path} 无语言操作入口，语言路由与后台恢复请求对应语言`, async ({ page }) => {
     await page.goto(path)
     await waitForHydration(page)
     const locales: string[] = []
@@ -15,17 +21,17 @@ for (const [path, englishPath, endpoint] of [
       }
     })
 
-    // 普通窗口聚焦、展开菜单和悬停选项均不应刷新当前内容。
+    await expect(page.locator('.app-locale-menu')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /^语言 / })).toHaveCount(0)
+
+    // 普通窗口聚焦与悬停导航均不应刷新当前内容。
     await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-    await page.getByRole('button', { name: '语言 简体中文', exact: true }).click()
-    await page.getByRole('menuitem', { name: 'English', exact: true }).hover()
+    await page.locator('.app-header__brand').hover()
     await expect(page).toHaveURL(path)
-    await page.getByRole('menuitem', { name: '简体中文', exact: true }).click()
     await page.waitForTimeout(200)
     expect(locales).toEqual([])
 
-    await page.getByRole('button', { name: '语言 简体中文', exact: true }).click()
-    await page.getByRole('menuitem', { name: 'English', exact: true }).click()
+    await navigateToLocale(page, 'en')
     await expect(page).toHaveURL(englishPath)
     await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
     await expect.poll(() => locales).toEqual(['en-US'])

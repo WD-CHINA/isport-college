@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { setSession, switchLanguage, testSession, waitForHydration } from './academy.fixture'
+import { setSession, navigateToLocale, testSession, waitForHydration } from './academy.fixture'
 
 function collectHydrationErrors(page: Page) {
   const errors: string[] = []
@@ -155,7 +155,7 @@ for (const [prefix, language, emptyTitle] of [
           name: prefix ? 'Language English' : '语言 简体中文',
           exact: true,
         }),
-      ).toBeVisible()
+      ).toHaveCount(0)
       expect(hydrationErrors).toEqual([])
     })
   }
@@ -165,13 +165,13 @@ test('空状态切换语言及刷新后保持一致', async ({ page }) => {
   const hydrationErrors = collectHydrationErrors(page)
   await page.goto('/resources?keyword=no-match')
   await expect(page.locator('.ant-empty svg title')).toHaveText('暂无数据')
-  await switchLanguage(page, 'en')
+  await navigateToLocale(page, 'en')
   await expect(page).toHaveURL('/en/resources?category=1&keyword=no-match')
   await expect(page.locator('.ant-empty svg title')).toHaveText('No data')
   await expect(page.locator('h1')).toHaveText('PE Teaching Resource Library')
   await page.reload()
   await expect(page.locator('.ant-empty svg title')).toHaveText('No data')
-  await switchLanguage(page, 'zh')
+  await navigateToLocale(page, 'zh')
   await expect(page).toHaveURL('/resources?category=1&keyword=no-match')
   await expect(page.locator('.ant-empty svg title')).toHaveText('暂无数据')
   await expect(page.locator('h1')).toHaveText('体育教学资源库')
@@ -183,12 +183,12 @@ test('首页多个空分区在语言切换后分别保留插图', async ({ page 
   await page.goto('/')
   const titles = page.locator('.ant-empty svg title')
   await expect(titles).toHaveText(['暂无数据', '暂无数据'])
-  await switchLanguage(page, 'en')
+  await navigateToLocale(page, 'en')
   await expect(page).toHaveURL('/en')
   await expect(titles).toHaveText(['No data', 'No data'])
   await page.reload()
   await expect(titles).toHaveText(['No data', 'No data'])
-  await switchLanguage(page, 'zh')
+  await navigateToLocale(page, 'zh')
   await expect(page).toHaveURL('/')
   await expect(titles).toHaveText(['暂无数据', '暂无数据'])
   expect(hydrationErrors).toEqual([])

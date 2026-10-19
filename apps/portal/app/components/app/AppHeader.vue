@@ -2,7 +2,6 @@
 import { useLoginUiStore } from '~/stores/login-ui'
 import { useAuthStore } from '~/stores/auth'
 import AccountAvatar from '~/components/auth/AccountAvatar.vue'
-import AppLocaleMenu from '~/components/app/AppLocaleMenu.vue'
 import AppHeaderPanel from '~/components/app/AppHeaderPanel.vue'
 import { useLingyueLaunch } from '~/composables/useLingyueLaunch'
 
@@ -145,7 +144,6 @@ onScopeDispose(() => {
         <NuxtLink v-else :to="localePath('/')" class="app-header__home">
           {{ t('creation.portalHome') }}
         </NuxtLink>
-        <AppLocaleMenu />
         <template v-if="auth.isLoggedIn">
           <APopover v-model:open="userMenuOpen" trigger="click" placement="bottomRight">
             <template #content>

@@ -28,7 +28,7 @@ const apiUrl = useApiUrl()
               <img :src="`/home/figma/${row === 2 ? '3f802.svg' : '5f87f.svg'}`" alt="" />
               <p>{{ richTextToPlainText(person.story) || person.honorTitle }}</p>
             </div>
-            <span class="home-people__divider"><img src="/home/figma/e84bd.svg" alt="" /></span>
+            <span class="home-people__divider" aria-hidden="true" />
             <span class="home-people__who">
               <img
                 v-if="isContentAssetUrl(apiUrl(person.avatarUrl))"
@@ -38,9 +38,11 @@ const apiUrl = useApiUrl()
               <i v-else aria-hidden="true" />
               <span>
                 <strong>{{ person.name }}</strong>
-                <em v-if="person.jobTitle || person.honorTitle">{{
-                  person.honorTitle || person.jobTitle
-                }}</em>
+                <em
+                  v-if="person.jobTitle || person.honorTitle"
+                  :title="person.honorTitle || person.jobTitle"
+                  >{{ person.honorTitle || person.jobTitle }}</em
+                >
                 <small>{{ person.schoolOrg }}</small>
               </span>
             </span>
@@ -96,12 +98,9 @@ const apiUrl = useApiUrl()
 
   &__divider {
     display: block;
-    overflow: hidden;
+    flex: none;
     margin-top: 24px;
-
-    img {
-      display: block;
-    }
+    border-top: 1px solid var(--ic-color-academy-border-base);
   }
 
   &__who {
@@ -109,6 +108,15 @@ const apiUrl = useApiUrl()
     align-items: center;
     gap: 16px;
     margin-top: 24px;
+
+    > span {
+      display: grid;
+      min-width: 0;
+      flex: 1;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 6px 12px;
+    }
 
     & img,
     & i {
@@ -129,17 +137,23 @@ const apiUrl = useApiUrl()
 
   small {
     display: block;
+    grid-column: 1 / -1;
   }
 
   em {
     display: inline-block;
-    margin: 0 0 6px 12px;
+    overflow: hidden;
+    max-width: 100%;
+    justify-self: start;
+    margin: 0;
     padding: 2px 8px;
     border-radius: 3px;
     background: rgb(0 149 238 / 15%);
     color: #004b83;
     font-size: 12px;
     font-style: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   small {
@@ -175,7 +189,8 @@ const apiUrl = useApiUrl()
       margin-top: 16px;
 
       > span {
-        min-width: 0;
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 0;
       }
 
       img,
@@ -193,10 +208,8 @@ const apiUrl = useApiUrl()
     }
 
     em {
-      max-width: 100%;
       margin: 4px 0;
       font-size: 11px;
-      overflow-wrap: anywhere;
     }
 
     small {

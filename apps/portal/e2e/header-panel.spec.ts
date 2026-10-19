@@ -1,5 +1,27 @@
 import { expect, test, setSession, testSession, waitForHydration } from './academy.fixture'
 
+for (const width of [320, 994, 1440]) {
+  for (const prefix of ['', '/en']) {
+    test(`${width}px ${prefix || '中文'} 导航不提供语言切换入口`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 })
+      const response = await page.goto(`${prefix}/schools`)
+      expect(await response!.text()).not.toContain('app-locale-menu')
+      await waitForHydration(page)
+      await expect(page.locator('.app-locale-menu')).toHaveCount(0)
+      await expect(page.getByRole('button', { name: /^(语言|Language) / })).toHaveCount(0)
+      await expect(page.locator('.app-header__brand')).toBeVisible()
+      if (width < 1200) {
+        await page.getByRole('button', { name: prefix ? 'Menu' : '菜单', exact: true }).click()
+        await expect(page.locator('.app-header__panel')).toBeVisible()
+        await expect(page.getByRole('menuitem', { name: /^(简体中文|English)$/ })).toHaveCount(0)
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+        true,
+      )
+    })
+  }
+}
+
 for (const width of [320, 390, 768, 1024]) {
   test(`${width}px 导航面板高亮当前页，关闭和跳转正常`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 })

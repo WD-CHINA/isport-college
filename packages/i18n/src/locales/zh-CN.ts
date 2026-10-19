@@ -257,7 +257,7 @@ export default {
       school: '从课程建设到课堂应用，了解学校的实践思路',
     },
 
-    channels: { resource: '教学资源', research: '教研学习', school: '学校案例' },
+    channels: { resource: '教学资源', research: '教研中心', school: '学校案例' },
     description: '发现适合课堂的资源与实践，按分类查找教学灵感。',
     filters: '内容筛选',
     category: '分类',

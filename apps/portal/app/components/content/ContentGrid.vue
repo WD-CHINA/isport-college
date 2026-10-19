@@ -31,7 +31,11 @@ const { t } = useI18n()
       :variant="variant"
     />
   </div>
-  <AppEmpty v-if="!loading && !items.length" :description="t('catalog.noResults')" />
+  <AppEmpty
+    v-if="!loading && !items.length"
+    :class="{ 'content-grid__empty--catalog': variant === 'catalog' }"
+    :description="t('catalog.noResults')"
+  />
 </template>
 
 <style lang="scss" scoped>
@@ -62,6 +66,11 @@ const { t } = useI18n()
     margin-top: var(--ic-spacing-6);
     row-gap: var(--ic-spacing-6);
   }
+
+  &__empty--catalog {
+    margin: 0;
+    padding-block: var(--ic-spacing-8) var(--ic-spacing-12);
+  }
 }
 
 @media (max-width: 1023px) {
@@ -75,6 +84,10 @@ const { t } = useI18n()
 
 @media (max-width: 767px) {
   .content-grid {
+    &__empty--catalog {
+      padding-block: var(--ic-spacing-6) var(--ic-spacing-10);
+    }
+
     &--catalog,
     &--recommendations {
       grid-template-columns: 1fr;

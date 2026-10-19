@@ -4,7 +4,7 @@ import {
   test,
   setSession,
   smsLogin,
-  switchLanguage,
+  navigateToLocale,
   testSession,
   waitForHydration,
 } from './academy.fixture'
@@ -197,13 +197,13 @@ test('个人收藏随语言切换重新加载，刷新后保持英文', async ({
   )
   await page.goto('/account')
   await expect(page.locator('.activity-list')).toContainText('资源示例 1')
-  await switchLanguage(page, 'en')
+  await navigateToLocale(page, 'en')
   await expect(page).toHaveURL(/\/en\/account$/)
   await expect(page.locator('.activity-list')).toContainText('Resource 1')
   await expect(page.locator('.activity-list')).not.toContainText('资源示例 1')
   await page.reload()
   await expect(page.locator('.activity-list')).toContainText('Resource 1')
-  await switchLanguage(page, 'zh')
+  await navigateToLocale(page, 'zh')
   await expect(page.locator('.activity-list')).toContainText('资源示例 1')
 })
 
