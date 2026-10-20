@@ -81,8 +81,19 @@ useMessageFeedback(messageApi, failed, () => t('media.failed'))
 <template>
   <PreviewFrame :title="title">
     <ContextHolder />
-    <AButton v-if="failed" @click="retry">{{ t('catalog.retry') }}</AButton>
     <div class="video-preview__stage">
+      <div v-if="failed" class="video-preview__error" role="status">
+        <p>{{ t('media.failed') }}</p>
+        <AButton type="primary" class="video-preview__retry" @click="retry">
+          <template #icon>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 7v5h-5M4 17v-5h5" />
+              <path d="M6.1 6.1a8 8 0 0 1 13.2 3M4.7 14.9a8 8 0 0 0 13.2 3" />
+            </svg>
+          </template>
+          {{ t('catalog.retry') }}
+        </AButton>
+      </div>
       <div
         v-show="!failed"
         :key="attempt"
@@ -129,6 +140,45 @@ useMessageFeedback(messageApi, failed, () => t('media.failed'))
       inset: 0;
       height: 100%;
       min-height: 0;
+    }
+  }
+
+  &__error {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 24px;
+    background: var(--ic-color-academy-background-section);
+    text-align: center;
+
+    p {
+      max-width: 360px;
+      margin: 0;
+      color: var(--ic-color-academy-text-muted);
+      font-size: 14px;
+      line-height: 22px;
+    }
+  }
+
+  &__retry {
+    height: 40px;
+    flex: none;
+    padding-inline: 20px;
+    border-radius: 6px;
+    box-shadow: none;
+
+    svg {
+      display: block;
+      width: 16px;
+      height: 16px;
+      stroke: currentcolor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
   }
 }

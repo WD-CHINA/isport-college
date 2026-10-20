@@ -400,8 +400,13 @@ const messages: MessageSchema = {
     likes: 'Liked items',
     saved: 'Profile saved',
     empty: 'No {kind} in this category. Discover new teaching content.',
+    emptyFavoriteTitle: 'No saved content yet',
+    emptyLikeTitle: 'No liked content yet',
+    emptyFavoriteDescription:
+      'Save teaching resources you love and find them whenever you need them.',
+    emptyLikeDescription: 'Like teaching resources you love and find them whenever you need them.',
     relationTime: 'Interaction time',
-    browse: 'Browse content',
+    browse: 'Discover content',
   },
   lingyue: {
     title: 'Lingyue',

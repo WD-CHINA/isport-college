@@ -35,12 +35,24 @@ const browsePath = computed(() =>
     />
   </div>
   <div v-else class="activity-list__empty">
-    <p>
-      {{
-        t('account.empty', { kind: t(kind === 'favorite' ? 'account.favorites' : 'account.likes') })
-      }}
-    </p>
-    <NuxtLink :to="localePath(browsePath)">{{ t('account.browse') }}</NuxtLink>
+    <div class="activity-list__empty-content">
+      <img class="activity-list__empty-image" src="/account/empty-activity.svg" alt="" />
+      <h2>
+        {{ t(kind === 'favorite' ? 'account.emptyFavoriteTitle' : 'account.emptyLikeTitle') }}
+      </h2>
+      <p>
+        {{
+          t(
+            kind === 'favorite'
+              ? 'account.emptyFavoriteDescription'
+              : 'account.emptyLikeDescription',
+          )
+        }}
+      </p>
+      <NuxtLink :to="localePath(browsePath)">
+        {{ t('account.browse') }} <span aria-hidden="true">→</span>
+      </NuxtLink>
+    </div>
   </div>
 </template>
 
@@ -51,22 +63,60 @@ const browsePath = computed(() =>
 
   &__empty {
     display: grid;
-    gap: 12px;
-    justify-items: center;
-    padding: 48px 12px;
-    min-height: 240px;
-    background: var(--ic-color-background-container, #fff);
-    color: var(--ic-color-text-secondary, #64748b);
+    min-height: 400px;
+    place-items: center;
     text-align: center;
+
+    h2 {
+      margin: 0;
+      color: var(--ic-color-academy-text-primary);
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 30px;
+    }
 
     p {
       margin: 0;
+      color: #697586;
+      font-size: 14px;
+      line-height: 21px;
     }
 
     a {
-      font-weight: var(--ic-font-weight-medium, 500);
-      color: var(--ic-color-brand-500, #2563eb);
+      display: inline-flex;
+      width: 152px;
+      min-height: 40px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 6px;
+      background: var(--ic-color-academy-primary);
+      color: var(--ic-color-text-inverse);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 21px;
+
+      &:focus-visible {
+        outline: 2px solid var(--ic-color-academy-primary);
+        outline-offset: 3px;
+      }
     }
+  }
+
+  &__empty-content {
+    display: flex;
+    max-width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding: 24px 0;
+  }
+
+  &__empty-image {
+    display: block;
+    width: 96px;
+    height: 96px;
   }
 }
 </style>
