@@ -105,7 +105,7 @@ module.exports = {
   apps: [
     {
       name: 'isport-academy',
-      cwd: '/data/isport-test2/web/isport-academy',
+      cwd: __dirname,
       script: './server/index.mjs',
       interpreter: 'node',
       instances: 1,
@@ -117,6 +117,8 @@ module.exports = {
   ],
 }
 ```
+
+`cwd: __dirname` 使用配置文件所在目录。构建会把配置复制到 `.output` 根目录，解压后会自动以实际部署目录为工作目录，`./server/index.mjs` 也从该目录解析，无需写死服务器路径。
 
 生产进程不读取 `.env.production`。`NUXT_API_BASE` 缺失或不是 HTTP/HTTPS 地址时进程启动失败。端口必须是字符串，否则 Nitro 会听默认的 `3000`。测试环境保持 `NUXT_PUBLIC_SITE_ENV=test`，全站不收录。
 

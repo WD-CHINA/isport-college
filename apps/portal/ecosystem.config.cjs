@@ -13,7 +13,7 @@ module.exports = {
   apps: [
     {
       name: 'isport-academy',
-      cwd: '/data/isport-test2/web/isport-academy',
+      cwd: __dirname,
       script: './server/index.mjs',
       interpreter: 'node',
       instances: 1,
