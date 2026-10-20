@@ -108,6 +108,8 @@ Turbo 将根 ESLint、Stylelint、Prettier 配置和架构规则列为全局缓�
 
 ## 国际化、收录与发布
 
+生产门户和后端共用 `https://academy.dream-sports.cn/`，生产接口为 `https://academy.dream-sports.cn/api/v1/...`，不带 `/academy` 前缀。部署时显式注入 `NUXT_API_BASE=https://academy.dream-sports.cn`，浏览器使用 `NUXT_PUBLIC_API_BASE=/`。SSR 不从入站 Host 推导后端地址。测试门户域名仍为 `https://yuntiyu-test2.dream-sports.cn/`，站内链接使用相对路径。
+
 默认中文无前缀，英文使用 `/en`；根路径按语言 Cookie 或浏览器偏好重定向，具体业务路由以 URL 为准。SSR 学苑语言头读取请求路径；客户端同步读取当前 Nuxt 注入的 i18n 语言，与数据缓存键使用同一语言来源，避免导航中语言已切换但 currentRoute 仍为旧路径。不依赖异步 i18n composable。
 
 管理端在 Nuxt routeRules 和 HTTP 中间件中强制 CSR，后者使用归一化路径处理大小写变体。管理及个人路由输出 `noindex, nofollow, noarchive`；非生产环境全站禁止收录。发布只启动一个 `.output/server/index.mjs`。
@@ -118,7 +120,7 @@ Turbo 将根 ESLint、Stylelint、Prettier 配置和架构规则列为全局缓�
 | `NUXT_PUBLIC_API_BASE` | 浏览器接口地址；空或 `/` 表示当前站点，绝对地址表示直连；E2E 指向测试协议服务器；不决定 SSR 目标                               |
 | `NUXT_PUBLIC_SITE_ENV` | 默认 development；production 启用 Secure Cookie 并允许公开页收录                                                               |
 
-生产启动时设置 `NUXT_API_BASE`，例如 `NUXT_API_BASE=https://api.example.com node .output/server/index.mjs`（地址由部署环境提供）。Nuxt 的 `--dotenv` 在开发与构建时加载 `.env`，生产 Node 进程不自动加载 `.env.production`。公开页收录及 Secure Cookie 仍由实际部署环境的 `NUXT_PUBLIC_SITE_ENV` 决定。
+生产启动时设置 `NUXT_API_BASE=https://academy.dream-sports.cn`、`NUXT_PUBLIC_API_BASE=/` 和 `NUXT_PUBLIC_SITE_ENV=production`，例如 `NUXT_API_BASE=https://academy.dream-sports.cn NUXT_PUBLIC_API_BASE=/ NUXT_PUBLIC_SITE_ENV=production node .output/server/index.mjs`。Nuxt 的 `--dotenv` 在开发与构建时加载 `.env`，生产 Node 进程不自动加载 `.env.production`。公开页收录及 Secure Cookie 仍由实际部署环境的 `NUXT_PUBLIC_SITE_ENV` 决定。
 
 ## 验收
 

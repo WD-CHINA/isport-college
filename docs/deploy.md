@@ -1,8 +1,32 @@
-# 测试环境部署
+# 部署指南
 
-门户部署到 `https://yuntiyu-test2.dream-sports.cn`。本机构建 SSR 产物，只把 `apps/portal/.output` 上传到 ECS。服务器不拉取仓库，也不安装 pnpm。
+| 环境 | 门户地址                                | `NUXT_PUBLIC_SITE_ENV` |
+| ---- | --------------------------------------- | ---------------------- |
+| 生产 | `https://academy.dream-sports.cn`       | `production`           |
+| 测试 | `https://yuntiyu-test2.dream-sports.cn` | `test`                 |
 
-## 请求边界
+生产站点使用 `https://academy.dream-sports.cn/`，用户协议和隐私协议分别为：
+
+- `https://academy.dream-sports.cn/legal/terms`
+- `https://academy.dream-sports.cn/legal/privacy`
+
+生产前端和后端共用 `https://academy.dream-sports.cn`，接口地址为 `https://academy.dream-sports.cn/api/v1/...`，不带 `/academy` 前缀。站内导航与协议入口使用相对路径。
+
+生产部署时注入以下运行时配置：
+
+```dotenv
+NUXT_API_BASE=https://academy.dream-sports.cn
+NUXT_PUBLIC_API_BASE=/
+NUXT_PUBLIC_SITE_ENV=production
+```
+
+SSR 使用固定的 `NUXT_API_BASE` 请求生产后端，浏览器通过当前域名请求相同的 `/api/v1/...`。生产域名的 `/api/` 由 Nginx 转发至学苑后端，其余门户页面转发至 Nuxt。
+
+以下服务器目录、PM2 和 Nginx 命令对应测试环境。生产部署使用生产域名及实际服务器目录、上游地址，并将 `NUXT_PUBLIC_SITE_ENV` 设置为 `production`；测试环境继续使用 `test`，保持全站禁止收录。
+
+本机构建 SSR 产物，只把 `apps/portal/.output` 上传到 ECS。服务器不拉取仓库，也不安装 pnpm。
+
+## 测试环境请求边界
 
 ```text
 浏览器 /、/en、/resources…
