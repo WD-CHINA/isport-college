@@ -8,8 +8,9 @@ withDefaults(
     pageSize: number
     page: number
     variant?: 'default' | 'catalog'
+    hideOnSinglePage?: boolean
   }>(),
-  { variant: 'default' },
+  { variant: 'default', hideOnSinglePage: true },
 )
 const emit = defineEmits<{ change: [page: number] }>()
 const screens = useBreakpoint()
@@ -17,7 +18,7 @@ const screens = useBreakpoint()
 
 <template>
   <div
-    v-if="total > pageSize"
+    v-if="total > 0 && (!hideOnSinglePage || total > pageSize)"
     class="app-pagination"
     :class="{ 'app-pagination--catalog': variant === 'catalog' }"
   >
@@ -27,7 +28,7 @@ const screens = useBreakpoint()
       :page-size="pageSize"
       :show-size-changer="false"
       :show-less-items="variant === 'catalog' && !screens?.sm"
-      hide-on-single-page
+      :hide-on-single-page="hideOnSinglePage"
       responsive
       @change="value => emit('change', value)"
     >

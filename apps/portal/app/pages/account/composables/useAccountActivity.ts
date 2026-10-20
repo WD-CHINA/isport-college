@@ -14,6 +14,7 @@ export function useAccountActivity(options: { onRemoved?: (kind: InteractionKind
   const kind = shallowRef<InteractionKind>('favorite')
   const channel = shallowRef<ContentChannel | ''>('')
   const page = shallowRef(1)
+  const pageSize = 5
   const removing = shallowRef('')
   const failed = shallowRef(false)
   let disposed = false
@@ -37,9 +38,11 @@ export function useAccountActivity(options: { onRemoved?: (kind: InteractionKind
     return selected ? items.filter(item => item.channel === selected) : items
   })
   const total = computed(() => filtered.value.length)
-  const items = computed(() => filtered.value.slice((page.value - 1) * 12, page.value * 12))
+  const items = computed(() =>
+    filtered.value.slice((page.value - 1) * pageSize, page.value * pageSize),
+  )
   watch(total, count => {
-    page.value = Math.min(page.value, Math.max(1, Math.ceil(count / 12)))
+    page.value = Math.min(page.value, Math.max(1, Math.ceil(count / pageSize)))
   })
   function filter(nextKind: InteractionKind, nextChannel: ContentChannel | '') {
     kind.value = nextKind
@@ -90,5 +93,18 @@ export function useAccountActivity(options: { onRemoved?: (kind: InteractionKind
     }
   }
   useRefreshOnVisible(() => request.refresh())
-  return { kind, channel, page, removing, failed, totals, items, total, request, filter, remove }
+  return {
+    kind,
+    channel,
+    page,
+    pageSize,
+    removing,
+    failed,
+    totals,
+    items,
+    total,
+    request,
+    filter,
+    remove,
+  }
 }

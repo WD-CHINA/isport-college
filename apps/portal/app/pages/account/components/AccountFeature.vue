@@ -9,12 +9,29 @@ import AppPagination from '~/components/app/AppPagination.vue'
 
 const { t } = useI18n()
 const [messageApi, ContextHolder] = message.useMessage()
-const { kind, channel, page, removing, failed, totals, items, total, request, filter, remove } =
-  useAccountActivity({
-    onRemoved: kind =>
-      messageApi.success(t(kind === 'like' ? 'detail.unlikeSuccess' : 'detail.unfavoriteSuccess')),
-  })
+const {
+  kind,
+  channel,
+  page,
+  pageSize,
+  removing,
+  failed,
+  totals,
+  items,
+  total,
+  request,
+  filter,
+  remove,
+} = useAccountActivity({
+  onRemoved: kind =>
+    messageApi.success(t(kind === 'like' ? 'detail.unlikeSuccess' : 'detail.unfavoriteSuccess')),
+})
 const { error, status, refresh } = request
+const activityStart = useTemplateRef<HTMLElement>('activityStart')
+watch(page, async () => {
+  await nextTick()
+  activityStart.value?.scrollIntoView({ block: 'start' })
+})
 useSeoMeta({ title: () => t('academy.account') })
 useMessageFeedback(messageApi, failed, () => t('detail.interactionFailed'))
 useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))
@@ -26,7 +43,7 @@ await request
     <ContextHolder />
     <h1 class="account-feature__title">{{ t('academy.account') }}</h1>
     <AccountProfile />
-    <section class="account-feature__activity">
+    <section ref="activityStart" class="account-feature__activity">
       <ActivityFilters
         :kind="kind"
         :channel="channel"
@@ -47,7 +64,8 @@ await request
         <AppPagination
           :total="total"
           :page="page"
-          :page-size="12"
+          :page-size="pageSize"
+          :hide-on-single-page="false"
           variant="catalog"
           @change="page = $event"
         />
@@ -70,6 +88,7 @@ await request
   }
 
   &__activity {
+    scroll-margin-top: 90px;
     margin-top: 24px;
     padding: 24px 24px 0;
     border: 1px solid var(--ic-color-academy-border-panel);
