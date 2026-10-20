@@ -3,7 +3,7 @@ const { t } = useI18n()
 // 设计稿提供的公开服务数据；作为品牌文案展示，不参与业务统计。
 const stats = [
   { value: '43,000', unit: 'teachersUnit', label: 'teachers' },
-  { value: '8,166', unit: 'schoolsUnit', label: 'schools' },
+  { value: '11,628', unit: 'schoolsUnit', label: 'schools' },
   { value: '627', unit: 'resourcesUnit', label: 'resources' },
   { value: '33', unit: 'regionsUnit', label: 'regions' },
 ]
