@@ -1,4 +1,5 @@
 import { LOCALE_COOKIE_NAME, LOCALE_URL_CODES, LOCALE_URL_PREFIXES } from '@isport/shared'
+import { DEFAULT_DOCUMENT_PREVIEW_BASE } from './app/utils/document-preview'
 
 /**
  * 管理端只做 CSR：不直出页面内容。
@@ -77,8 +78,7 @@ export default defineNuxtConfig({
        * 可用 NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE 覆盖。
        */
       documentPreviewBase:
-        process.env.NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE ??
-        'https://viewer.grilledfish.asia/?showHeader=0&showImport=0&showUrlImport=0&showToolbar=1&showErrors=0',
+        process.env.NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE ?? DEFAULT_DOCUMENT_PREVIEW_BASE,
     },
   },
   app: {

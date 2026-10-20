@@ -11,8 +11,18 @@ const props = withDefaults(
     peek?: boolean
     insetControls?: boolean
     autoplay?: boolean
+    autoplayDelay?: number
+    effect?: 'slide' | 'fade'
   }>(),
-  { desktopSlides: 1, desktopGap: 24, peek: true, insetControls: false, autoplay: false },
+  {
+    desktopSlides: 1,
+    desktopGap: 24,
+    peek: true,
+    insetControls: false,
+    autoplay: false,
+    autoplayDelay: 5000,
+    effect: 'slide',
+  },
 )
 // Swiper 的循环模式会调整 DOM；条目变化后重建实例，避免沿用旧循环状态。
 const slideKey = computed(() => JSON.stringify(props.items.map(props.itemKey)))
@@ -38,6 +48,8 @@ defineSlots<{ default(props: { item: T; index: number }): unknown }>()
         :peek="peek"
         :inset-controls="insetControls"
         :autoplay="autoplay"
+        :autoplay-delay="autoplayDelay"
+        :effect="effect"
       >
         <swiper-slide v-for="(item, index) in items" :key="itemKey(item)">
           <slot :item="item" :index="index" />

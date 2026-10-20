@@ -212,6 +212,12 @@ const messages: MessageSchema = {
     nicknameRule:
       'Leave blank or use 2–6 Chinese characters, letters or digits. Spaces and emoji are not allowed.',
     nicknameGuide: 'Set your nickname',
+    nicknameOptional:
+      'You are signed in. A nickname is optional and can be set in your profile later.',
+    nicknameNoSpaces: 'Your nickname cannot contain spaces.',
+    nicknameCharacters: 'Use Chinese characters, English letters or numbers only.',
+    nicknameLength: 'Your nickname must contain 2–6 characters.',
+    networkOffline: 'You are offline. Check your connection and try again.',
     nicknamePlaceholder: '2–6 characters: Chinese, English or digits',
     saveNickname: 'Save nickname',
     avatar: 'Choose an avatar',

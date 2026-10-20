@@ -21,6 +21,7 @@ const apiUrl = useApiUrl()
         :label="t('academy.news')"
         :desktop-slides="2"
         :desktop-gap="36"
+        autoplay
       >
         <template #default="{ item }">
           <ContentLink class="home-news__card" :content="item">

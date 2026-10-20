@@ -34,6 +34,8 @@ const hotIcons = {
           :label="t('home.featuredTitle')"
           :peek="false"
           inset-controls
+          effect="fade"
+          :autoplay-delay="3000"
           autoplay
         >
           <template #default="{ item }">
@@ -66,7 +68,7 @@ const hotIcons = {
             /></NuxtLink>
           </div>
           <ul>
-            <li v-for="(item, row) in hot.slice(0, 5)" :key="item.contentKey">
+            <li v-for="item in hot.slice(0, 5)" :key="item.contentKey">
               <ContentLink :content="item">
                 <img
                   v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
@@ -76,19 +78,17 @@ const hotIcons = {
                 <span v-else class="home-featured__thumb">
                   <ContentTypeIcon :type="item.detailType" :size="24" />
                 </span>
-                <span class="home-featured__hot-copy">
-                  <strong>{{ item.title }}</strong>
-                  <em v-if="item.categoryName"
-                    ><img :src="`/home/figma/${hotIcons[item.detailType]}`" alt="" />{{
-                      item.categoryName
-                    }}</em
-                  >
+                <span class="home-featured__hot-body">
+                  <span class="home-featured__hot-copy">
+                    <strong>{{ item.title }}</strong>
+                    <em v-if="item.categoryName"
+                      ><img :src="`/home/figma/${hotIcons[item.detailType]}`" alt="" />{{
+                        item.categoryName
+                      }}</em
+                    >
+                  </span>
+                  <img class="home-featured__arrow" src="/home/figma/dd1b3.svg" alt="" />
                 </span>
-                <img
-                  class="home-featured__arrow"
-                  :src="`/home/figma/${row === 0 ? '49d2c.svg' : 'dd1b3.svg'}`"
-                  alt=""
-                />
               </ContentLink>
             </li>
           </ul>
@@ -104,11 +104,41 @@ const hotIcons = {
   padding: 48px 0;
   background: var(--ic-color-academy-background-page);
 
+  :deep(.home-section-title p) {
+    color: var(--ic-color-academy-text-secondary);
+  }
+
   &__layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 360px;
     gap: 24px;
     margin-top: 16px;
+    align-items: start;
+  }
+
+  &__carousel {
+    :deep(.home-swiper--inset .home-swiper__controls) {
+      bottom: 25px;
+    }
+
+    :deep(.home-swiper__dots button) {
+      width: 20px;
+
+      &::before {
+        width: 8px;
+        height: 8px;
+        background: #cbe7fe;
+      }
+
+      &[aria-pressed='true'] {
+        width: 28px;
+
+        &::before {
+          width: 16px;
+          background: var(--ic-color-academy-primary);
+        }
+      }
+    }
   }
 
   &__spotlight,
@@ -129,7 +159,7 @@ const hotIcons = {
 
   &__cover,
   &__thumb {
-    border-radius: 8px;
+    border-radius: 6px;
     background: var(--ic-color-academy-background-placeholder);
   }
 
@@ -159,7 +189,8 @@ const hotIcons = {
     font-size: 12px;
     font-style: normal;
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: 3px;
+    line-height: 16px;
     background: var(--ic-color-academy-tint);
   }
 
@@ -171,12 +202,20 @@ const hotIcons = {
 
   &__copy {
     h3 {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
       font-size: 24px;
       font-weight: 600;
       line-height: 38px;
     }
 
     p {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
       margin: 0;
       color: var(--ic-color-academy-text-muted);
       font-size: 14px;
@@ -270,11 +309,19 @@ const hotIcons = {
     width: 66px;
     height: 48px;
     flex: none;
+    border-radius: 6px;
   }
 
   &__thumb {
     display: grid;
     place-items: center;
+  }
+
+  &__hot-body {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
   }
 
   &__hot-copy {
@@ -289,6 +336,7 @@ const hotIcons = {
       overflow: hidden;
       font-size: 14px;
       font-weight: 500;
+      line-height: 22px;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -329,8 +377,7 @@ const hotIcons = {
 
 @media (max-width: 960px) {
   .home-featured {
-    &__layout,
-    &__spotlight {
+    &__layout {
       grid-template-columns: 1fr;
     }
   }
@@ -344,9 +391,14 @@ const hotIcons = {
     }
 
     &__spotlight {
+      grid-template-columns: 1fr;
       min-height: 0;
       padding: 16px 16px 56px;
       gap: 16px;
+    }
+
+    &__carousel :deep(.home-swiper--inset .home-swiper__controls) {
+      bottom: 6px;
     }
 
     &__cover {

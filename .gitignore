@@ -29,3 +29,4 @@ pnpm-debug.log*
 
 # 本地 Mock 数据与上传文件
 .data/
+docs/qa

@@ -10,27 +10,33 @@ const props = defineProps<{
   peek: boolean
   insetControls: boolean
   autoplay: boolean
+  autoplayDelay: number
+  effect: 'slide' | 'fade'
 }>()
 const { t } = useI18n()
 const container = shallowRef<SwiperContainer | null>(null)
 const instance = shallowRef<Swiper | null>(null)
+const region = shallowRef<HTMLElement | null>(null)
+let keyboardFocus = false
 let disposed = false
 const mobileQuery = window.matchMedia('(max-width: 767px)')
 const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 const mobile = shallowRef(mobileQuery.matches)
 const active = shallowRef(0)
-const groupSize = computed(() => (mobile.value || props.autoplay ? 1 : props.desktopSlides))
+const groupSize = computed(() =>
+  mobile.value || props.effect === 'fade' ? 1 : props.desktopSlides,
+)
 const pages = computed(() => Math.ceil(props.count / groupSize.value))
 const currentPage = computed(() => Math.min(active.value, pages.value - 1))
 // 多列与移动端露出下一张时，少量卡片不满足 loop 缓冲要求，使用 rewind 首尾回绕。
-const canLoop = computed(() => props.autoplay && props.count > 1)
+const canLoop = computed(() => props.autoplay && props.effect === 'fade' && props.count > 1)
 const options = computed<SwiperOptions>(() => {
   const looping = canLoop.value
   return {
-    slidesPerView: !props.autoplay && props.peek && props.count > 1 ? 1.12 : 1,
+    slidesPerView: props.effect !== 'fade' && props.peek && props.count > 1 ? 1.12 : 1,
     slidesPerGroup: 1,
     spaceBetween: 12,
-    speed: motionQuery.matches ? 0 : props.autoplay ? 600 : 350,
+    speed: motionQuery.matches ? 0 : props.effect === 'fade' ? 600 : 350,
     watchOverflow: true,
     // loop 会改写 DOM；开着 observer 容易在换页时被重置。
     observer: !looping,
@@ -38,18 +44,18 @@ const options = computed<SwiperOptions>(() => {
     loop: looping,
     rewind: !looping,
     // 精选自动轮播用淡入淡出，末页回到首页无缝过渡。
-    effect: props.autoplay ? 'fade' : 'slide',
-    fadeEffect: props.autoplay ? { crossFade: true } : undefined,
+    effect: props.effect,
+    fadeEffect: props.effect === 'fade' ? { crossFade: true } : undefined,
     a11y: { enabled: true },
     autoplay:
-      props.autoplay && !motionQuery.matches
-        ? { delay: 5000, disableOnInteraction: true, pauseOnMouseEnter: true }
+      props.autoplay && props.count > 1
+        ? { delay: props.autoplayDelay, disableOnInteraction: false, pauseOnMouseEnter: true }
         : false,
     breakpoints: {
       768: {
-        slidesPerView: props.autoplay ? 1 : props.desktopSlides,
-        slidesPerGroup: props.autoplay ? 1 : props.desktopSlides,
-        spaceBetween: props.autoplay ? 0 : props.desktopGap,
+        slidesPerView: props.effect === 'fade' ? 1 : props.desktopSlides,
+        slidesPerGroup: props.effect === 'fade' ? 1 : props.desktopSlides,
+        spaceBetween: props.effect === 'fade' ? 0 : props.desktopGap,
       },
     },
   }
@@ -72,13 +78,36 @@ function goToPage(page: number) {
 function pause() {
   instance.value?.autoplay?.stop()
 }
+function resume() {
+  const autoplay = instance.value?.autoplay
+  if (!props.autoplay || props.count < 2 || motionQuery.matches || keyboardFocus) return
+  if (region.value?.matches(':hover')) return
+  if (!autoplay?.running) autoplay?.start()
+  else if (autoplay.paused) autoplay.resume()
+}
+function focusIn(event: FocusEvent) {
+  if (!(event.target instanceof HTMLElement) || !event.target.matches(':focus-visible')) return
+  keyboardFocus = true
+  pause()
+}
+function focusOut(event: FocusEvent) {
+  if (event.relatedTarget instanceof Node && region.value?.contains(event.relatedTarget)) return
+  keyboardFocus = false
+  resume()
+}
+function pointerDown() {
+  keyboardFocus = false
+  resume()
+}
 function resize() {
   mobile.value = mobileQuery.matches
   sync()
 }
 function motionChanged() {
   if (motionQuery.matches) pause()
-  if (instance.value) instance.value.params.speed = motionQuery.matches ? 0 : 350
+  else resume()
+  if (instance.value)
+    instance.value.params.speed = motionQuery.matches ? 0 : props.effect === 'fade' ? 600 : 350
 }
 onMounted(async () => {
   await customElements.whenDefined('swiper-container')
@@ -86,6 +115,7 @@ onMounted(async () => {
   Object.assign(container.value, options.value)
   container.value.initialize()
   instance.value = container.value.swiper
+  if (motionQuery.matches || region.value?.matches(':hover')) pause()
   sync()
   mobileQuery.addEventListener('change', resize)
   motionQuery.addEventListener('change', motionChanged)
@@ -100,11 +130,16 @@ onScopeDispose(() => {
 
 <template>
   <div
+    ref="region"
     class="home-swiper"
     :class="{ 'home-swiper--inset': insetControls }"
     role="region"
     :aria-label="label"
-    @focusin="pause"
+    @focusin="focusIn"
+    @focusout="focusOut"
+    @pointerdown="pointerDown"
+    @mouseenter="pause"
+    @mouseleave="resume"
     @keydown.left.prevent="instance?.slidePrev()"
     @keydown.right.prevent="instance?.slideNext()"
   >

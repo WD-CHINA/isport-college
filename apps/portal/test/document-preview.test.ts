@@ -5,7 +5,7 @@ describe('toDocumentPreviewUrl', () => {
   it('拼接预览服务参数并对文件地址编码', () => {
     const fileUrl = 'https://cdn.example.com/a b.pdf'
     const url = toDocumentPreviewUrl(fileUrl, DEFAULT_DOCUMENT_PREVIEW_BASE)
-    expect(url.startsWith('https://viewer.grilledfish.asia/?')).toBe(true)
+    expect(url.startsWith('https://academy.dream-sports.cn/viewer/?')).toBe(true)
     expect(url).toContain('showHeader=0')
     expect(url).toContain('showImport=0')
     expect(url).toContain('showUrlImport=0')

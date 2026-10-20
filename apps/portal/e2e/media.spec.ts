@@ -67,7 +67,7 @@ test('文档通过预览服务 iframe 接入', async ({ page }) => {
   const frame = page.getByTestId('document-preview')
   await expect(frame).toBeVisible()
   const src = await frame.getAttribute('src')
-  expect(src).toContain('viewer.grilledfish.asia')
+  expect(src).toContain('https://academy.dream-sports.cn/viewer/')
   expect(src).toContain('showImport=0')
   expect(src).toMatch(/[?&]url=/)
   expect(decodeURIComponent(src!)).toContain('/media/sample.pdf')

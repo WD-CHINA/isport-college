@@ -11,7 +11,14 @@ const loginUi = useLoginUiStore()
 const { t } = useI18n()
 const { pending, error, save, skipNickname } = useProfile()
 const nickname = shallowRef('')
-const ready = computed(() => Boolean(normalizeNickname(nickname.value)))
+const ready = computed(() => normalizeNickname(nickname.value) !== null)
+const validationError = computed(() => {
+  const value = nickname.value.trim()
+  if (!value) return ''
+  if (/\s/.test(value)) return t('academy.nicknameNoSpaces')
+  if (/[^\u4e00-\u9fffA-Za-z0-9]/.test(value)) return t('academy.nicknameCharacters')
+  return ready.value ? '' : t('academy.nicknameLength')
+})
 
 watch(
   () => loginUi.nicknameGuideVisible,
@@ -22,7 +29,7 @@ watch(
 
 async function submit() {
   const value = normalizeNickname(nickname.value)
-  if (!value || !auth.user) return
+  if (value === null || !auth.user) return
   if (await save({ nickname: value })) {
     loginUi.nicknameGuideVisible = false
     messageApi.success(t('account.saved'))
@@ -58,6 +65,7 @@ useMessageFeedback(
     closable
   >
     <form v-if="auth.user" class="nickname-guide" @submit.prevent="submit">
+      <p class="nickname-guide__hint">{{ t('academy.nicknameOptional') }}</p>
       <div class="nickname-guide__field">
         <label for="nickname-guide-name">{{ t('academy.nickname') }}</label>
         <AInput
@@ -65,9 +73,20 @@ useMessageFeedback(
           v-model:value="nickname"
           :disabled="pending"
           :maxlength="6"
+          :status="validationError ? 'error' : undefined"
+          :aria-invalid="Boolean(validationError)"
+          aria-describedby="nickname-guide-help"
           size="large"
           :placeholder="t('academy.nicknamePlaceholder')"
         />
+        <p
+          id="nickname-guide-help"
+          class="nickname-guide__hint"
+          :class="{ 'nickname-guide__hint--error': validationError }"
+          :role="validationError ? 'alert' : undefined"
+        >
+          {{ validationError || t('academy.nicknameRule') }}
+        </p>
       </div>
       <AButton
         type="primary"
@@ -91,6 +110,17 @@ useMessageFeedback(
   display: grid;
   gap: 24px;
   color: var(--ic-color-academy-text-primary);
+
+  &__hint {
+    margin: 0;
+    color: var(--ic-color-academy-text-muted);
+    font-size: 14px;
+    line-height: 22px;
+
+    &--error {
+      color: #d93025;
+    }
+  }
 
   &__field {
     display: grid;

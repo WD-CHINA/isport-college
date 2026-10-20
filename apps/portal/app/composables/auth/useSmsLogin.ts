@@ -66,7 +66,7 @@ export function useSmsLogin(options: { onSent?: () => void; onSuccess?: () => vo
     visible => {
       requestId++
       error.value = ''
-      if (!visible) form.code = ''
+      if (!visible) reset()
     },
   )
 

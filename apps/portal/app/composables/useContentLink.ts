@@ -10,6 +10,8 @@ export function useContentLink(getContent: () => LinkContent, onError: () => voi
   const apiUrl = useApiUrl()
   const localePath = useLocalePath()
   const isLink = computed(() => getContent().detailType === 'LINK')
+  let opening = false
+  let nextOpenAt = 0
   function externalUrl(content: LinkContent) {
     const url = apiUrl(content.jumpUrl)
     return content.detailType === 'LINK' && isPublicHttpUrl(url) ? url : ''
@@ -24,20 +26,22 @@ export function useContentLink(getContent: () => LinkContent, onError: () => voi
     const content = getContent()
     if (content.detailType !== 'LINK') return
     event.preventDefault()
-    const url = externalUrl(content)
-    if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer')
-      return
-    }
-
-    // 在点击事件中同步创建窗口，避免等待接口后被浏览器当作弹窗拦截。
-    const popup = window.open('', '_blank')
-    if (!popup) {
-      onError()
-      return
-    }
-    popup.opener = null
+    // 详情查询期间及快速双击时，只处理第一次打开操作。
+    if (opening || Date.now() < nextOpenAt) return
+    opening = true
+    nextOpenAt = Date.now() + 800
+    let popup: Window | null = null
     try {
+      const url = externalUrl(content)
+      if (url) {
+        window.open(url, '_blank', 'noopener,noreferrer')
+        return
+      }
+
+      // 在点击事件中同步创建窗口，避免等待接口后被浏览器当作弹窗拦截。
+      popup = window.open('', '_blank')
+      if (!popup) throw new Error('Popup unavailable')
+      popup.opener = null
       const signal = AbortSignal.timeout(10_000)
       const detail =
         'channel' in content
@@ -47,8 +51,11 @@ export function useContentLink(getContent: () => LinkContent, onError: () => voi
       if (!target) throw new Error('External link unavailable')
       if (!popup.closed) popup.location.replace(target)
     } catch {
-      popup.close()
+      popup?.close()
+      nextOpenAt = 0
       onError()
+    } finally {
+      opening = false
     }
   }
 

@@ -5,6 +5,7 @@ import LogoutConfirm from '~/components/auth/LogoutConfirm.vue'
 import NicknameGuide from '~/components/auth/NicknameGuide.vue'
 import LingyueAuthorize from '~/components/auth/LingyueAuthorize.vue'
 import AppModalCloseIcon from '~/components/app/AppModalCloseIcon.vue'
+import AppNetworkStatus from '~/components/app/AppNetworkStatus.vue'
 import { antdvThemeToken } from '@isport/design-tokens/antdv-theme'
 import { resolveDataLocale } from '@isport/shared'
 import enUS from 'antdv-next/locale/en_US'
@@ -38,6 +39,7 @@ useSeoMeta({
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
+      <AppNetworkStatus />
       <LoginModal />
       <NicknameGuide />
       <LogoutConfirm />
