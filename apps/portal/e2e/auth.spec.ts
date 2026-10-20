@@ -166,7 +166,7 @@ test('英文点赞、取消点赞、收藏和取消收藏显示对应成功消�
   }
 })
 
-test('退出接口失败仅提示本地退出警告', async ({ page, context, baseURL }) => {
+test('退出接口失败时清除本地会话且不提示', async ({ page, context, baseURL }) => {
   await setSession(context, testSession(), baseURL!)
   await page.route('**/api/v1/auth/logout', route =>
     route.fulfill({
@@ -182,8 +182,11 @@ test('退出接口失败仅提示本地退出警告', async ({ page, context, ba
     .getByRole('dialog')
     .getByRole('button', { name: /确\s*定/ })
     .click()
-  await expect(page.locator('.ant-message-notice-warning')).toContainText('本地会话已清除')
-  await expect(page.locator('.ant-message-notice-success')).toHaveCount(0)
+  await expect(page.locator('.app-header__user')).toHaveCount(0)
+  await expect(page.locator('.ant-message-notice')).toHaveCount(0)
+  await expect
+    .poll(async () => (await context.cookies()).some(cookie => cookie.name === AUTH_COOKIE_NAME))
+    .toBe(false)
 })
 
 test('个人收藏随语言切换重新加载，刷新后保持英文', async ({ page, context, baseURL }) => {

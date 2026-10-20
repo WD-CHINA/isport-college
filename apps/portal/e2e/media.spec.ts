@@ -17,6 +17,8 @@ test('video 使用 xgplayer 加载', async ({ page }) => {
   await expect(host.locator('.xgplayer, video').first()).toBeVisible({ timeout: 15_000 })
   await expect(host.locator('.xgplayer-poster')).toHaveCSS('background-image', /sample\.png/)
   await expect(host.locator('.xgplayer-start')).toHaveCSS('width', '56px')
+  await expect(host.locator('.xgplayer-cssfullscreen')).toHaveCount(0)
+  await expect(host.locator('.xgplayer-fullscreen')).toHaveCount(1)
 })
 
 test('播放器分块加载失败时提供重试，网络恢复后可加载播放器', async ({ page }) => {

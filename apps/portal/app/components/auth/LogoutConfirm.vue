@@ -17,7 +17,7 @@ async function confirm() {
     await logout()
     if (!auth.isLoggedIn) messageApi.success(t('auth.logoutSuccess'))
   } catch {
-    messageApi.warning(t('academy.logoutLocal'))
+    // 本地会话已在 logout 中清除，服务端失败不再提示。
   } finally {
     pending.value = false
     await navigateTo(localePath('/'))

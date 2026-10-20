@@ -36,6 +36,7 @@ async function mountPlayer() {
       height: '100%',
       autoplay: false,
       playsinline: true,
+      cssFullscreen: false,
       playbackRate: [0.5, 1, 1.25, 1.5, 2],
     })
     player.on('error', () => {
