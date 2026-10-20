@@ -79,13 +79,14 @@ watch(
         >
         <h3>{{ content.title }}</h3>
         <div
-          v-if="
-            variant === 'catalog' && content.channel === 'RESOURCE' && (publisher || levelLabel)
-          "
+          v-if="variant === 'catalog' && content.channel === 'RESOURCE'"
           class="content-card__foot"
         >
           <span class="content-card__publisher">{{ publisher }}</span>
           <span v-if="levelLabel" class="content-card__level">{{ levelLabel }}</span>
+          <span class="content-card__views">{{
+            t('catalog.views', { count: content.viewCount })
+          }}</span>
         </div>
         <p
           v-if="
@@ -156,13 +157,26 @@ watch(
     position: relative;
     display: grid;
     place-items: center;
-    aspect-ratio: 16 / 9;
+    overflow: hidden;
     background: linear-gradient(135deg, #eaf1ff 0%, #f5f8ff 100%);
     color: var(--ic-color-text-tertiary, #94a3b8);
     font-size: var(--ic-font-size-sm, 14px);
+
+    &::before {
+      grid-area: 1 / 1;
+      width: 100%;
+      padding-top: 56.25%;
+      content: '';
+    }
+
+    > .content-type-icon {
+      grid-area: 1 / 1;
+    }
   }
 
   &__photo {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -231,15 +245,6 @@ watch(
     box-shadow: inset 0 0 0 1px var(--catalog-border);
   }
 
-  &--catalog .content-card__cover {
-    overflow: hidden;
-  }
-
-  &--catalog .content-card__photo {
-    position: absolute;
-    inset: 0;
-  }
-
   &--catalog .content-card__body {
     gap: 8px;
     padding: 16px 24px 24px;
@@ -274,6 +279,15 @@ watch(
     white-space: nowrap;
   }
 
+  &__views {
+    flex: none;
+    margin-inline-start: auto;
+    color: var(--ic-color-academy-text-muted);
+    font-size: 12px;
+    line-height: 22px;
+    white-space: nowrap;
+  }
+
   &__level {
     flex: none;
     height: 20px;
@@ -292,8 +306,8 @@ watch(
     box-shadow: none;
   }
 
-  &--catalog.content-card--research .content-card__cover {
-    aspect-ratio: 585 / 300;
+  &--catalog.content-card--research .content-card__cover::before {
+    padding-top: 51.2821%;
   }
 
   &--catalog.content-card--research .content-card__body {
@@ -316,8 +330,11 @@ watch(
   }
 
   &--catalog.content-card--school .content-card__cover {
-    aspect-ratio: 336 / 188;
     border-radius: 6px;
+
+    &::before {
+      padding-top: 55.9524%;
+    }
   }
 
   &--catalog.content-card--school .content-card__body {
@@ -377,13 +394,10 @@ watch(
 
   &--recommendation .content-card__cover {
     height: 140px;
-    aspect-ratio: auto;
-    overflow: hidden;
-  }
 
-  &--recommendation .content-card__photo {
-    position: absolute;
-    inset: 0;
+    &::before {
+      display: none;
+    }
   }
 
   &--recommendation .content-card__body {

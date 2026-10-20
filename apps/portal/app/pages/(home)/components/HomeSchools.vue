@@ -68,13 +68,21 @@ const visible = computed(() => props.items.slice(0, 3))
   }
 
   &__cover {
+    position: relative;
     display: block;
     overflow: hidden;
-    aspect-ratio: 336 / 188;
     border-radius: 6px;
     background: var(--ic-color-academy-background-placeholder);
 
+    &::before {
+      display: block;
+      padding-top: 55.9524%;
+      content: '';
+    }
+
     img {
+      position: absolute;
+      inset: 0;
       display: block;
       width: 100%;
       height: 100%;
@@ -115,9 +123,12 @@ const visible = computed(() => props.items.slice(0, 3))
     }
 
     &__cover {
-      aspect-ratio: 16 / 10;
       max-height: 240px;
       border-radius: var(--ic-border-radius-md);
+
+      &::before {
+        padding-top: 62.5%;
+      }
     }
 
     h3 {

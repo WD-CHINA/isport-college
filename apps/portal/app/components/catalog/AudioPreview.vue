@@ -37,5 +37,6 @@ const labels = computed(() => ({
 <style lang="scss" scoped>
 .audio-preview {
   width: 100%;
+  height: 100%;
 }
 </style>

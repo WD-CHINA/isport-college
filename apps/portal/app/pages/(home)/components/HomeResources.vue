@@ -95,9 +95,14 @@ function setLevel(value: unknown) {
             <span class="home-resources__body">
               <ContentMediaTag :type="item.detailType" />
               <strong>{{ item.title }}</strong>
-              <small v-if="item.levelLabel">{{
-                t('home.suitable', { name: item.levelLabel })
-              }}</small>
+              <span class="home-resources__meta">
+                <small v-if="item.levelLabel">{{
+                  t('home.suitable', { name: item.levelLabel })
+                }}</small>
+                <span class="home-resources__views">{{
+                  t('catalog.views', { count: item.viewCount })
+                }}</span>
+              </span>
             </span>
           </ContentLink>
         </li>
@@ -214,10 +219,24 @@ function setLevel(value: unknown) {
     mask: var(--icon) center / 20px 20px no-repeat;
   }
 
-  small {
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 8px;
     line-height: 22px;
     color: var(--ic-color-academy-text-muted);
     font-size: 12px;
+  }
+
+  small {
+    font-size: inherit;
+  }
+
+  &__views {
+    margin-inline-start: auto;
+    white-space: nowrap;
   }
 
   &__empty {
@@ -309,7 +328,7 @@ function setLevel(value: unknown) {
       line-height: 21px;
     }
 
-    small {
+    &__meta {
       font-size: 11px;
       line-height: 18px;
     }

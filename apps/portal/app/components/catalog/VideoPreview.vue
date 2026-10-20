@@ -114,12 +114,21 @@ useMessageFeedback(messageApi, failed, () => t('media.failed'))
   }
 
   &__stage {
+    position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9;
+    height: 100%;
+
+    &::before {
+      display: block;
+      padding-top: 56.25%;
+      content: '';
+    }
 
     .video-preview {
+      position: absolute;
+      inset: 0;
+      height: 100%;
       min-height: 0;
-      aspect-ratio: 16 / 9;
     }
   }
 }

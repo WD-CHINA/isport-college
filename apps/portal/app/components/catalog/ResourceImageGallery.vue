@@ -214,7 +214,18 @@ async function select(index: number) {
   .resource-gallery {
     &__stage {
       height: auto;
-      aspect-ratio: 16 / 9;
+
+      &::before {
+        display: block;
+        width: 100%;
+        padding-top: 56.25%;
+        content: '';
+      }
+    }
+
+    &__image {
+      position: absolute;
+      inset: 0;
     }
 
     &__thumbnails {

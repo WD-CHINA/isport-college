@@ -216,15 +216,20 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', dismissMore))
   box-sizing: border-box;
   display: grid;
   container-type: inline-size;
-  grid-template-rows: minmax(160px, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   width: 100%;
   min-width: 0;
-  aspect-ratio: 16 / 9;
-  padding: clamp(16px, 3%, 48px);
   border-radius: 16px;
   background: #eff6ff;
   color: var(--audio-muted);
   font-family: inherit;
+
+  &::before {
+    grid-area: 1 / 1 / 3 / 2;
+    padding-top: 56.25%;
+    content: '';
+  }
 
   audio {
     display: none;
@@ -234,8 +239,11 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', dismissMore))
     position: relative;
     z-index: 0;
     display: grid;
+    grid-area: 1 / 1;
     align-items: center;
     min-width: 0;
+    min-height: 160px;
+    margin: clamp(16px, 3%, 48px) clamp(16px, 3%, 48px) 0;
     padding: 24px 6%;
   }
 
@@ -303,9 +311,11 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', dismissMore))
     position: relative;
     z-index: 1;
     display: flex;
+    grid-area: 2 / 1;
     align-items: center;
     gap: 16px;
     min-width: 0;
+    margin: 0 clamp(16px, 3%, 48px) clamp(16px, 3%, 48px);
     padding: 14px 20px;
     border: 1px solid #e5e7eb;
     border-radius: 18px;

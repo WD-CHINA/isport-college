@@ -205,14 +205,9 @@ const messages: MessageSchema = {
     retryAfter: 'Resend in {seconds}s',
     agree: 'I have read and agree to',
     agreeRequired: 'Please agree to the terms and privacy policy',
-    terms: 'Terms (demo)',
-    privacy: 'Privacy (demo)',
-    legalNotice:
-      'This is demonstration text, not a formal service agreement. Do not enter sensitive personal information. Approved legal text must replace this before launch.',
-    legalTerms:
-      'Local demo accounts are for exploring resources, interactions and submissions. Uploaded content must be lawfully usable and protect student privacy. The demo does not promise production service availability.',
-    legalPrivacy:
-      'The demo stores account information, sessions and activity locally. It does not send data to real SMS, Lingyue or AI services. An administrator can reset local demo data.',
+    terms: 'User Agreement',
+    privacy: 'Privacy Policy',
+    legalLanguageNotice: 'This agreement is provided in Chinese.',
     nickname: 'Nickname',
     nicknameRule:
       'Leave blank or use 2–6 Chinese characters, letters or digits. Spaces and emoji are not allowed.',

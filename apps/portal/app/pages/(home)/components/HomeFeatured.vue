@@ -350,10 +350,21 @@ const hotIcons = {
     }
 
     &__cover {
+      position: relative;
       width: 100%;
       height: auto;
       max-height: 280px;
-      aspect-ratio: 16 / 10;
+
+      &::before {
+        display: block;
+        padding-top: 62.5%;
+        content: '';
+      }
+
+      img {
+        position: absolute;
+        inset: 0;
+      }
     }
 
     &__copy {

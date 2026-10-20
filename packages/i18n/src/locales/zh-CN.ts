@@ -164,7 +164,7 @@ export default {
     codePlaceholder: '请输入 6 位验证码',
     agreementAnd: '和',
     termsLink: '用户协议',
-    privacyLink: '隐私政策',
+    privacyLink: '隐私协议',
     loginTitle: '登录融梦学苑',
     loginSubtitle: '登录后收藏资源、参与共创',
     username: '用户名',
@@ -198,15 +198,10 @@ export default {
     sendCode: '获取验证码',
     retryAfter: '{seconds} 秒后重发',
     agree: '我已阅读并同意',
-    agreeRequired: '请先阅读并同意用户协议与隐私政策',
-    terms: '用户协议（演示）',
-    privacy: '隐私政策（演示）',
-    legalNotice:
-      '本页为演示文本，不构成正式服务协议。请勿输入真实敏感资料；上线前必须替换为经审核的正式文本。',
-    legalTerms:
-      '本地演示账号仅用于体验资源浏览、互动和投稿流程；上传内容须具有合法使用权并保护学生隐私。演示内容不承诺生产服务可用性。',
-    legalPrivacy:
-      '演示环境在本机保存账号资料、会话和操作记录，不向真实短信、灵跃或 AI 服务发送资料。管理员可重置本地演示数据。',
+    agreeRequired: '请先阅读并同意用户协议与隐私协议',
+    terms: '用户协议',
+    privacy: '隐私协议',
+    legalLanguageNotice: '本协议以中文提供。',
     nickname: '昵称',
     nicknameRule: '昵称可留空；非空时为 2–6 个中文、英文字母或数字，不含空格和表情。',
     nicknameGuide: '设置你的昵称',

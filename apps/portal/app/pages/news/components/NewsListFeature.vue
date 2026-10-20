@@ -37,11 +37,9 @@ function changePage(next: number) {
     <ul v-else-if="data?.list.length" class="catalog-page__news">
       <li v-for="item in data.list" :key="item.id">
         <ContentLink :content="item">
-          <img
-            v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
-            :src="apiUrl(item.coverUrl)"
-            alt=""
-          />
+          <span v-if="isContentAssetUrl(apiUrl(item.coverUrl))" class="catalog-page__cover">
+            <img :src="apiUrl(item.coverUrl)" alt="" />
+          </span>
           <strong>{{ item.title }}</strong>
           <span>{{ item.summary }}</span>
           <time v-if="formatPublishedAt(item.publishedAt)">{{
@@ -84,12 +82,26 @@ function changePage(next: number) {
       gap: 6px;
       color: inherit;
     }
+  }
+
+  &__cover {
+    position: relative;
+    width: min(100%, 320px);
+    overflow: hidden;
+    border-radius: 8px;
+
+    &::before {
+      display: block;
+      padding-top: 56.25%;
+      content: '';
+    }
 
     img {
-      width: min(100%, 320px);
-      aspect-ratio: 16 / 9;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      border-radius: 8px;
     }
   }
 }

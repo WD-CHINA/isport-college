@@ -286,6 +286,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
       overflow: hidden;
       margin: 8px 0 0;
       -webkit-box-orient: vertical;
+      line-clamp: 2;
       -webkit-line-clamp: 2;
       color: var(--ic-color-academy-text-secondary);
       font-size: 12px;
