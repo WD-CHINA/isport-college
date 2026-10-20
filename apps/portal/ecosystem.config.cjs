@@ -12,8 +12,8 @@ const runtime = {
 module.exports = {
   apps: [
     {
-      name: 'isport-college',
-      cwd: '/data/isport-test2/web/isport-college',
+      name: 'isport-academy',
+      cwd: '/data/isport-test2/web/isport-academy',
       script: './server/index.mjs',
       interpreter: 'node',
       instances: 1,

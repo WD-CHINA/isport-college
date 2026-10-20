@@ -61,8 +61,8 @@ test -f apps/portal/.output/server/index.mjs \
 `apps/portal/.output/nitro.json` 的 `preset` 必须是 `node-server`。构建会做三件事：生成 SSR 产物、把 `server/node_modules` 里的软链展开成真实目录、把 `apps/portal/ecosystem.config.cjs` 复制进 `.output`。没有 `server/index.mjs` 的静态目录不能上传。
 
 ```bash
-tar -czf isport-college.tar.gz -C apps/portal/.output .
-scp isport-college.tar.gz root@<ECS公网IP>:/data/isport-test2/isport-college.tar.gz
+tar -czf isport-academy.tar.gz -C apps/portal/.output .
+scp isport-academy.tar.gz root@<ECS公网IP>:/data/isport-test2/isport-academy.tar.gz
 ```
 
 ## 服务器首次准备
@@ -81,10 +81,10 @@ npm install -g pm2
 先停进程并删除旧目录。解压不会删掉目录里多余的旧文件，覆盖安装会留下过期的 `vue-router` 等依赖。
 
 ```bash
-pm2 delete isport-college || true
-rm -rf /data/isport-test2/web/isport-college
-mkdir -p /data/isport-test2/web/isport-college
-tar -xzf /data/isport-test2/isport-college.tar.gz -C /data/isport-test2/web/isport-college
+pm2 delete isport-academy || true
+rm -rf /data/isport-test2/web/isport-academy
+mkdir -p /data/isport-test2/web/isport-academy
+tar -xzf /data/isport-test2/isport-academy.tar.gz -C /data/isport-test2/web/isport-academy
 ```
 
 解压后应有 `server/index.mjs`、`public/` 和 `ecosystem.config.cjs`。进程配置来自模板 `apps/portal/ecosystem.config.cjs`：
@@ -104,8 +104,8 @@ const runtime = {
 module.exports = {
   apps: [
     {
-      name: 'isport-college',
-      cwd: '/data/isport-test2/web/isport-college',
+      name: 'isport-academy',
+      cwd: '/data/isport-test2/web/isport-academy',
       script: './server/index.mjs',
       interpreter: 'node',
       instances: 1,
@@ -121,11 +121,11 @@ module.exports = {
 生产进程不读取 `.env.production`。`NUXT_API_BASE` 缺失或不是 HTTP/HTTPS 地址时进程启动失败。端口必须是字符串，否则 Nitro 会听默认的 `3000`。测试环境保持 `NUXT_PUBLIC_SITE_ENV=test`，全站不收录。
 
 ```bash
-cd /data/isport-test2/web/isport-college
+cd /data/isport-test2/web/isport-academy
 pm2 start ecosystem.config.cjs --env production
 pm2 save
 pm2 startup
-pm2 logs isport-college --lines 20 --nostream
+pm2 logs isport-academy --lines 20 --nostream
 curl -sI http://127.0.0.1:8040/ | head
 ```
 
@@ -188,8 +188,8 @@ test -f apps/portal/.output/server/index.mjs \
   && test -f apps/portal/.output/ecosystem.config.cjs \
   && test -f apps/portal/.output/server/node_modules/hookable/package.json \
   && echo OK
-tar -czf isport-college.tar.gz -C apps/portal/.output .
-scp isport-college.tar.gz root@<ECS公网IP>:/data/isport-test2/isport-college.tar.gz
+tar -czf isport-academy.tar.gz -C apps/portal/.output .
+scp isport-academy.tar.gz root@<ECS公网IP>:/data/isport-test2/isport-academy.tar.gz
 ```
 
 看到 `OK`，且 `apps/portal/.output/nitro.json` 的 `preset` 为 `node-server` 后再上传。
@@ -197,12 +197,12 @@ scp isport-college.tar.gz root@<ECS公网IP>:/data/isport-test2/isport-college.t
 服务器：
 
 ```bash
-tar -xzf /data/isport-test2/isport-college.tar.gz -C /data/isport-test2/web/isport-college
-pm2 restart isport-college
-pm2 logs isport-college --lines 20 --nostream
+tar -xzf /data/isport-test2/isport-academy.tar.gz -C /data/isport-test2/web/isport-academy
+pm2 restart isport-academy
+pm2 logs isport-academy --lines 20 --nostream
 curl -sI http://127.0.0.1:8040/ | head
 ```
 
-`pm2 restart` 按第一次 `pm2 start` 记下的目录、脚本和端口重新拉起进程，并读取磁盘上的新 `server/index.mjs`。它不会重新读取 `ecosystem.config.cjs`。端口或 `NUXT_API_BASE` 有变化时，改用 `pm2 delete isport-college` 后执行 `pm2 start ecosystem.config.cjs --env production`。
+`pm2 restart` 按第一次 `pm2 start` 记下的目录、脚本和端口重新拉起进程，并读取磁盘上的新 `server/index.mjs`。它不会重新读取 `ecosystem.config.cjs`。端口或 `NUXT_API_BASE` 有变化时，改用 `pm2 delete isport-academy` 后执行 `pm2 start ecosystem.config.cjs --env production`。
 
 解压只覆盖压缩包里有的文件，不会删掉旧目录里多出来的文件。这些多余文件不会被新代码加载。日志里应有 `Listening on http://127.0.0.1:8040`，`curl` 应是 `200` 和 `text/html`。然后再打开首页并切换一次页面，确认 `/api/v1/...` 返回 JSON。
