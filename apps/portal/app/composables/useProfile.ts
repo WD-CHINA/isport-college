@@ -7,9 +7,18 @@ export function useProfile() {
   const auth = useAuthStore()
   const academy = useAcademy()
   const { t, locale } = useI18n()
+  const router = useRouter()
   const pending = shallowRef(false)
   const error = shallowRef('')
   let disposed = false
+  let navigationRevision = 0
+  watch(
+    () => router.currentRoute.value.fullPath,
+    () => {
+      navigationRevision++
+    },
+    { flush: 'sync' },
+  )
   onScopeDispose(() => {
     disposed = true
   })
@@ -25,11 +34,17 @@ export function useProfile() {
     error.value = ''
     const token = auth.session?.token
     const revision = auth.revision
+    const navigation = navigationRevision
     try {
       const profile = await request()
-      return !disposed && revision === auth.revision && auth.updateUser(profile, token)
+      return (
+        !disposed &&
+        navigation === navigationRevision &&
+        revision === auth.revision &&
+        auth.updateUser(profile, token)
+      )
     } catch (cause) {
-      if (!disposed && revision === auth.revision) fail(cause)
+      if (!disposed && navigation === navigationRevision && revision === auth.revision) fail(cause)
       return false
     } finally {
       pending.value = false
@@ -38,6 +53,10 @@ export function useProfile() {
 
   function save(value: { nickname: string }) {
     return update(() => academy.updateNickname(value))
+  }
+
+  function saveAvatar(avatarCode: number) {
+    return update(() => academy.updateAvatar({ avatarCode }))
   }
 
   async function skipNickname() {
@@ -58,5 +77,5 @@ export function useProfile() {
     }
   }
 
-  return { pending, error, save, skipNickname }
+  return { pending, error, save, saveAvatar, skipNickname }
 }

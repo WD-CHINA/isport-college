@@ -18,6 +18,46 @@ function clientOf(options: Omit<RequestOptions, 'baseURL'> & { baseURL?: string 
 }
 
 describe('createAcademyClient', () => {
+  it('头像列表在调用侧校验，保存头像仅提交编号并携带当前会话', async () => {
+    const calls: {
+      path: string
+      method: string | undefined
+      body: unknown
+      token: string | null
+    }[] = []
+    const client = createAcademyDataClient(
+      clientOf({
+        getToken: () => 'avatar-session',
+        fetch: async (input, init) => {
+          const path = new URL(String(input)).pathname
+          calls.push({
+            path,
+            method: init?.method,
+            body: init?.body,
+            token: new Headers(init?.headers).get('authorization'),
+          })
+          return envelope(path.endsWith('/avatars') ? [1, 2, 2, 8] : { id: 1, avatarCode: 8 })
+        },
+      }),
+    )
+    await expect(client.avatars()).resolves.toEqual([1, 2, 8])
+    await expect(client.updateAvatar({ avatarCode: 8 })).resolves.toMatchObject({ avatarCode: 8 })
+    expect(calls).toEqual([
+      { path: '/api/v1/avatars', method: 'GET', body: undefined, token: 'Bearer avatar-session' },
+      {
+        path: '/api/v1/me/avatar',
+        method: 'PUT',
+        body: JSON.stringify({ avatarCode: 8 }),
+        token: 'Bearer avatar-session',
+      },
+    ])
+  })
+
+  it.each([null, {}, ['1'], [0], [-1], [1.5]])('拒绝无效头像列表 %j', async value => {
+    const client = createAcademyDataClient(clientOf({ fetch: async () => envelope(value) }))
+    await expect(client.avatars()).rejects.toMatchObject({ code: 'SERVICE_UNAVAILABLE' })
+  })
+
   it('短信、退出、关闭昵称引导和浏览上报允许成功信封省略 data', async () => {
     const client = createAcademyDataClient(
       clientOf({

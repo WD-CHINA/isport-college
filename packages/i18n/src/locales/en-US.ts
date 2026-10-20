@@ -380,6 +380,10 @@ const messages: MessageSchema = {
   },
   account: {
     avatarOption: 'Avatar {code}',
+    avatarSubtitle: 'Choose a character for your teaching journey',
+    avatarSelected: 'Avatar {code} selected',
+    avatarConfirm: 'Use avatar',
+    avatarEmpty: 'No avatars available',
     channels: {
       resource: 'Teaching Resources',
       research: 'Research Centre',

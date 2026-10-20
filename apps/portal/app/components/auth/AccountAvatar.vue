@@ -1,10 +1,34 @@
 <script setup lang="ts">
+const props = withDefaults(defineProps<{ avatarCode?: number }>(), { avatarCode: 1 })
 const { t } = useI18n()
+const failed = shallowRef(false)
+const source = computed(() =>
+  !failed.value &&
+  Number.isInteger(props.avatarCode) &&
+  props.avatarCode >= 1 &&
+  props.avatarCode <= 8
+    ? `/auth/avatars/${props.avatarCode}.png`
+    : '/auth/default-avatar.png',
+)
+watch(
+  () => props.avatarCode,
+  () => {
+    failed.value = false
+  },
+)
 </script>
 
 <template>
-  <span class="account-avatar" role="img" :aria-label="t('academy.defaultAvatar')">
-    <img src="/auth/default-avatar.png" alt="" width="32" height="32" />
+  <span
+    class="account-avatar"
+    role="img"
+    :aria-label="
+      source === '/auth/default-avatar.png'
+        ? t('academy.defaultAvatar')
+        : t('account.avatarOption', { code: avatarCode })
+    "
+  >
+    <img :src="source" alt="" width="32" height="32" @error="failed = true" />
   </span>
 </template>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { InteractionKind, WebContentCard } from '@isport/shared'
-import ContentCard from '~/components/content/ContentCard.vue'
+import ActivityRow from './ActivityRow.vue'
 
 const props = defineProps<{
   items: WebContentCard[]
@@ -24,16 +24,15 @@ const browsePath = computed(() =>
 <template>
   <ASkeleton v-if="loading" active />
   <div v-else-if="items.length" class="activity-list">
-    <ContentCard v-for="item in items" :key="item.contentKey" :content="item">
-      <div class="activity-list__action">
-        <AButton
-          :disabled="Boolean(removing)"
-          :loading="removing === item.contentKey"
-          @click="emit('remove', item.contentKey)"
-          >{{ t(kind === 'favorite' ? 'detail.unfavorite' : 'detail.unlike') }}</AButton
-        >
-      </div>
-    </ContentCard>
+    <ActivityRow
+      v-for="item in items"
+      :key="item.contentKey"
+      :content="item"
+      :kind="kind"
+      :disabled="Boolean(removing)"
+      :pending="removing === item.contentKey"
+      @remove="emit('remove', $event)"
+    />
   </div>
   <div v-else class="activity-list__empty">
     <p>
@@ -48,24 +47,14 @@ const browsePath = computed(() =>
 <style lang="scss" scoped>
 .activity-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 245px), 1fr));
-  gap: 20px;
-
-  &__action {
-    display: grid;
-    gap: 12px;
-    padding: 0 18px 18px;
-    font-size: var(--ic-font-size-xs, 12px);
-    color: var(--ic-color-text-secondary, #64748b);
-  }
+  margin-top: 8px;
 
   &__empty {
     display: grid;
     gap: 12px;
     justify-items: center;
     padding: 48px 12px;
-    border: 1px dashed var(--ic-color-border-strong, #cbd5e1);
-    border-radius: var(--ic-border-radius-lg, 12px);
+    min-height: 240px;
     background: var(--ic-color-background-container, #fff);
     color: var(--ic-color-text-secondary, #64748b);
     text-align: center;

@@ -147,12 +147,19 @@ onScopeDispose(() => {
         <template v-if="auth.isLoggedIn">
           <APopover v-model:open="userMenuOpen" trigger="click" placement="bottomRight">
             <template #content>
+              <NuxtLink
+                v-if="auth.can('account:view')"
+                :to="localePath('/account')"
+                class="app-header__user-logout"
+                @click="userMenuOpen = false"
+                >{{ t('academy.account') }}</NuxtLink
+              >
               <button type="button" class="app-header__user-logout" @click="handleLogout">
                 {{ t('common.logout') }}
               </button>
             </template>
             <button type="button" class="app-header__user" aria-haspopup="dialog">
-              <AccountAvatar />
+              <AccountAvatar :avatar-code="auth.user?.avatarCode" />
               <span>{{ auth.user?.nickname || t('academy.account') }}</span>
             </button>
           </APopover>
@@ -196,6 +203,7 @@ onScopeDispose(() => {
         :items="panelNav"
         :logged-in="auth.isLoggedIn"
         :nickname="auth.user?.nickname"
+        :avatar-code="auth.user?.avatarCode"
         @close="menuOpen = false"
         @login="openLogin"
         @logout="handleLogout"
@@ -360,6 +368,7 @@ onScopeDispose(() => {
   }
 
   &__user-logout {
+    display: block;
     min-width: 96px;
     padding: 4px 8px;
     border: 0;
@@ -374,6 +383,10 @@ onScopeDispose(() => {
     &:hover {
       color: var(--ic-color-semantic-error, #dc2626);
     }
+  }
+
+  a.app-header__user-logout:hover {
+    color: var(--ic-color-academy-primary);
   }
 
   &__logout {

@@ -361,6 +361,10 @@ export default {
   },
   account: {
     avatarOption: '头像 {code}',
+    avatarSubtitle: '选一个喜欢的形象，开启你的教学旅程',
+    avatarSelected: '已选择 {code} 号头像',
+    avatarConfirm: '确认使用',
+    avatarEmpty: '暂无可用头像',
     channels: { resource: '教学资源', research: '教研中心', school: '学校案例' },
     profile: '个人信息',
     favorites: '我的收藏',

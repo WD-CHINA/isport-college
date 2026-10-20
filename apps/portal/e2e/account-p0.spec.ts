@@ -18,12 +18,11 @@ async function relate(
   expect(response.ok()).toBe(true)
 }
 
-test('昵称可确认保存空值并同步页头，头像统一显示静态占位图', async ({ page, context, baseURL }) => {
-  const avatarRequests: string[] = []
+test('昵称可保存空值并同步页头，头像确认后保存且刷新一致', async ({ page, context, baseURL }) => {
+  const avatarWrites: unknown[] = []
   page.on('request', request => {
-    if (/\/api\/v1\/(avatars|me\/avatar)$/.test(new URL(request.url()).pathname)) {
-      avatarRequests.push(request.url())
-    }
+    if (new URL(request.url()).pathname === '/api/v1/me/avatar')
+      avatarWrites.push(request.postDataJSON())
   })
   await setSession(context, testSession(), baseURL!)
   await page.goto('/account')
@@ -32,34 +31,37 @@ test('昵称可确认保存空值并同步页头，头像统一显示静态占�
   await profile.getByRole('button', { name: /编\s*辑/, exact: true }).click()
   const form = profile.locator('.profile-form')
   await form.getByRole('textbox').fill('新昵称')
-  await form.getByRole('button', { name: /确\s*定/, exact: true }).click()
+  await form.getByRole('button', { name: /保\s*存/, exact: true }).click()
   await expect(form).toHaveCount(0)
   await expect(profile.getByRole('heading')).toHaveText('新昵称')
   await expect(page.locator('.app-header__user')).toContainText('新昵称')
   await profile.getByRole('button', { name: /编\s*辑/, exact: true }).click()
   await form.getByRole('textbox').fill('')
   const saved = page.waitForRequest('**/api/v1/me/nickname')
-  await form.getByRole('button', { name: /确\s*定/, exact: true }).click()
+  await form.getByRole('button', { name: /保\s*存/, exact: true }).click()
   expect((await saved).postDataJSON()).toEqual({ nickname: '' })
   await expect(form).toHaveCount(0)
   await expect(page.locator('.app-header__user')).not.toContainText('新昵称')
-  await expect(profile.getByRole('button', { name: '选择头像', exact: true })).toHaveCount(0)
-  await expect(profile.locator('.avatar-picker')).toHaveCount(0)
-  await expect(profile.locator('.account-avatar img')).toHaveAttribute(
-    'src',
-    '/auth/default-avatar.png',
-  )
+  await profile.getByRole('button', { name: '选择头像', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: '选择头像', exact: true })
+  await expect(dialog.locator('.avatar-picker button')).toHaveCount(8)
+  await dialog.getByRole('button', { name: '头像 3', exact: true }).click()
+  expect(avatarWrites).toEqual([])
+  await dialog.getByRole('button', { name: /取\s*消/, exact: true }).click()
+  await expect(profile.locator('.account-avatar img')).toHaveAttribute('src', '/auth/avatars/1.png')
+  await profile.getByRole('button', { name: '选择头像', exact: true }).click()
+  await dialog.getByRole('button', { name: '头像 3', exact: true }).click()
+  await dialog.getByRole('button', { name: '确认使用', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  expect(avatarWrites).toEqual([{ avatarCode: 3 }])
+  await expect(profile.locator('.account-avatar img')).toHaveAttribute('src', '/auth/avatars/3.png')
   await expect(page.locator('.app-header__user .account-avatar img')).toHaveAttribute(
     'src',
-    '/auth/default-avatar.png',
+    '/auth/avatars/3.png',
   )
   await page.reload()
   await waitForHydration(page)
-  await expect(profile.locator('.account-avatar img')).toHaveAttribute(
-    'src',
-    '/auth/default-avatar.png',
-  )
-  expect(avatarRequests).toEqual([])
+  await expect(profile.locator('.account-avatar img')).toHaveAttribute('src', '/auth/avatars/3.png')
 })
 
 test('有效关系跨空白页汇总；分类不改变 Tab 总数；收藏和点赞独立取消', async ({
@@ -88,12 +90,12 @@ test('有效关系跨空白页汇总；分类不改变 Tab 总数；收藏和点
   await expect
     .poll(() =>
       page
-        .locator('.activity-list .content-card')
+        .locator('.activity-list .activity-row')
         .evaluateAll(nodes => nodes.map(node => node.getAttribute('data-content-id'))),
     )
     .toEqual(['SCHOOL:1', 'RESEARCH:1', 'RESOURCE:1'])
   await page.getByRole('button', { name: '教学资源', exact: true }).click()
-  await expect(page.locator('.activity-list .content-card')).toHaveCount(1)
+  await expect(page.locator('.activity-list .activity-row')).toHaveCount(1)
   await expect(page.getByRole('tab', { name: '我的收藏 (3)', exact: true })).toBeVisible()
   await page
     .locator('.activity-list')
@@ -137,20 +139,20 @@ test('取消最后一页唯一收藏后返回上一页，计数和刷新结果�
     await relate(context.request, session.token, 'favorite', 'RESOURCE', id)
   await page.goto('/account')
   await waitForHydration(page)
-  await expect(page.locator('.activity-list .content-card')).toHaveCount(12)
+  await expect(page.locator('.activity-list .activity-row')).toHaveCount(12)
   await page.getByRole('button', { name: '页 2', exact: true }).click()
-  await expect(page.locator('.activity-list .content-card')).toHaveCount(1)
+  await expect(page.locator('.activity-list .activity-row')).toHaveCount(1)
   await page
     .locator('.activity-list')
     .getByRole('button', { name: /^取消收藏/ })
     .click()
-  await expect(page.locator('.activity-list .content-card')).toHaveCount(12)
+  await expect(page.locator('.activity-list .activity-row')).toHaveCount(12)
   await expect(page.getByRole('tab', { name: '我的收藏 (12)', exact: true })).toBeVisible()
   await page.reload()
   await expect(page.getByRole('tab', { name: '我的收藏 (12)', exact: true })).toBeVisible()
 })
 
-test('新注册无需选择头像，忽略头像编号且不提交头像数据', async ({ page }) => {
+test('新注册显示后端头像编号，不强制选择或提交头像数据', async ({ page }) => {
   const avatarRequests: string[] = []
   page.on('request', request => {
     if (/\/api\/v1\/(avatars|me\/avatar)$/.test(new URL(request.url()).pathname)) {
@@ -163,6 +165,13 @@ test('新注册无需选择头像，忽略头像编号且不提交头像数据',
     envelope.data.newUser = true
     envelope.data.profile.avatarCode = 7
     envelope.data.profile.nicknamePromptNeeded = true
+    await page.request.put(
+      `http://127.0.0.1:${process.env.E2E_API_PORT ?? 3200}/api/v1/me/avatar`,
+      {
+        headers: { Authorization: `Bearer ${envelope.data.token}` },
+        data: { avatarCode: 7 },
+      },
+    )
     await route.fulfill({ response, json: envelope })
   })
   await page.goto('/resources')
@@ -187,7 +196,7 @@ test('新注册无需选择头像，忽略头像编号且不提交头像数据',
   await expect(page.locator('.avatar-picker')).toHaveCount(0)
   await expect(page.locator('.app-header__user .account-avatar img')).toHaveAttribute(
     'src',
-    '/auth/default-avatar.png',
+    '/auth/avatars/7.png',
   )
   await page.getByRole('button', { name: '暂不填写', exact: true }).click()
   await expect(page.getByRole('dialog')).toBeHidden()
@@ -195,9 +204,9 @@ test('新注册无需选择头像，忽略头像编号且不提交头像数据',
   await waitForHydration(page)
   await expect(page.locator('.account-profile .account-avatar img')).toHaveAttribute(
     'src',
-    '/auth/default-avatar.png',
+    '/auth/avatars/7.png',
   )
-  await expect(page.getByRole('button', { name: '选择头像', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: '选择头像', exact: true })).toBeVisible()
   expect(avatarRequests).toEqual([])
 })
 

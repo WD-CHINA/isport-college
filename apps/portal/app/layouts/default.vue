@@ -4,7 +4,7 @@ import AppHeader from '~/components/app/AppHeader.vue'
 
 const route = useRoute()
 const compactFooter = computed(() =>
-  /^\/(?:en\/)?(?:resources|research|schools|preview\/(?:article|resource)\/(?:resources|research|schools))(?:\/|$)/.test(
+  /^\/(?:en\/)?(?:account|resources|research|schools|preview\/(?:article|resource)\/(?:resources|research|schools))(?:\/|$)/.test(
     route.path,
   ),
 )

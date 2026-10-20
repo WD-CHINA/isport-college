@@ -42,6 +42,12 @@ export function createAcademyClient(request: ApiRequest) {
     updateNickname(params: { nickname: string }) {
       return request('PUT', '/me/nickname', { body: params }) as Promise<WebProfile>
     },
+    updateAvatar(params: { avatarCode: number }) {
+      return request('PUT', '/me/avatar', { body: params }) as Promise<WebProfile>
+    },
+    avatars(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
+      return request('GET', '/avatars', { query: params, signal }) as Promise<number[]>
+    },
     dismissNicknamePrompt() {
       return request('POST', '/me/nickname-prompt', { responseMode: 'void' })
     },

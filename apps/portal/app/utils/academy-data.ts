@@ -2,6 +2,7 @@ import type { AcademyClient } from '~/api/academy'
 import { ApiError } from '~/api/errors'
 import {
   parseAction,
+  parseAvatars,
   parseCards,
   parseContentCard,
   parseContentDetail,
@@ -44,6 +45,7 @@ export function createAcademyDataClient(client: AcademyClient) {
   const contentPage = (value: unknown) => parsePage(value, parseContentCard)
   return {
     ...client,
+    avatars: decode(client.avatars, parseAvatars),
     home: decode(client.home, parseHome),
     resourceFilters: decode(client.resourceFilters, parseFilters),
     resources: decode(client.resources, contentPage),

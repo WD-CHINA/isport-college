@@ -6,6 +6,7 @@ defineProps<{
   items: { to: string; label: string; active: boolean; icon: string }[]
   loggedIn: boolean
   nickname?: string
+  avatarCode?: number
 }>()
 const emit = defineEmits<{ close: []; login: []; logout: [] }>()
 const { t } = useI18n()
@@ -69,13 +70,17 @@ function openLingyueHome() {
 
     <div class="app-header__panel-account">
       <template v-if="loggedIn">
-        <div class="app-header__panel-profile">
-          <AccountAvatar />
+        <NuxtLink
+          :to="localePath('/account')"
+          class="app-header__panel-profile"
+          @click="emit('close')"
+        >
+          <AccountAvatar :avatar-code="avatarCode" />
           <span>
             <strong>{{ nickname || t('academy.account') }}</strong>
             <small v-if="nickname">{{ t('academy.account') }}</small>
           </span>
-        </div>
+        </NuxtLink>
         <button
           type="button"
           class="app-header__panel-logout"
