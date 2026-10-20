@@ -280,9 +280,15 @@ test('1440px 首页教研、教师和学校卡片尺寸符合 Ardot', async ({ p
   const photo = await page.locator('.home-research__photo').boundingBox()
   const copy = await page.locator('.home-research__feature > div').boundingBox()
   expect(feature!.width).toBeCloseTo(720, 0)
-  expect(photo!.width).toBe(304)
-  expect(photo!.height).toBe(304)
+  expect(photo!.width).toBe(400)
+  expect(photo!.height).toBe(300)
   expect(copy!.x - photo!.x - photo!.width).toBe(24)
+  const sidePhoto = await page.locator('.home-research__side-photo').first().boundingBox()
+  expect(sidePhoto!.width).toBe(160)
+  expect(sidePhoto!.height).toBe(120)
+  const cover = await page.locator('.home-featured__cover').first().boundingBox()
+  expect(cover!.width).toBe(400)
+  expect(cover!.height).toBe(300)
   for (const card of await page.locator('.home-people__card').all()) {
     expect((await card.boundingBox())!.height).toBe(236)
   }

@@ -151,6 +151,7 @@ const hotIcons = {
   &__spotlight {
     display: grid;
     align-content: start;
+    align-items: start;
     grid-template-columns: minmax(0, 400fr) minmax(0, 344fr);
     gap: 24px;
     min-height: 409px;
@@ -164,8 +165,10 @@ const hotIcons = {
   }
 
   &__cover {
+    position: relative;
     overflow: hidden;
-    height: 320px;
+    width: 100%;
+    aspect-ratio: 4 / 3;
   }
 
   &__cover img,
@@ -175,12 +178,18 @@ const hotIcons = {
     object-fit: cover;
   }
 
+  &__cover img {
+    position: absolute;
+    inset: 0;
+  }
+
   &__copy {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    align-self: stretch;
     gap: 18px;
-    min-height: 320px;
+    min-height: 100%;
     padding-block: 16px;
   }
 
@@ -402,21 +411,8 @@ const hotIcons = {
     }
 
     &__cover {
-      position: relative;
       width: 100%;
-      height: auto;
-      max-height: 280px;
-
-      &::before {
-        display: block;
-        padding-top: 62.5%;
-        content: '';
-      }
-
-      img {
-        position: absolute;
-        inset: 0;
-      }
+      max-height: none;
     }
 
     &__copy {

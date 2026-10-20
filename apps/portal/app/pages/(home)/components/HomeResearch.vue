@@ -155,6 +155,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
     display: grid;
     grid-template-columns: minmax(0, 720fr) minmax(0, 454fr);
     gap: 24px;
+    align-items: start;
     border: 1px solid var(--home-color-border);
     border-radius: 12px;
     background: #fff;
@@ -166,22 +167,30 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
 
   &__feature {
     display: grid;
-    grid-template-columns: minmax(0, 304px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
     gap: 24px;
-    min-height: 352px;
+    align-items: start;
     padding: 24px;
   }
 
-  &__photo {
+  &__photo,
+  &__side-photo {
+    position: relative;
     display: block;
     overflow: hidden;
-    height: 304px;
+    aspect-ratio: 4 / 3;
     border-radius: 8px;
     background: var(--ic-color-academy-background-placeholder);
   }
 
+  &__photo {
+    width: 100%;
+  }
+
   &__photo img,
   &__side-photo img {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
     height: 100%;
@@ -193,7 +202,9 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
       display: flex;
       flex-direction: column;
       align-items: flex-start;
+      align-self: stretch;
       justify-content: space-between;
+      min-height: 100%;
       padding-block: 16px;
     }
 
@@ -242,8 +253,9 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
     article {
       position: relative;
       display: grid;
-      grid-template-columns: 120px minmax(0, 1fr);
+      grid-template-columns: 160px minmax(0, 1fr);
       gap: 24px;
+      align-items: start;
       padding: 24px;
     }
   }
@@ -261,12 +273,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
   }
 
   &__side-photo {
-    display: block;
-    overflow: hidden;
-    width: 120px;
-    height: 120px;
-    border-radius: 8px;
-    background: var(--ic-color-academy-background-placeholder);
+    width: 100%;
   }
 
   &__side-copy {
@@ -326,14 +333,9 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
       background: #fff;
 
       article {
-        grid-template-columns: 100px minmax(0, 1fr);
+        grid-template-columns: 120px minmax(0, 1fr);
         gap: 16px;
       }
-    }
-
-    &__side-photo {
-      width: 100px;
-      height: 100px;
     }
   }
 }
@@ -399,8 +401,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
     }
 
     &__photo {
-      height: auto;
-      max-height: 220px;
+      width: 100%;
     }
 
     &__side {
@@ -428,8 +429,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
     }
 
     &__side-photo {
-      width: 88px;
-      height: 88px;
+      width: 100%;
     }
 
     &__divider {
