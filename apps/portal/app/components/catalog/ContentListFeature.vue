@@ -25,13 +25,16 @@ const sectionTitle = computed(() => {
   )
 })
 const listStart = useTemplateRef<HTMLElement>('listStart')
-watch(
-  () => JSON.stringify(contentQueryToUrl(query.value)),
-  async () => {
-    await nextTick()
-    if (props.channel === 'resource') listStart.value?.scrollIntoView({ block: 'start' })
-  },
-)
+async function scrollToList() {
+  await nextTick()
+  if (props.channel === 'resource') listStart.value?.scrollIntoView({ block: 'start' })
+}
+async function handleSearch(keyword: string) {
+  if (!(await search(keyword))) await scrollToList()
+}
+async function handlePageChange(page: number) {
+  if (!(await changePage(page))) await scrollToList()
+}
 const route = useRoute()
 useSeoMeta({ title: () => title.value, description: () => t(`seo.${props.channel}Desc`) })
 useHead(() => {
@@ -49,8 +52,14 @@ await request
 <template>
   <div class="content-list-feature" :class="`content-list-feature--${channel}`">
     <ContextHolder />
-    <CatalogHero :channel="channel" :keyword="query.keyword" @search="search" />
-    <div ref="listStart" class="content-list-feature__main">
+    <CatalogHero :channel="channel" :keyword="query.keyword" @search="handleSearch" />
+    <div
+      ref="listStart"
+      class="content-list-feature__main"
+      :class="{
+        'content-list-feature__main--without-pagination': !data || data.total <= data.pageSize,
+      }"
+    >
       <ContentFilters
         :model-value="query"
         :channel="channel"
@@ -87,7 +96,7 @@ await request
           :total="data.total"
           :page="query.page"
           :page-size="data.pageSize"
-          @change="changePage"
+          @change="handlePageChange"
         />
       </template>
     </div>
@@ -111,6 +120,10 @@ await request
     gap: 24px;
     margin-inline: auto;
     padding: 32px 0 0;
+
+    &--without-pagination {
+      padding-bottom: var(--ic-spacing-6);
+    }
   }
 
   &:not(.content-list-feature--resource) .content-list-feature__main {

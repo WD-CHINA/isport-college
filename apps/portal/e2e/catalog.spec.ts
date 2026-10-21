@@ -1,6 +1,62 @@
 import { expect, test, waitForHydration } from './academy.fixture'
 
 for (const width of [1440, 390]) {
+  test(`${width}px 资源分类切换保持滚动位置，慢请求期间列表不塌陷`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 })
+    await page.goto('/resources?category=1')
+    await waitForHydration(page)
+    const tabs = page.locator('.content-filters__categories')
+    const grid = page.locator('.content-grid')
+    await expect(tabs.getByRole('button')).toHaveCount(4)
+    await expect(grid.locator('.content-card')).toHaveCount(8)
+    await page.evaluate(() => window.scrollTo(0, 200))
+    const position = await tabs.evaluate(element => ({
+      scroll: window.scrollY,
+      top: element.getBoundingClientRect().top,
+    }))
+    for (const category of ['2', '3', '4', '1']) {
+      let release!: () => void
+      const pending = new Promise<void>(resolve => (release = resolve))
+      await page.route(
+        '**/api/v1/resources?**',
+        async route => {
+          await pending
+          await route.continue()
+        },
+        { times: 1 },
+      )
+      const height = await grid.evaluate(element => element.getBoundingClientRect().height)
+      try {
+        await tabs
+          .getByRole('button')
+          .nth(Number(category) - 1)
+          .click()
+        await expect(grid).toHaveAttribute('aria-busy', 'true')
+        await expect(grid.locator('.content-card')).toHaveCount(8)
+        await expect(grid).toHaveAttribute('inert', '')
+        expect(await grid.evaluate(element => element.getBoundingClientRect().height)).toBeCloseTo(
+          height,
+          0,
+        )
+        expect(await page.evaluate(() => window.scrollY)).toBeCloseTo(position.scroll, 0)
+        expect(await tabs.evaluate(element => element.getBoundingClientRect().top)).toBeCloseTo(
+          position.top,
+          0,
+        )
+      } finally {
+        release()
+      }
+      await expect(grid).toHaveAttribute('aria-busy', 'false')
+      await expect(grid).not.toHaveAttribute('inert')
+      await expect(page).toHaveURL(new RegExp(`category=${category}$`))
+      expect(await page.evaluate(() => window.scrollY)).toBeCloseTo(position.scroll, 0)
+      expect(await tabs.evaluate(element => element.getBoundingClientRect().top)).toBeCloseTo(
+        position.top,
+        0,
+      )
+    }
+  })
+
   test(`${width}px 热门资源查看全部进入资源页顶部，返回首页恢复滚动位置`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 })
     await page.goto('/')

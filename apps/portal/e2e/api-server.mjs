@@ -237,6 +237,8 @@ const server = createServer(async (req, res) => {
         categoryList: [
           { id: '1', name: english ? 'Fitness' : '体能' },
           { id: '2', name: english ? 'Sports' : '专项运动' },
+          { id: '3', name: english ? 'Basic Skills' : '基本技能' },
+          { id: '4', name: english ? 'Health Education' : '健康教育' },
         ],
         secondCategoryList: [{ id: '10', name: '力量', parentId: '1' }],
         levelList: [1, 2, 3, 4, 5].map(id => ({

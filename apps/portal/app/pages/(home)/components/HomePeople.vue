@@ -20,6 +20,7 @@ const apiUrl = useApiUrl()
         :item-key="person => person.id"
         :label="t('home.teachersTitle')"
         :desktop-slides="3"
+        autoplay
       >
         <template #default="{ item: person, index: row }">
           <article class="home-people__card">

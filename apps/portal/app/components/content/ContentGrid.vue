@@ -15,21 +15,20 @@ const { t } = useI18n()
 <template>
   <div
     :aria-busy="loading"
+    :inert="loading"
     class="content-grid"
     :class="{
       'content-grid--wide': variant === 'catalog' && channel === 'research',
       'content-grid--school': variant === 'catalog' && channel === 'school',
       'content-grid--catalog': variant === 'catalog',
       'content-grid--recommendations': variant === 'resource-recommendation',
+      'content-grid--loading': loading && items.length > 0,
     }"
   >
-    <template v-if="loading"><ASkeleton v-for="index in 4" :key="index" active /></template>
-    <ContentCard
-      v-for="item in loading ? [] : items"
-      :key="item.contentKey"
-      :content="item"
-      :variant="variant"
-    />
+    <template v-if="loading && !items.length">
+      <ASkeleton v-for="index in 4" :key="index" active />
+    </template>
+    <ContentCard v-for="item in items" :key="item.contentKey" :content="item" :variant="variant" />
   </div>
   <AppEmpty
     v-if="!loading && !items.length"
@@ -43,6 +42,10 @@ const { t } = useI18n()
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 245px), 1fr));
   gap: 24px;
+
+  &--loading {
+    opacity: 0.6;
+  }
 
   &--catalog {
     grid-template-columns: repeat(4, minmax(0, 1fr));

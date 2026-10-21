@@ -451,6 +451,27 @@ test('精选轮播自动翻页，键盘聚焦后停止播放', async ({ page }) 
     .toBe(false)
 })
 
+for (const width of [1440, 390]) {
+  test(`${width}px 名师专栏自动翻页，手动切换后继续播放并首尾回绕`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 })
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await page.goto('/')
+    await waitForHydration(page)
+    await populateHomeLayout(page)
+    const carousel = page.locator('.home-people .home-swiper')
+    const dots = carousel.locator('.home-swiper__dots button')
+    await expect(dots).toHaveCount(width === 1440 ? 2 : 6)
+    await carousel.scrollIntoViewIfNeeded()
+    await page.mouse.move(0, 0)
+    await expect(dots.nth(1)).toHaveAttribute('aria-pressed', 'true', { timeout: 8000 })
+    await dots.last().click()
+    await expect(dots.last()).toHaveAttribute('aria-pressed', 'true')
+    await page.mouse.move(0, 0)
+    await expect(dots.first()).toHaveAttribute('aria-pressed', 'true', { timeout: 8000 })
+    await expect(dots.nth(1)).toHaveAttribute('aria-pressed', 'true', { timeout: 8000 })
+  })
+}
+
 for (const width of [320, 390]) {
   for (const path of ['/', '/en']) {
     test(`${width}px ${path} 首屏文案不被浮动能力栏遮挡`, async ({ page }) => {
