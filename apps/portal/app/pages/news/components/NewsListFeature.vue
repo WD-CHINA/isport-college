@@ -20,7 +20,7 @@ const request = useAsyncData(
   (_app, { signal }) => academy.news({ pageNum: page.value, pageSize: WEB_PAGE_SIZE }, signal),
 )
 const { data, error, refresh } = request
-useSeoMeta({ title: () => t('academy.news') })
+useSeoMeta({ title: () => t('academy.news'), description: () => t('seo.newsDesc') })
 const [messageApi, ContextHolder] = message.useMessage()
 useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))
 await request

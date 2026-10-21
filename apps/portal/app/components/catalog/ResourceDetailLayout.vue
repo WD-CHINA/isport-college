@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ContentChannel, WebContentCard, WebContentDetail } from '@isport/shared'
+import { contentDescription } from '~/utils/content-seo'
 import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
 //import { ACADEMY_CAPABILITIES } from '~/config/capabilities'
 import ContentGrid from '~/components/content/ContentGrid.vue'
@@ -16,6 +17,12 @@ const channelPath = computed(
   () => ({ resource: '/resources', research: '/research', school: '/schools' })[props.channel],
 )
 const level = computed(() => getLevelLabel(props.content))
+const description = computed(
+  () =>
+    props.content.summary ||
+    props.content.description ||
+    contentDescription(props.content, level.value),
+)
 const publisher = computed(
   () =>
     props.content.publisherName ||
@@ -55,8 +62,8 @@ const publisher = computed(
               <p>{{ content.schoolName || t('detail.fromAcademy') }}</p>
             </div>
           </div>
-          <p v-if="content.summary || content.description" class="resource-detail__summary">
-            {{ content.summary || content.description }}
+          <p v-if="description" class="resource-detail__summary">
+            {{ description }}
           </p>
           <div v-if="$slots.interactions" class="resource-detail__actions">
             <slot name="interactions" />

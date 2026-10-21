@@ -55,7 +55,7 @@ export function isAdminRoutePath(path: string): boolean {
 }
 
 /** 需要额外 noindex 的私有 C 端路由（管理端另行统一处理） */
-export const PRIVATE_ROUTE_PATHS = ['/account/teacher', '/creation'] as const
+export const PRIVATE_ROUTE_PATHS = ['/account', '/creation', '/lingyue'] as const
 
 export function isPrivateRoutePath(path: string): boolean {
   const normalized = normalizeRoutePath(path)

@@ -3,8 +3,19 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["NUXT_API_BASE", "NUXT_PUBLIC_API_BASE", "NUXT_PUBLIC_SITE_ENV"],
-      "outputs": ["dist/**", ".output/**", "src/css-vars.css", "src/tokens.json"]
+      "env": [
+        "NUXT_API_BASE",
+        "NUXT_PUBLIC_API_BASE",
+        "NUXT_PUBLIC_SITE_ENV",
+        "NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE"
+      ],
+      "outputs": ["dist/**", ".output/**", "src/css-vars.css", "src/tokens.json"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env.production",
+        "$TURBO_ROOT$/scripts/finalize-build.mjs",
+        "$TURBO_ROOT$/scripts/dereference-output.mjs"
+      ]
     },
     "dev": {
       "cache": false,
@@ -24,6 +35,38 @@
     },
     "test:e2e": {
       "cache": false
+    },
+    "build:test": {
+      "dependsOn": ["^build"],
+      "env": [
+        "NUXT_API_BASE",
+        "NUXT_PUBLIC_API_BASE",
+        "NUXT_PUBLIC_SITE_ENV",
+        "NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env.test",
+        "$TURBO_ROOT$/scripts/finalize-build.mjs",
+        "$TURBO_ROOT$/scripts/dereference-output.mjs"
+      ],
+      "outputs": ["dist/**", ".output/**", "src/css-vars.css", "src/tokens.json"]
+    },
+    "build:staging": {
+      "dependsOn": ["^build"],
+      "env": [
+        "NUXT_API_BASE",
+        "NUXT_PUBLIC_API_BASE",
+        "NUXT_PUBLIC_SITE_ENV",
+        "NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env.staging",
+        "$TURBO_ROOT$/scripts/finalize-build.mjs",
+        "$TURBO_ROOT$/scripts/dereference-output.mjs"
+      ],
+      "outputs": ["dist/**", ".output/**", "src/css-vars.css", "src/tokens.json"]
     }
   },
   "globalDependencies": [

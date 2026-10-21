@@ -1,4 +1,4 @@
-/** 文档预览服务默认地址；部署可用 NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE 覆盖。 */
+/** 文档预览服务默认地址；各环境 .env 可通过 NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE 配置。 */
 export const DEFAULT_DOCUMENT_PREVIEW_BASE =
   'https://academy.dream-sports.cn/viewer/?showHeader=0&showImport=0&showUrlImport=0&showToolbar=1&showErrors=0'
 

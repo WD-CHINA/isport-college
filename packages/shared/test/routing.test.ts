@@ -64,7 +64,10 @@ describe('isPrivateRoutePath', () => {
     ['/creation', true],
     ['/en/Creation/', true],
     ['/creations', false],
-    ['/account', false],
+    ['/account', true],
+    ['/en/ACCOUNT', true],
+    ['/lingyue/callback', true],
+    ['/accounting', false],
   ])('%s -> %s', (path, expected) => {
     expect(isPrivateRoutePath(path)).toBe(expected)
   })

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { canonicalUrl } from '~/utils/seo'
 import { message } from 'antdv-next'
 import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import AppPagination from '~/components/app/AppPagination.vue'
@@ -31,7 +32,14 @@ watch(
     if (props.channel === 'resource') listStart.value?.scrollIntoView({ block: 'start' })
   },
 )
-useSeoMeta({ title: () => title.value, description: () => t('catalog.description') })
+const route = useRoute()
+useSeoMeta({ title: () => title.value, description: () => t(`seo.${props.channel}Desc`) })
+useHead(() => {
+  const params = contentQueryToUrl(query.value)
+  if (props.channel !== 'school' && params.category === categories.value[0]?.id)
+    delete params.category
+  return { link: [{ key: 'canonical', rel: 'canonical', href: canonicalUrl(route.path, params) }] }
+})
 const [messageApi, ContextHolder] = message.useMessage()
 useMessageFeedback(messageApi, filterError, () => t('academy.requestFailed'), 'warning')
 useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))

@@ -36,7 +36,17 @@ const messages: MessageSchema = {
   },
   seo: {
     siteName: 'Dream Sports Academy',
-    homeTitle: 'Dream Sports Academy - Inspire Every PE Lesson',
+    homeTitle: 'PE Teaching Resources and Professional Learning',
+    resourceDesc:
+      'Find PE teaching videos, music and presentations by category, school level and resource type.',
+    researchDesc:
+      'Explore PE teaching practice, professional development, events and product tutorials.',
+    schoolDesc:
+      'Read school stories about curriculum development and digital PE classroom practice.',
+    teachersDesc:
+      'Meet PE teachers and explore their teaching experience, professional learning and stories.',
+    newsDesc:
+      'Follow physical education news, policy updates and the latest from Dream Sports Academy.',
     homeDesc:
       'Explore PE teaching resources, professional learning and school stories. Create better lessons together.',
     coursesTitle: 'Courses',

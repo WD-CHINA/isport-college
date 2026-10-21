@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { plainDescription } from '~/utils/content-seo'
+import { useDetailIndexing } from '~/composables/useDetailIndexing'
 import { message } from 'antdv-next'
 import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { useAcademy } from '~/composables/useAcademy'
@@ -24,7 +26,17 @@ const { data, error, refresh } = request
 const notFound = computed(
   () => error.value?.statusCode === 404 || apiErrorCode(error.value) === 'NOT_FOUND',
 )
-useSeoMeta({ title: () => data.value?.name || t('detail.notFound') })
+useSeoMeta({
+  title: () => data.value?.name || t('detail.notFound'),
+  description: () =>
+    plainDescription(
+      data.value?.story ||
+        [data.value?.name, data.value?.schoolOrg, data.value?.jobTitle, data.value?.honorTitle]
+          .filter(Boolean)
+          .join(' · '),
+    ),
+})
+useDetailIndexing(() => !!error.value)
 const [messageApi, ContextHolder] = message.useMessage()
 useMessageFeedback(
   messageApi,
@@ -32,9 +44,9 @@ useMessageFeedback(
   () => t('academy.requestFailed'),
 )
 await request
-if (import.meta.server && notFound.value) {
+if (import.meta.server && error.value) {
   const event = useRequestEvent()
-  if (event) setResponseStatus(event, 404)
+  if (event) setResponseStatus(event, notFound.value ? 404 : 503)
 }
 </script>
 

@@ -1,4 +1,6 @@
-/** 搜索引擎抓取规则：管理端全路径禁止抓取 */
+import { SITE_URL } from '../../app/utils/seo'
+
+/** 正式环境开放公开页面；测试环境保持全站禁止抓取。 */
 export default defineEventHandler(event => {
   setHeader(event, 'Content-Type', 'text/plain; charset=utf-8')
 
@@ -14,6 +16,10 @@ export default defineEventHandler(event => {
     'Disallow: /admin/',
     'Disallow: /en/admin',
     'Disallow: /en/admin/',
+    'Disallow: /api/',
+    'Disallow: /rsp/',
+    'Disallow: /viewer/',
+    `Sitemap: ${SITE_URL}/sitemap.xml`,
     '',
   ].join('\n')
 })

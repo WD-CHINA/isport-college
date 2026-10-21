@@ -25,7 +25,7 @@ const request = useAsyncData(
     ),
 )
 const { data, error, refresh } = request
-useSeoMeta({ title: () => t('academy.teachers') })
+useSeoMeta({ title: () => t('academy.teachers'), description: () => t('seo.teachersDesc') })
 const [messageApi, ContextHolder] = message.useMessage()
 useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))
 await request

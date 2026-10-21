@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build",
+    "build": "pnpm build:prod",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
@@ -26,7 +26,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint:css": "stylelint \"**/*.{css,scss,vue}\"",
-    "preinstall": "npx only-allow pnpm && git config core.ignorecase false"
+    "preinstall": "npx only-allow pnpm && git config core.ignorecase false",
+    "build:prod": "turbo run build && node scripts/release.mjs production",
+    "build:test": "turbo run build:test && node scripts/release.mjs test",
+    "build:staging": "turbo run build:staging && node scripts/release.mjs staging"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.2",

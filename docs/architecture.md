@@ -1,10 +1,10 @@
 # isport-academy 当前架构
 
-更新日期：2026-10-16。当前只有一个 Nuxt 4 应用与 Nitro 发布产物。门户采用 SSR；管理端采用 CSR，并统一禁止收录。
+更新日期：2026-10-21。当前只有一个 Nuxt 4 应用与 Nitro 发布产物。门户采用 SSR；管理端采用 CSR，并统一禁止收录。
 
 ## 数据与部署边界
 
-SSR 始终请求私有 Runtime Config 的 `apiBase`，不使用入站 Host 决定上游。开发环境由 `.env.development` 提供 `NUXT_API_BASE`，生产由部署环境注入；未配置固定 HTTP/HTTPS 地址时服务启动失败。地址可以带部署前缀，例如 `/academy`。浏览器默认请求当前站点。开发环境由 `nitro.devProxy` 只转发 `/api`，目标为 `${NUXT_API_BASE}/api`，从而保留部署前缀；不转发 `/statics`。生产 Nginx 同样只转发 `/api`，不转发 `/statics`。部署步骤见 `docs/deploy.md`。`NUXT_PUBLIC_API_BASE` 为绝对地址时浏览器改为直连，E2E 用它访问测试协议服务器，因为生产产物没有 devProxy；它不影响 SSR 上游。响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。生产应用没有同源业务 mock。
+SSR 始终请求私有 Runtime Config 的 `apiBase`，不使用入站 Host 决定上游。开发环境读取 `.env.development`，测试、预发布、生产构建分别读取 `.env.test`、`.env.staging`、`.env.production`，将配置写入部署产物；未配置固定 HTTP/HTTPS 地址时服务启动失败。地址可以带部署前缀，例如 `/academy`。浏览器默认请求当前站点。开发环境由 `nitro.devProxy` 只转发 `/api`，目标为 `${NUXT_API_BASE}/api`，从而保留部署前缀；不转发 `/statics`。生产 Nginx 同样只转发 `/api`，不转发 `/statics`。部署步骤见 `docs/deploy.md`。`NUXT_PUBLIC_API_BASE` 为绝对地址时浏览器改为直连，E2E 用它访问测试协议服务器，因为生产产物没有 devProxy；它不影响 SSR 上游。响应信封为 `{status,message,data}`，鉴权使用 Bearer，语言使用 `X-Locale: zh-CN|en-US`。生产应用没有同源业务 mock。
 
 SSR 与浏览器统一使用标准 `fetch`，只携带当前会话的 Bearer，不继承入站 Cookie/Authorization。接口地址在 Nitro 启动时检查；接口信封和响应数据各在其边界校验一次，展示层直接使用整理后的类型。
 
@@ -104,23 +104,25 @@ apps/portal/app/
 
 根 `eslint.config.mjs` 是唯一入口。既有规则约束分层方向，`packages/eslint-config/boundaries.mjs` 补充解析后的 workspace 路径、exports、实际依赖声明与循环依赖检查。展示包禁止请求、store 和路由运行时，并检查直接/别名网络调用。包内相对路径也不能绕过应用与跨包边界。规则的行为由 Node 测试覆盖。
 
-Turbo 将根 ESLint、Stylelint、Prettier 配置和架构规则列为全局缓存输入，规则变化会使旧任务缓存失效。构建任务显式传递并缓存区分 `NUXT_API_BASE`、`NUXT_PUBLIC_API_BASE` 和 `NUXT_PUBLIC_SITE_ENV`，避免环境配置变化后复用旧产物。
+Turbo 将根 ESLint、Stylelint、Prettier 配置和架构规则列为全局缓存输入，规则变化会使旧任务缓存失效。构建任务将对应 `.env` 文件及使用的环境变量纳入缓存输入；`build:test`、`build:staging` 与生产 `build` 使用不同任务缓存，避免环境配置变化后复用旧产物。
 
 ## 国际化、收录与发布
 
-生产门户和后端共用 `https://academy.dream-sports.cn/`，生产接口为 `https://academy.dream-sports.cn/api/v1/...`，不带 `/academy` 前缀。部署时显式注入 `NUXT_API_BASE=https://academy.dream-sports.cn`，浏览器使用 `NUXT_PUBLIC_API_BASE=/`。SSR 不从入站 Host 推导后端地址。测试门户域名仍为 `https://yuntiyu-test2.dream-sports.cn/`，站内链接使用相对路径。
+生产门户和后端共用 `https://academy.dream-sports.cn/`。生产构建从 `.env.production` 写入 `NUXT_API_BASE=https://academy.dream-sports.cn/academy`，SSR 请求 `/academy/api/v1/...`；浏览器使用 `NUXT_PUBLIC_API_BASE=/`，请求当前站点 `/api/v1/...`，由 Nginx 转发。部署无需另行注入，SSR 不从入站 Host 推导后端地址。测试门户域名仍为 `https://yuntiyu-test2.dream-sports.cn/`，站内链接使用相对路径。
 
 默认中文无前缀，英文使用 `/en`；根路径按语言 Cookie 或浏览器偏好重定向，具体业务路由以 URL 为准。SSR 学苑语言头读取请求路径；客户端同步读取当前 Nuxt 注入的 i18n 语言，与数据缓存键使用同一语言来源，避免导航中语言已切换但 currentRoute 仍为旧路径。不依赖异步 i18n composable。
 
 管理端在 Nuxt routeRules 和 HTTP 中间件中强制 CSR，后者使用归一化路径处理大小写变体。管理及个人路由输出 `noindex, nofollow, noarchive`；非生产环境全站禁止收录。发布只启动一个 `.output/server/index.mjs`。
 
-| 环境变量               | 用途                                                                                                                           |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `NUXT_API_BASE`        | SSR 固定上游，也是开发代理 `/api` 的目标；开发由 `.env.development` 提供，生产部署时注入；必须为 HTTP/HTTPS 地址，可带路径前缀 |
-| `NUXT_PUBLIC_API_BASE` | 浏览器接口地址；空或 `/` 表示当前站点，绝对地址表示直连；E2E 指向测试协议服务器；不决定 SSR 目标                               |
-| `NUXT_PUBLIC_SITE_ENV` | 默认 development；production 启用 Secure Cookie 并允许公开页收录                                                               |
+| 环境变量               | 用途                                                                                                             |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `NUXT_API_BASE`        | SSR 固定上游，也是开发代理 `/api` 的目标；由所选 `.env` 在开发或构建时提供；必须为 HTTP/HTTPS 地址，可带路径前缀 |
+| `NUXT_PUBLIC_API_BASE` | 浏览器接口地址；空或 `/` 表示当前站点，绝对地址表示直连；E2E 指向测试协议服务器；不决定 SSR 目标                 |
+| `NUXT_PUBLIC_SITE_ENV` | 所选 `.env` 的业务环境；production 启用 Secure Cookie 并允许公开页收录                                           |
 
-生产启动时设置 `NUXT_API_BASE=https://academy.dream-sports.cn`、`NUXT_PUBLIC_API_BASE=/` 和 `NUXT_PUBLIC_SITE_ENV=production`，例如 `NUXT_API_BASE=https://academy.dream-sports.cn NUXT_PUBLIC_API_BASE=/ NUXT_PUBLIC_SITE_ENV=production node .output/server/index.mjs`。Nuxt 的 `--dotenv` 在开发与构建时加载 `.env`，生产 Node 进程不自动加载 `.env.production`。公开页收录及 Secure Cookie 仍由实际部署环境的 `NUXT_PUBLIC_SITE_ENV` 决定。
+仓库根目录使用 `pnpm build:test`、`pnpm build:staging`、`pnpm build:prod` 生成对应环境的独立包，分别保存到 `dist/test`、`dist/staging`、`dist/production` 并生成带环境名的压缩包。`pnpm build` 默认生产环境。Nuxt 的 `--dotenv` 在开发与构建时加载所选文件，`runtimeConfig` 将文件值作为包内默认配置，部署直接运行 `node server/index.mjs`。服务器不需要 `.env` 或 `NUXT_*`。PM2 只负责进程、监听地址和端口。
+
+Nuxt 原生运行时覆盖保留给隔离 E2E 等用途；旧 PM2 进程中的 `NUXT_*` 应在迁移时清除。包内 `build-info.json` 标记环境，归档时检查目标环境，防止错误打包。
 
 ## 验收
 

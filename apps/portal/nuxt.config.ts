@@ -39,9 +39,19 @@ export default defineNuxtConfig({
     'pinia-plugin-persistedstate/nuxt',
     '@unocss/nuxt',
     '@nuxtjs/i18n',
+    '@nuxtjs/sitemap',
     '@antdv-next/nuxt',
     'nuxt-swiper',
   ],
+  site: { url: 'https://academy.dream-sports.cn', name: '融梦学苑', trailingSlash: false },
+  sitemap: {
+    // 只使用公开接口提供的网址，避免自动发现账号、后台及动态参数路由。
+    excludeAppSources: true,
+    autoI18n: false,
+    sources: [['/__sitemap__/urls', { timeout: 25000, retry: 0 }]],
+    cacheMaxAgeSeconds: 300,
+    autoLastmod: false,
+  },
   // 打包并注册 Swiper 自定义元素；页面在客户端初始化轮播，正文保留 SSR。
   swiper: {
     enableComposables: true,
@@ -63,19 +73,19 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
-    /** SSR 的固定学苑上游；开发由 .env 注入，生产由部署环境注入。 */
+    /** SSR 固定上游；构建命令加载对应 .env，地址随产物发布。 */
     apiBase: process.env.NUXT_API_BASE ?? '',
     public: {
       /** 部署环境：非 production 环境全站禁止收录 */
-      siteEnv: 'development',
+      siteEnv: process.env.NUXT_PUBLIC_SITE_ENV ?? 'development',
       /**
        * 空或 `/`：浏览器请求当前站点。开发由 devProxy 转发 /api，生产由 Nginx 转发。
        * 绝对地址：浏览器直连。E2E 用来访问测试协议服务器，生产产物没有 devProxy。
        */
-      apiBase: '',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE ?? '/',
       /**
        * 文档预览服务根地址；文件 URL 以 encode 后的 url 参数拼接。
-       * 可用 NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE 覆盖。
+       * 从所选 .env 的 NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE 读取。
        */
       documentPreviewBase:
         process.env.NUXT_PUBLIC_DOCUMENT_PREVIEW_BASE ?? DEFAULT_DOCUMENT_PREVIEW_BASE,

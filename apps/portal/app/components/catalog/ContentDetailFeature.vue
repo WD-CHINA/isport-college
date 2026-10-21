@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useContentSeo } from '~/composables/useContentSeo'
+import { useDetailIndexing } from '~/composables/useDetailIndexing'
 import { message } from 'antdv-next'
 import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import { useContentDetail } from '~/composables/catalog/useContentDetail'
@@ -47,10 +49,8 @@ const { data: recommendations } = recommendationsRequest
 const mediaItems = computed(() =>
   toContentMedia(data.value?.detail.mediaList ?? [], apiUrl, data.value?.detail.coverUrl),
 )
-useSeoMeta({
-  title: () => data.value?.detail.title || t('detail.notFound'),
-  description: () => data.value?.detail.summary || '',
-})
+useContentSeo(() => data.value?.detail, props.channel)
+useDetailIndexing(() => !!error.value)
 useMessageFeedback(
   messageApi,
   () => error.value && !notFound.value,
@@ -59,9 +59,9 @@ useMessageFeedback(
 useMessageFeedback(messageApi, interactionFailed, () => t('detail.interactionFailed'))
 useMessageFeedback(messageApi, viewFailed, () => t('detail.viewFailed'), 'warning')
 await request
-if (import.meta.server && notFound.value) {
+if (import.meta.server && error.value) {
   const event = useRequestEvent()
-  if (event) setResponseStatus(event, 404)
+  if (event) setResponseStatus(event, notFound.value ? 404 : 503)
 }
 </script>
 
