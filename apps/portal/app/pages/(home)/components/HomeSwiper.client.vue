@@ -21,6 +21,7 @@ let keyboardFocus = false
 let disposed = false
 const mobileQuery = window.matchMedia('(max-width: 767px)')
 const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+const hoverQuery = window.matchMedia('(hover: hover) and (pointer: fine)')
 const mobile = shallowRef(mobileQuery.matches)
 const active = shallowRef(0)
 const groupSize = computed(() =>
@@ -49,7 +50,11 @@ const options = computed<SwiperOptions>(() => {
     a11y: { enabled: true },
     autoplay:
       props.autoplay && props.count > 1
-        ? { delay: props.autoplayDelay, disableOnInteraction: false, pauseOnMouseEnter: true }
+        ? {
+            delay: props.autoplayDelay,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: hoverQuery.matches,
+          }
         : false,
     breakpoints: {
       768: {
@@ -78,10 +83,13 @@ function goToPage(page: number) {
 function pause() {
   instance.value?.autoplay?.stop()
 }
+function hoverIn() {
+  if (hoverQuery.matches) pause()
+}
 function resume() {
   const autoplay = instance.value?.autoplay
   if (!props.autoplay || props.count < 2 || motionQuery.matches || keyboardFocus) return
-  if (region.value?.matches(':hover')) return
+  if (hoverQuery.matches && region.value?.matches(':hover')) return
   if (!autoplay?.running) autoplay?.start()
   else if (autoplay.paused) autoplay.resume()
 }
@@ -115,7 +123,7 @@ onMounted(async () => {
   Object.assign(container.value, options.value)
   container.value.initialize()
   instance.value = container.value.swiper
-  if (motionQuery.matches || region.value?.matches(':hover')) pause()
+  if (motionQuery.matches || (hoverQuery.matches && region.value?.matches(':hover'))) pause()
   sync()
   mobileQuery.addEventListener('change', resize)
   motionQuery.addEventListener('change', motionChanged)
@@ -138,7 +146,7 @@ onScopeDispose(() => {
     @focusin="focusIn"
     @focusout="focusOut"
     @pointerdown="pointerDown"
-    @mouseenter="pause"
+    @mouseenter="hoverIn"
     @mouseleave="resume"
     @keydown.left.prevent="instance?.slidePrev()"
     @keydown.right.prevent="instance?.slideNext()"

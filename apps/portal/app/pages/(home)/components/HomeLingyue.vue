@@ -114,11 +114,6 @@ const tools = computed(() => [
     background: #fff;
     color: var(--home-color-text);
     cursor: pointer;
-    transition: box-shadow var(--ic-motion-duration-fast);
-
-    &:hover {
-      box-shadow: 0 0 0 1px var(--ic-color-academy-primary);
-    }
 
     &:focus-visible {
       outline: 2px solid var(--ic-color-academy-primary);

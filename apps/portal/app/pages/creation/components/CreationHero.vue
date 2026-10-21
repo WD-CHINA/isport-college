@@ -58,10 +58,6 @@ const { t } = useI18n()
     line-height: 30px;
     cursor: pointer;
 
-    &:hover {
-      filter: brightness(1.05);
-    }
-
     &:focus-visible {
       outline: 2px solid var(--ic-color-academy-primary, #0077fa);
       outline-offset: 4px;

@@ -66,9 +66,5 @@ watch(coverUrl, () => {
     line-height: 23px;
     overflow-wrap: anywhere;
   }
-
-  &:hover {
-    color: var(--ic-color-academy-primary);
-  }
 }
 </style>

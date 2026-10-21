@@ -132,7 +132,9 @@ useMessageFeedback(
       border: 0 !important;
       border-radius: 0 !important;
       background: transparent !important;
-      color: var(--ic-color-academy-primary);
+
+      --ant-btn-text-color: var(--ic-color-academy-primary) !important;
+
       box-shadow: none;
     }
   }

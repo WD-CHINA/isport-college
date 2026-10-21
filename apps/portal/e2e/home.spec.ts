@@ -25,8 +25,22 @@ async function populateHomeLayout(page: Page, cardCount = 3) {
     }))
     home.resourceGroupList[0].itemList = [
       { ...resource, levelName: '自定义水平', recommendedLevel: 2 },
-      { ...resource, originId: 2, contentKey: 'RESOURCE:2', levelName: '', recommendedLevel: 3 },
-      { ...resource, originId: 3, contentKey: 'RESOURCE:3', levelName: '', recommendedLevel: null },
+      {
+        ...resource,
+        originId: 2,
+        contentKey: 'RESOURCE:2',
+        title: resource.title.replace(/1$/, '2'),
+        levelName: '',
+        recommendedLevel: 3,
+      },
+      {
+        ...resource,
+        originId: 3,
+        contentKey: 'RESOURCE:3',
+        title: resource.title.replace(/1$/, '3'),
+        levelName: '',
+        recommendedLevel: null,
+      },
     ]
     home.researchList = [1, 2, 3].map(id => ({
       ...home.researchList[0],
@@ -118,44 +132,57 @@ for (const prefix of ['', '/en']) {
   })
 }
 
-test('首页水平筛选展示对应接口分组，切回分类恢复原列表', async ({ page }) => {
+test('首页水平筛选与当前分类卡片的水平名称一致，切回分类恢复原列表', async ({ page }) => {
   await page.goto('/')
   await waitForHydration(page)
+  await populateHomeLayout(page)
   const resources = page.locator('.home-resources')
   await expect(resources).toContainText('资源示例 1')
   await resources.getByRole('combobox', { name: '推荐水平', exact: true }).click()
+  await expect(page.getByRole('option', { name: '自定义水平', exact: true })).toBeVisible()
+  // 接口另有空的水平五分组，但它不是当前分类资源中的水平。
+  await expect(page.getByRole('option', { name: '水平五', exact: true })).toHaveCount(0)
   await page.getByRole('option', { name: '水平三', exact: true }).click()
-  await expect(resources).toContainText('资源示例 3')
+  await expect(resources).toContainText('资源示例 2')
+  await expect(resources.getByRole('button', { name: '体能', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
   await expect(resources.locator('.home-resources__body small')).toHaveText('适用：水平三')
   await expect(resources).not.toContainText('资源示例 1')
   await resources.getByRole('button', { name: '体能', exact: true }).click()
-  await expect(resources.locator('.home-resources__level')).toContainText('全部学段')
+  await expect(resources.locator('.home-resources__level')).toContainText('全部水平')
   await expect(resources).toContainText('资源示例 1')
   await resources.getByRole('combobox', { name: '推荐水平', exact: true }).press('ArrowDown')
-  await resources.getByRole('combobox').press('ArrowDown')
+  await resources.getByRole('combobox').press('End')
   await resources.getByRole('combobox').press('Enter')
-  await expect(resources).toContainText('资源示例 3')
+  await expect(resources).toContainText('资源示例 2')
 })
 
-test('首页学段筛选无数据时显示空状态，语言切换与切回分类保持一致', async ({ page }) => {
+test('首页水平名称随语言更新，空分类只显示全部水平并保持空状态', async ({ page }) => {
   await page.goto('/')
   await waitForHydration(page)
   const resources = page.locator('.home-resources')
   await resources.getByRole('combobox', { name: '推荐水平', exact: true }).click()
-  await page.getByRole('option', { name: '水平五', exact: true }).click()
-  await expect(resources.locator('.home-resources__empty .ant-empty')).toContainText('暂无数据')
-  await expect(resources.locator('li')).toHaveCount(0)
+  await page.getByRole('option', { name: '水平一', exact: true }).click()
+  await expect(resources.locator('.home-resources__body small')).toHaveText('适用：水平一')
   await navigateToLocale(page, 'en')
-  await expect(resources.locator('.home-resources__empty .ant-empty')).toContainText('No data')
   await expect(
     resources.getByRole('combobox', { name: 'Recommended level', exact: true }),
   ).toBeVisible()
+  await expect(resources.locator('.home-resources__level')).toContainText('All levels')
+  await resources.getByRole('combobox', { name: 'Recommended level', exact: true }).click()
+  await page.getByRole('option', { name: 'Level 1', exact: true }).click()
+  await expect(resources.locator('.home-resources__body small')).toHaveText('For: Level 1')
   await resources.getByRole('button', { name: 'Fitness', exact: true }).click()
   await expect(resources.locator('.home-resources__empty')).toHaveCount(0)
   await expect(resources).toContainText('Resource 1')
   await resources.getByRole('button', { name: 'Sports', exact: true }).click()
   await expect(resources.locator('.home-resources__empty .ant-empty')).toContainText('No data')
   await expect(resources.locator('li')).toHaveCount(0)
+  await resources.getByRole('combobox', { name: 'Recommended level', exact: true }).click()
+  await expect(page.getByRole('option')).toHaveCount(1)
+  await expect(page.getByRole('option', { name: 'All levels', exact: true })).toBeVisible()
 })
 
 test('教研分类空状态可切换语言', async ({ page }) => {

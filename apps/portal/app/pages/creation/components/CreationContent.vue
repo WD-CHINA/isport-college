@@ -172,7 +172,6 @@ const { t } = useI18n()
     color: inherit;
     text-align: start;
     cursor: pointer;
-    transition: box-shadow 150ms;
 
     strong {
       position: relative;
@@ -187,10 +186,6 @@ const { t } = useI18n()
       color: rgb(28 31 35 / 60%);
       font-size: 12px;
       line-height: 20px;
-    }
-
-    &:hover {
-      box-shadow: inset 0 0 0 1px var(--ic-color-academy-primary, #0077fa);
     }
 
     &:focus-visible {
@@ -272,12 +267,6 @@ const { t } = useI18n()
     &__option {
       flex-basis: calc(50% - 8px);
     }
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .creation-content__option {
-    transition: none;
   }
 }
 </style>

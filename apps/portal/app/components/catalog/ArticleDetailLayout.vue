@@ -96,10 +96,6 @@ const recommendationsTitle = computed(() =>
 
     a {
       color: inherit;
-
-      &:hover {
-        color: var(--ic-color-academy-primary);
-      }
     }
 
     [aria-current] {

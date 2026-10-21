@@ -96,10 +96,6 @@ const { t } = useI18n()
       fill: var(--ic-color-academy-tint);
     }
 
-    &:hover {
-      color: var(--ic-color-academy-primary);
-    }
-
     &:disabled {
       cursor: wait;
       opacity: 0.5;

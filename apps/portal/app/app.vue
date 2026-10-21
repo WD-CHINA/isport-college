@@ -26,11 +26,33 @@ const antdLocale = computed(() => (resolveDataLocale(locale.value) === 'en-US' ?
 // 每次生成新图标节点，避免 Modal 销毁重开时复用已卸载的默认 VNode。
 const modalConfig = { closeIcon: () => h(AppModalCloseIcon) }
 
+// 组件库同样沿用全站透明度反馈，选中项继续使用品牌色。
+const themeConfig = {
+  token: antdvThemeToken,
+  components: {
+    Pagination: {
+      colorBgTextHover: 'transparent',
+      colorBgTextActive: 'transparent',
+      colorPrimaryHover: antdvThemeToken.colorPrimary,
+      itemActiveColorHover: antdvThemeToken.colorPrimary,
+    },
+    Tabs: {
+      itemHoverColor: antdvThemeToken.colorTextBase,
+      itemActiveColor: antdvThemeToken.colorTextBase,
+    },
+  },
+}
+
 useSiteSeo()
 </script>
 
 <template>
-  <AConfigProvider :locale="antdLocale" :theme="{ token: antdvThemeToken }" :modal="modalConfig">
+  <AConfigProvider
+    :locale="antdLocale"
+    :theme="themeConfig"
+    :modal="modalConfig"
+    :wave="{ disabled: true }"
+  >
     <AApp class="min-h-screen">
       <NuxtLayout>
         <NuxtPage />

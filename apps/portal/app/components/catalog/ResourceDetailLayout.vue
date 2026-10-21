@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ContentChannel, WebContentCard, WebContentDetail } from '@isport/shared'
-import { contentDescription } from '~/utils/content-seo'
 import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
 //import { ACADEMY_CAPABILITIES } from '~/config/capabilities'
 import ContentGrid from '~/components/content/ContentGrid.vue'
@@ -17,12 +16,7 @@ const channelPath = computed(
   () => ({ resource: '/resources', research: '/research', school: '/schools' })[props.channel],
 )
 const level = computed(() => getLevelLabel(props.content))
-const description = computed(
-  () =>
-    props.content.summary ||
-    props.content.description ||
-    contentDescription(props.content, level.value),
-)
+const description = computed(() => props.content.summary)
 const publisher = computed(
   () =>
     props.content.publisherName ||
@@ -113,10 +107,6 @@ const publisher = computed(
 
     a {
       color: inherit;
-    }
-
-    a:hover {
-      color: var(--ic-color-academy-primary);
     }
 
     [aria-current] {

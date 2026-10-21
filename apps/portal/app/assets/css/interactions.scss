@@ -1,0 +1,88 @@
+// 全站交互只调整控件自身透明度，不添加外扩遮罩、位移或图片缩放。
+:where(
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  summary,
+  [role='button'],
+  [role='tab'],
+  [role='menuitem'],
+  [role='option']
+) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+$controls: "a[href], button, input[type='button'], input[type='submit'], summary, [role='button'], [role='tab']";
+$disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loading, [aria-busy='true'], .ant-pagination-disabled";
+
+:where(#{$controls}) {
+  touch-action: manipulation;
+
+  // 统一覆盖组件库的 transition: all，避免相同操作出现不同过渡速度。
+  transition: opacity var(--ic-motion-duration-fast, 150ms) ease !important;
+}
+
+:where(#{$controls}):not(#{$disabled}) {
+  cursor: pointer;
+}
+
+// 只在鼠标设备显示悬停反馈，触屏松手后不残留 hover 效果。
+@media (hover: hover) and (pointer: fine) {
+  :where(#{$controls}):not(#{$disabled}, .ant-pagination-prev, .ant-pagination-next):hover {
+    opacity: 0.88;
+  }
+}
+
+:where(#{$controls}):not(#{$disabled}, .ant-pagination-prev, .ant-pagination-next):is(
+    :active,
+    [data-ic-pressed]
+  ) {
+  opacity: 0.72;
+}
+
+// Ant 按钮保留各自常态配色，悬停和按压统一使用上面的透明度反馈。
+.ant-btn {
+  --ant-btn-border-color-hover: var(--ant-btn-border-color) !important;
+  --ant-btn-border-color-active: var(--ant-btn-border-color) !important;
+  --ant-btn-text-color-hover: var(--ant-btn-text-color) !important;
+  --ant-btn-text-color-active: var(--ant-btn-text-color) !important;
+  --ant-btn-bg-color-hover: var(--ant-btn-bg-color) !important;
+  --ant-btn-bg-color-active: var(--ant-btn-bg-color) !important;
+}
+
+// 按钮按自身圆角裁剪；头像保留边缘外的编辑标记。
+:is(button:not(.account-profile__avatar), input[type='button'], input[type='submit']) {
+  overflow: hidden;
+  background-clip: padding-box;
+}
+
+:where(#{$controls}):focus-visible {
+  outline: 2px solid var(--ic-color-academy-primary);
+  outline-offset: 3px;
+}
+
+:where(button:disabled, [aria-disabled='true'], .ant-pagination-disabled) {
+  cursor: not-allowed;
+}
+
+.content-card__link {
+  border-radius: inherit;
+}
+
+:is(
+  .content-card__link,
+  .home-resources li > a,
+  .home-schools__card,
+  .home-news__card
+):focus-visible {
+  outline-offset: -3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(#{$controls}) {
+    transition: none !important;
+  }
+}

@@ -142,10 +142,6 @@ watch(cover, () => {
     overflow-wrap: anywhere;
   }
 
-  &__link:hover h3 {
-    color: var(--ic-color-academy-primary);
-  }
-
   &__meta {
     display: flex;
     flex-wrap: wrap;

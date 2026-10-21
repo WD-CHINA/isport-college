@@ -131,11 +131,6 @@ const { t } = useI18n()
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-
-    &:hover {
-      background: var(--ic-color-academy-tint, #eff6ff);
-      color: var(--ic-color-academy-primary, #0077fa);
-    }
   }
 }
 </style>

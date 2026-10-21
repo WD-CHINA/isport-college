@@ -49,15 +49,6 @@ const { t } = useI18n()
     line-height: 26px;
     overflow-wrap: anywhere;
     cursor: pointer;
-    transition:
-      color var(--ic-motion-duration-fast),
-      border-color var(--ic-motion-duration-fast),
-      background-color var(--ic-motion-duration-fast);
-  }
-
-  button:hover {
-    border-color: var(--catalog-primary);
-    color: var(--catalog-primary);
   }
 
   button[aria-pressed='true'] {
@@ -82,12 +73,6 @@ const { t } = useI18n()
       font-size: 14px;
       line-height: 22px;
     }
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .catalog-category-tabs button {
-    transition: none;
   }
 }
 </style>

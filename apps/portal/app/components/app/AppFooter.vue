@@ -188,11 +188,6 @@ const links = computed(() => [
     }
   }
 
-  &__links a:hover,
-  &__address a:hover {
-    color: var(--ic-color-academy-primary);
-  }
-
   &__social {
     display: flex;
     align-items: flex-start;

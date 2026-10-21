@@ -3,9 +3,11 @@ import { useAcademy } from '~/composables/useAcademy'
 import { RESEARCH_CATEGORIES } from '@isport/shared'
 import { storeToRefs } from 'pinia'
 import { useHomeUiStore } from '~/stores/home-ui'
+import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
 
 export function useAcademyHome() {
   const academy = useAcademy()
+  const getLevelLabel = useContentLevelLabel()
   const { locale } = useI18n()
   const request = useAsyncData(
     () => `academy:home:${locale.value}`,
@@ -21,7 +23,6 @@ export function useAcademyHome() {
   }
 
   const resourceGroups = computed(() => request.data.value?.resourceGroupList ?? [])
-  const levelGroups = computed(() => request.data.value?.levelGroupList ?? [])
   const researchCodes = computed(() => RESEARCH_CATEGORIES)
 
   const resourceCategory = computed({
@@ -44,8 +45,23 @@ export function useAcademyHome() {
       selectedResearch.value = value
     },
   })
+  const resourceItems = computed(
+    () =>
+      resourceGroups.value.find(item => String(item.groupId) === resourceCategory.value)
+        ?.itemList ?? [],
+  )
+  // 筛选名称和卡片适用信息共用同一来源，避免水平分组混入其他分类资源。
+  const levelCategories = computed(() =>
+    [...new Set(resourceItems.value.map(getLevelLabel).filter(Boolean))].map(name => ({
+      id: name,
+      name,
+    })),
+  )
   const levelCategory = computed({
-    get: () => selectedLevel.value,
+    get: () =>
+      levelCategories.value.some(item => item.id === selectedLevel.value)
+        ? selectedLevel.value
+        : '',
     set: value => {
       selectedLevel.value = value
     },
@@ -63,23 +79,15 @@ export function useAcademyHome() {
     researchCategories: computed(() =>
       researchCodes.value.map(item => ({ id: item.id, name: item.label[language.value] })),
     ),
-    levelCategories: computed(() =>
-      levelGroups.value.map(item => ({ id: String(item.groupId), name: item.groupName })),
-    ),
-    resourceItems: computed(
-      () =>
-        resourceGroups.value.find(item => String(item.groupId) === resourceCategory.value)
-          ?.itemList ?? [],
-    ),
+    levelCategories,
+    resourceItems,
     researchItems: computed(() =>
       (request.data.value?.researchList ?? []).filter(
         item => item.categoryCode === researchCategory.value,
       ),
     ),
-    levelItems: computed(
-      () =>
-        levelGroups.value.find(item => String(item.groupId) === levelCategory.value)?.itemList ??
-        [],
+    levelItems: computed(() =>
+      resourceItems.value.filter(item => getLevelLabel(item) === levelCategory.value),
     ),
   }
 }

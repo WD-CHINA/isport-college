@@ -143,16 +143,8 @@ function openLingyueHome() {
     font-size: 15px;
     font-weight: 500;
     line-height: 22px;
-    transition:
-      background var(--ic-motion-duration-fast, 150ms),
-      color var(--ic-motion-duration-fast, 150ms);
 
-    &:hover {
-      background: var(--ic-color-background-page, #f8fafc);
-    }
-
-    &--active,
-    &--active:hover {
+    &--active {
       background: var(--ic-color-brand-50, #eff6ff);
       color: var(--ic-color-brand-600, #1d4ed8);
       font-weight: 600;
@@ -240,21 +232,12 @@ function openLingyueHome() {
     color: #5843b5;
     text-align: start;
     cursor: pointer;
-    transition: border-color var(--ic-motion-duration-fast, 150ms);
-
-    &:hover {
-      border-color: #c4b5fd;
-    }
   }
 
   &-creation {
     background: var(--ic-color-academy-tint);
     color: var(--ic-color-academy-primary);
     cursor: pointer;
-
-    &:hover {
-      border-color: currentcolor;
-    }
   }
 
   &-account {
@@ -316,11 +299,6 @@ function openLingyueHome() {
     flex: none;
     background: var(--ic-color-background-page, #f8fafc);
     color: var(--ic-color-text-secondary, #475569);
-
-    &:hover {
-      background: #fef2f2;
-      color: var(--ic-color-semantic-error, #dc2626);
-    }
   }
 
   &-login {
@@ -329,10 +307,6 @@ function openLingyueHome() {
     color: var(--ic-color-text-inverse, #fff);
     font-size: 14px;
     font-weight: 600;
-
-    &:hover {
-      background: var(--ic-color-brand-700, #1e40af);
-    }
   }
 
   & a:focus-visible,
@@ -345,15 +319,6 @@ function openLingyueHome() {
 @media (min-width: 1280px) {
   .app-header__panel {
     display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .app-header__panel {
-    &-link,
-    &-lingyue {
-      transition: none;
-    }
   }
 }
 </style>

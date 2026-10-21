@@ -103,7 +103,6 @@ const screens = useBreakpoint()
       color: inherit;
     }
 
-    :deep(.ant-pagination-item:not(.ant-pagination-item-active):hover),
     :deep(.ant-pagination-item-active),
     :deep(.ant-pagination-item-active:hover) {
       background: var(--ic-color-academy-tint);
@@ -122,8 +121,8 @@ const screens = useBreakpoint()
 
     :deep(.ant-pagination-prev:not(.ant-pagination-disabled):hover .ant-pagination-item-link),
     :deep(.ant-pagination-next:not(.ant-pagination-disabled):hover .ant-pagination-item-link) {
-      background: var(--ic-color-academy-tint);
-      color: var(--ic-color-academy-primary);
+      background: transparent;
+      color: var(--ic-color-academy-text-primary);
     }
 
     :deep(.ant-pagination-disabled .ant-pagination-item-link) {

@@ -164,10 +164,6 @@ async function select(index: number) {
     stroke-linejoin: round;
   }
 
-  &__arrow:hover {
-    background: var(--ic-color-academy-primary);
-  }
-
   &__thumbnails {
     position: relative;
     display: flex;

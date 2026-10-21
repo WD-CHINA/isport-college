@@ -76,7 +76,7 @@ export default {
     resourcesTitle: '教学资源',
     resourcesSubtitle: '围绕教学目标，快速找到适合课堂的内容',
     moreResources: '更多资源',
-    allLevels: '全部学段',
+    allLevels: '全部水平',
     suitable: '适用：{name}',
     researchTitle: '教研中心',
     researchSubtitle: '从平台使用到专业发展，持续提升教学能力',

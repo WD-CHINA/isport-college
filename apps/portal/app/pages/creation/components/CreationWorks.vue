@@ -185,12 +185,6 @@ const works = computed(() => CREATION_DEMO_WORKS_BY_STATUS[activeKey.value])
     }
   }
 
-  &__name:hover,
-  &__more:hover,
-  &__heading button:hover {
-    color: var(--ic-color-academy-primary, #0077fa);
-  }
-
   &__empty {
     display: grid;
     min-height: 204px;

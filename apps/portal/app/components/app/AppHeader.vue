@@ -379,14 +379,6 @@ onScopeDispose(() => {
     line-height: 22px;
     text-align: start;
     cursor: pointer;
-
-    &:hover {
-      color: var(--ic-color-semantic-error, #dc2626);
-    }
-  }
-
-  a.app-header__user-logout:hover {
-    color: var(--ic-color-academy-primary);
   }
 
   &__logout {
@@ -401,6 +393,7 @@ onScopeDispose(() => {
     height: 44px;
     flex-shrink: 0;
     border: 0;
+    border-radius: 8px;
     background: transparent;
     color: var(--ic-color-academy-text-primary);
     cursor: pointer;

@@ -174,8 +174,8 @@ function cancel() {
     }
 
     &__footer .ant-btn-default {
-      background: var(--ic-color-academy-tint);
-      color: var(--ic-color-academy-primary);
+      --ant-btn-bg-color: var(--ic-color-academy-tint) !important;
+      --ant-btn-text-color: var(--ic-color-academy-primary) !important;
     }
 
     &__footer .ant-btn-primary {

@@ -58,8 +58,8 @@ function setLevel(value: unknown) {
             v-for="item in categories"
             :key="item.id"
             type="button"
-            :class="{ 'is-active': !level && item.id === category }"
-            :aria-pressed="!level && item.id === category"
+            :class="{ 'is-active': item.id === category }"
+            :aria-pressed="item.id === category"
             @click="emit('select', item.id)"
           >
             <span
