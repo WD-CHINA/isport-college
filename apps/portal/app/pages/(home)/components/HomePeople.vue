@@ -25,7 +25,9 @@ const apiUrl = useApiUrl()
           <article class="home-people__card">
             <div class="home-people__quote">
               <img :src="`/home/figma/${row === 2 ? '3f802.svg' : '5f87f.svg'}`" alt="" />
-              <p v-if="person.honorTitle">{{ person.honorTitle }}</p>
+              <p v-if="person.story" aria-label="教师故事" :title="person.story">
+                {{ person.story }}
+              </p>
             </div>
             <span class="home-people__divider" aria-hidden="true" />
             <span class="home-people__who">
