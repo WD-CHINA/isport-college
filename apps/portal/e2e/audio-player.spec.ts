@@ -14,7 +14,8 @@ for (const [prefix, play, seek] of [
     })
     const response = await page.goto(`${prefix}/preview/resource/resources/3`)
     const html = await response!.text()
-    expect(html).toContain('ui-audio-player__waveform')
+    expect(html).toContain('ui-audio-player__wave')
+    expect(html).not.toContain('ui-audio-player__waveform')
     expect(html).toContain('aria-busy="true"')
     await waitForHydration(page)
     const player = page.getByTestId('audio-preview')
@@ -26,7 +27,7 @@ for (const [prefix, play, seek] of [
   })
 }
 
-test('真实音频支持播放暂停、波形定位、键盘、音量、倍速和循环', async ({ page }) => {
+test('真实音频支持播放暂停、wavesurfer 波浪、独立进度条、键盘、音量和循环', async ({ page }) => {
   await page.goto('/preview/resource/resources/3')
   await waitForHydration(page)
   const player = page.getByTestId('audio-preview')
@@ -35,34 +36,34 @@ test('真实音频支持播放暂停、波形定位、键盘、音量、倍速�
   await expect(play).toBeEnabled()
   await play.click()
   await expect(player.getByRole('button', { name: '暂停', exact: true })).toBeVisible()
+  const wave = player.locator('.ui-audio-player__wave')
+  const progress = wave.locator('[part="progress"]')
+  await expect
+    .poll(() => progress.evaluate(element => element.getBoundingClientRect().width))
+    .toBeGreaterThan(0)
   await expect
     .poll(() => media.evaluate((audio: HTMLAudioElement) => audio.currentTime))
     .toBeGreaterThan(0)
   await player.getByRole('button', { name: '暂停', exact: true }).click()
   await expect.poll(() => media.evaluate((audio: HTMLAudioElement) => audio.paused)).toBe(true)
-  const wave = player.locator('.ui-audio-player__waveform')
-  const bounds = await wave.boundingBox()
-  await wave.click({ position: { x: bounds!.width / 2, y: bounds!.height / 2 } })
+  const pausedTime = await media.evaluate((audio: HTMLAudioElement) => audio.currentTime)
+  const waveWidth = (await wave.boundingBox())!.width
+  await expect
+    .poll(() => progress.evaluate(element => element.getBoundingClientRect().width))
+    .toBeCloseTo((waveWidth * pausedTime) / 6, 0)
+  const seek = player.getByRole('slider', { name: '播放进度', exact: true })
+  await expect(seek).toHaveCSS('opacity', '1')
+  await expect(player.locator('.ui-audio-player__controls canvas')).toHaveCount(0)
+  const bounds = await seek.boundingBox()
+  await seek.click({ position: { x: bounds!.width / 2, y: bounds!.height / 2 } })
   await expect
     .poll(() => media.evaluate((audio: HTMLAudioElement) => audio.currentTime))
     .toBeCloseTo(3, 0)
-  const seek = player.getByRole('slider', { name: '播放进度', exact: true })
   await seek.focus()
   await seek.press('Home')
   await expect.poll(() => media.evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBe(0)
-  const speed = player.getByRole('combobox', { name: '播放速度', exact: true })
-  await speed.click()
-  await player.getByRole('option', { name: '1.5×', exact: true }).click()
-  await expect.poll(() => media.evaluate((audio: HTMLAudioElement) => audio.playbackRate)).toBe(1.5)
-  await expect(speed).toBeFocused()
-  await speed.press('ArrowDown')
-  await speed.press('Home')
-  await speed.press('Enter')
-  await expect.poll(() => media.evaluate((audio: HTMLAudioElement) => audio.playbackRate)).toBe(0.5)
-  await speed.click()
-  await speed.press('Escape')
-  await expect(player.getByRole('listbox')).toBeHidden()
-  await expect(speed).toBeFocused()
+  await expect(player.locator('.ui-audio-speed-select')).toHaveCount(0)
+  await expect.poll(() => media.evaluate((audio: HTMLAudioElement) => audio.playbackRate)).toBe(1)
   await player.getByRole('button', { name: '静音', exact: true }).click()
   await expect.poll(() => media.evaluate((audio: HTMLAudioElement) => audio.muted)).toBe(true)
   await player.getByRole('button', { name: '取消静音', exact: true }).click()
@@ -124,15 +125,18 @@ test('音频播放器在 320px 至桌面布局下控件可用且无横向溢出'
     const player = page.getByTestId('audio-preview')
     await expect(player.getByRole('button', { name: '播放', exact: true })).toBeEnabled()
     await expect(player.getByRole('slider', { name: '音量', exact: true })).toBeVisible()
-    await expect(player.getByRole('combobox', { name: '播放速度', exact: true })).toBeVisible()
-    await player.getByRole('combobox', { name: '播放速度', exact: true }).click()
-    const popup = player.getByRole('listbox', { name: '播放速度', exact: true })
-    await expect(popup).toBeVisible()
-    const popupBounds = await popup.boundingBox()
-    const playerBounds = await player.boundingBox()
-    expect(popupBounds!.x).toBeGreaterThanOrEqual(0)
-    expect(popupBounds!.x + popupBounds!.width).toBeLessThanOrEqual(width)
-    expect(popupBounds!.y).toBeGreaterThanOrEqual(playerBounds!.y)
+    await expect(player.getByRole('combobox', { name: '播放速度', exact: true })).toHaveCount(0)
+    await expect(player.locator('.ui-audio-player__wave canvas').first()).toBeVisible()
+    await expect(player.locator('.ui-audio-player__wave')).toHaveCSS('height', '48px')
+    await expect(player.getByRole('slider', { name: '播放进度', exact: true })).toBeVisible()
+    await expect(player.getByRole('slider', { name: '播放进度', exact: true })).toHaveCSS(
+      'opacity',
+      '1',
+    )
+    await expect(
+      player.locator('.ui-audio-player__stage, .ui-audio-player__waveform, .ui-audio-wave'),
+    ).toHaveCount(0)
+    expect((await player.boundingBox())!.height).toBeLessThan(240)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     expect(await player.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true)
     if (width === 390 || width === 1440) {
@@ -140,7 +144,22 @@ test('音频播放器在 320px 至桌面布局下控件可用且无横向溢出'
       await mkdir(dir, { recursive: true })
       await player.screenshot({ path: resolve(dir, `audio-${width}.png`) })
     }
-    await player.getByRole('combobox', { name: '播放速度', exact: true }).press('Tab')
-    await expect(popup).toBeHidden()
   }
+})
+
+test('减少动态设置下 wavesurfer 保留真实播放进度且不添加装饰动画', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/preview/resource/resources/3')
+  await waitForHydration(page)
+  const player = page.getByTestId('audio-preview')
+  const play = player.getByRole('button', { name: '播放', exact: true })
+  await expect(play).toBeEnabled()
+  await play.click()
+  const wave = player.locator('.ui-audio-player__wave')
+  await expect
+    .poll(() =>
+      wave.locator('[part="progress"]').evaluate(element => element.getBoundingClientRect().width),
+    )
+    .toBeGreaterThan(0)
+  expect(await wave.evaluate(element => element.getAnimations({ subtree: true }).length)).toBe(0)
 })

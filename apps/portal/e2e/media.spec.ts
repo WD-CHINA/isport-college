@@ -18,6 +18,8 @@ test('video 使用 xgplayer 加载', async ({ page }) => {
   await expect(host.locator('.xgplayer-poster')).toHaveCSS('background-image', /sample\.png/)
   await expect(host.locator('.xgplayer-start')).toHaveCSS('width', '56px')
   await expect(host.locator('.xgplayer-cssfullscreen')).toHaveCount(0)
+  await expect(host.locator('.xgplayer-playbackrate')).toHaveCount(0)
+  await expect.poll(() => host.locator('video').evaluate(video => video.playbackRate)).toBe(1)
   await expect(host.locator('.xgplayer-fullscreen')).toHaveCount(1)
 })
 

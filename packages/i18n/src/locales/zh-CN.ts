@@ -242,6 +242,7 @@ export default {
     account: '我的账号',
   },
   catalog: {
+    openingLink: '正在打开外部内容',
     linkUnavailable: '外部链接暂不可用，请稍后重试',
     clearSearch: '清除搜索',
     resourceLibrary: '体育教学资源库',

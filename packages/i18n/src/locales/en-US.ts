@@ -255,6 +255,7 @@ const messages: MessageSchema = {
     account: 'My Account',
   },
   catalog: {
+    openingLink: 'Opening external content',
     linkUnavailable: 'External link unavailable. Please try again later.',
     clearSearch: 'Clear search',
     resourceLibrary: 'PE Teaching Resource Library',
