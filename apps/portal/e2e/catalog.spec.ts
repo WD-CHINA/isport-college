@@ -1,5 +1,27 @@
 import { expect, test, waitForHydration } from './academy.fixture'
 
+for (const width of [1440, 390]) {
+  test(`${width}px 热门资源查看全部进入资源页顶部，返回首页恢复滚动位置`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 })
+    await page.goto('/')
+    await waitForHydration(page)
+    const link = page.locator('.home-featured__hot-head a')
+    await link.scrollIntoViewIfNeeded()
+    const homeScroll = await page.evaluate(() => window.scrollY)
+    expect(homeScroll).toBeGreaterThan(0)
+    await link.click()
+    await expect(page).toHaveURL(/\/resources\?category=1$/)
+    await expect(page.locator('.content-card')).toHaveCount(8)
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+    await expect(page.locator('.catalog-hero h1')).toBeInViewport()
+    await page.goBack()
+    await expect(page).toHaveURL(/\/$/)
+    await expect
+      .poll(() => page.evaluate(previous => Math.abs(window.scrollY - previous), homeScroll))
+      .toBeLessThanOrEqual(2)
+  })
+}
+
 test('从首页进入资源列表，补齐默认分类只请求一次，切换分类正常刷新', async ({ page }) => {
   const requests: string[] = []
   page.on('request', request => {

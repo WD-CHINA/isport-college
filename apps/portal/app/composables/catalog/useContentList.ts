@@ -75,6 +75,7 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
     },
     { flush: 'sync' },
   )
+  let mounted = false
   function normalizeUrl() {
     const normalized = contentQueryToUrl(query.value)
     const keys = Object.keys(route.query)
@@ -82,12 +83,21 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
       keys.length !== Object.keys(normalized).length ||
       keys.some(item => route.query[item] !== normalized[item])
     ) {
-      void router.replace({ path: route.path, query: normalized, hash: route.hash })
+      return router.replace({ path: route.path, query: normalized, hash: route.hash })
     }
   }
-  onMounted(normalizeUrl)
+  onMounted(async () => {
+    mounted = true
+    const path = route.path
+    const navigation = normalizeUrl()
+    if (!navigation || (await navigation)) return
+    // 首次进入时补齐参数会取消 Nuxt 的回顶；在本次替换成功后补回滚动。
+    if (router.currentRoute.value.path === path && !router.currentRoute.value.hash) {
+      window.scrollTo({ left: 0, top: 0 })
+    }
+  })
   watch([() => route.query, filterRequest.data], () => {
-    if (import.meta.client) normalizeUrl()
+    if (import.meta.client && mounted) void normalizeUrl()
   })
   function update(filters: WebListQuery) {
     return router.push({ path: route.path, query: contentQueryToUrl({ ...filters, page: 1 }) })

@@ -73,7 +73,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
           <div v-if="side.length" class="home-research__side">
             <article v-for="(item, row) in side" :key="item.contentKey">
               <span v-if="row" class="home-research__divider"
-                ><img src="/home/figma/be8e9.svg" alt=""
+                ><img src="/home/figma/be8e9.svg" width="409" height="1" alt=""
               /></span>
               <span class="home-research__side-photo"
                 ><img
@@ -269,6 +269,8 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
 
     img {
       display: block;
+      width: 100%;
+      height: 1px;
     }
   }
 
