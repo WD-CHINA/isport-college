@@ -41,6 +41,7 @@ useMessageFeedback(
       <AudioPreview
         v-else-if="item.kind === 'audio' && isContentAssetUrl(item.url)"
         :url="item.url"
+        :show-speed="false"
         :title="title"
       />
       <DocumentPreview

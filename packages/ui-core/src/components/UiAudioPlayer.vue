@@ -5,12 +5,17 @@ import { defaultAudioPlayerLabels, formatAudioTime } from '../audio/types'
 import type { AudioPlayerLabels, AudioWaveformOptions } from '../audio/types'
 import UiAudioSpeedSelect from './UiAudioSpeedSelect.vue'
 
-const props = defineProps<{
-  src: string
-  title?: string
-  labels?: Partial<AudioPlayerLabels>
-  waveformOptions?: AudioWaveformOptions
-}>()
+const props = withDefaults(
+  defineProps<{
+    src: string
+    title?: string
+    labels?: Partial<AudioPlayerLabels>
+    waveformOptions?: AudioWaveformOptions
+    /** 是否显示倍速选择入口。 */
+    showSpeed?: boolean
+  }>(),
+  { showSpeed: true, title: undefined, labels: undefined, waveformOptions: undefined },
+)
 const emit = defineEmits<{ ready: [duration: number]; error: [error: unknown] }>()
 const labels = computed(() => ({ ...defaultAudioPlayerLabels, ...props.labels }))
 const waveform = useTemplateRef<HTMLDivElement>('waveform')
@@ -156,6 +161,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', dismissMore))
         <span class="ui-audio-player__volume-value" aria-hidden="true">{{ volumePercent }}%</span>
       </div>
       <UiAudioSpeedSelect
+        v-if="showSpeed"
         class="ui-audio-player__speed"
         :value="rate"
         :label="labels.speed"

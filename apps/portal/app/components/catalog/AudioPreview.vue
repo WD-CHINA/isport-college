@@ -2,7 +2,9 @@
 import { UiAudioPlayer } from '@isport/ui-core'
 import PreviewFrame from './PreviewFrame.vue'
 
-defineProps<{ url: string; title: string }>()
+withDefaults(defineProps<{ url: string; title: string; showSpeed?: boolean }>(), {
+  showSpeed: true,
+})
 const { t } = useI18n()
 const labels = computed(() => ({
   play: t('media.play'),
@@ -30,6 +32,7 @@ const labels = computed(() => ({
       :src="url"
       :title="title"
       :labels="labels"
+      :show-speed="showSpeed"
     />
   </PreviewFrame>
 </template>

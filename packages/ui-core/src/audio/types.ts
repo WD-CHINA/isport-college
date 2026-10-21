@@ -20,6 +20,7 @@ export interface AudioPlayerLabels {
   mute: string
   unmute: string
   volume: string
+  speed: string
   more: string
   restart: string
   loop: string
@@ -36,6 +37,7 @@ export const defaultAudioPlayerLabels: AudioPlayerLabels = {
   mute: 'Mute',
   unmute: 'Unmute',
   volume: 'Volume',
+  speed: 'Playback speed',
   more: 'More audio controls',
   restart: 'Restart',
   loop: 'Loop audio',
