@@ -27,9 +27,6 @@ const kind = computed(() => {
   return kinds[props.content.detailType]
 })
 const published = computed(() => formatPublishedAt(props.content.publishedAt))
-const publisher = computed(
-  () => props.content.publisherName || props.content.authorName || props.content.schoolName,
-)
 const levelLabel = computed(() => getLevelLabel(props.content))
 const defaultVariant = computed(() => !props.variant || props.variant === 'default')
 watch(
@@ -68,26 +65,31 @@ watch(
         }}</span>
       </div>
       <div class="content-card__body">
-        <ContentMediaTag
+        <div
           v-if="variant === 'catalog' && content.channel === 'RESOURCE'"
-          :type="content.detailType"
-        />
+          class="content-card__resource-meta"
+        >
+          <ContentMediaTag :type="content.detailType" />
+          <span
+            class="content-card__views"
+            :aria-label="t('catalog.views', { count: content.viewCount })"
+          >
+            <img src="/home/figma/resource-views.svg" width="14" height="14" alt="" />
+            {{ content.viewCount }}
+          </span>
+        </div>
         <span
           v-if="variant === 'catalog' && content.channel === 'RESEARCH' && content.categoryName"
           class="content-card__category"
           >{{ content.categoryName }}</span
         >
-        <h3>{{ content.title }}</h3>
-        <div
-          v-if="variant === 'catalog' && content.channel === 'RESOURCE'"
-          class="content-card__foot"
+        <h3 :title="content.title">{{ content.title }}</h3>
+        <small
+          v-if="variant === 'catalog' && content.channel === 'RESOURCE' && levelLabel"
+          class="content-card__suitable"
         >
-          <span class="content-card__publisher">{{ publisher }}</span>
-          <span v-if="levelLabel" class="content-card__level">{{ levelLabel }}</span>
-          <span class="content-card__views">{{
-            t('catalog.views', { count: content.viewCount })
-          }}</span>
-        </div>
+          {{ t('home.suitable', { name: levelLabel }) }}
+        </small>
         <p
           v-if="
             content.summary.trim() &&
@@ -202,6 +204,7 @@ watch(
 
   &__body {
     display: grid;
+    min-width: 0;
     gap: 12px;
     padding: 18px;
   }
@@ -250,55 +253,50 @@ watch(
     padding: 16px 24px 24px;
   }
 
-  &--catalog.content-card--resource {
-    min-height: 278px;
-  }
-
   &--catalog.content-card--resource h3 {
+    display: -webkit-box;
+    min-width: 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
     font-size: 16px;
     font-weight: 500;
     line-height: 22px;
+    text-overflow: ellipsis;
+    white-space: normal;
   }
 
-  &__foot {
+  &__resource-meta {
     display: flex;
     align-items: center;
     gap: 8px;
     min-width: 0;
   }
 
-  &__publisher {
-    min-width: 0;
-    overflow: hidden;
-    flex: 1;
+  &__suitable {
     color: var(--ic-color-academy-text-secondary);
     font-size: 12px;
     font-weight: 500;
     line-height: 22px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   &__views {
+    display: inline-flex;
     flex: none;
+    align-items: center;
+    gap: 4px;
     margin-inline-start: auto;
-    color: var(--ic-color-academy-text-muted);
+    color: #77797b;
     font-size: 12px;
-    line-height: 22px;
-    white-space: nowrap;
-  }
-
-  &__level {
-    flex: none;
-    height: 20px;
-    margin-left: auto;
-    padding: 0 6px;
-    border-radius: 4px;
-    background: var(--ic-color-academy-media-background);
-    color: var(--ic-color-academy-media-text);
-    font-size: 10px;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 20px;
+    white-space: nowrap;
+
+    img {
+      display: block;
+      flex: none;
+    }
   }
 
   &--catalog:not(.content-card--resource) {

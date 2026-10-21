@@ -93,16 +93,20 @@ function setLevel(value: unknown) {
               <ContentTypeIcon v-else :type="item.detailType" :size="40" />
             </span>
             <span class="home-resources__body">
-              <ContentMediaTag :type="item.detailType" />
-              <strong>{{ item.title }}</strong>
               <span class="home-resources__meta">
-                <small v-if="item.levelLabel">{{
-                  t('home.suitable', { name: item.levelLabel })
-                }}</small>
-                <span class="home-resources__views">{{
-                  t('catalog.views', { count: item.viewCount })
-                }}</span>
+                <ContentMediaTag :type="item.detailType" />
+                <span
+                  class="home-resources__views"
+                  :aria-label="t('catalog.views', { count: item.viewCount })"
+                >
+                  <img src="/home/figma/resource-views.svg" width="14" height="14" alt="" />
+                  {{ item.viewCount }}
+                </span>
               </span>
+              <strong class="home-resources__title" :title="item.title">{{ item.title }}</strong>
+              <small v-if="item.levelLabel" class="home-resources__suitable">{{
+                t('home.suitable', { name: item.levelLabel })
+              }}</small>
             </span>
           </ContentLink>
         </li>
@@ -145,6 +149,7 @@ function setLevel(value: unknown) {
       background: #fff;
       color: var(--ic-color-academy-text-primary);
       font-size: 14px;
+      cursor: pointer;
     }
   }
 
@@ -173,7 +178,6 @@ function setLevel(value: unknown) {
   a {
     display: block;
     overflow: hidden;
-    min-height: 278px;
     border-radius: 12px;
     box-shadow: inset 0 0 0 1px var(--home-color-border);
     background: #fff;
@@ -196,18 +200,24 @@ function setLevel(value: unknown) {
 
   &__body {
     display: grid;
+    min-width: 0;
     gap: 8px;
     padding: 16px 24px 24px;
   }
 
-  strong {
+  &__title {
     display: -webkit-box;
+    min-width: 0;
     overflow: hidden;
+    line-clamp: 1;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     font-size: 16px;
     font-weight: 500;
     line-height: 22px;
+    overflow-wrap: anywhere;
+    text-overflow: ellipsis;
+    white-space: normal;
   }
 
   &__icon {
@@ -221,22 +231,35 @@ function setLevel(value: unknown) {
 
   &__meta {
     display: flex;
-    flex-wrap: wrap;
+    min-width: 0;
     align-items: center;
     justify-content: space-between;
-    gap: 4px 8px;
-    line-height: 22px;
-    color: var(--ic-color-academy-text-muted);
-    font-size: 12px;
+    gap: 8px;
   }
 
-  small {
-    font-size: inherit;
+  &__suitable {
+    color: var(--ic-color-academy-text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 22px;
   }
 
   &__views {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
     margin-inline-start: auto;
+    color: #77797b;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 20px;
     white-space: nowrap;
+
+    img {
+      display: block;
+      flex: none;
+    }
   }
 
   &__empty {
@@ -323,12 +346,13 @@ function setLevel(value: unknown) {
       padding: 12px;
     }
 
-    strong {
+    &__title {
+      height: 42px;
       font-size: 14px;
       line-height: 21px;
     }
 
-    &__meta {
+    &__suitable {
       font-size: 11px;
       line-height: 18px;
     }

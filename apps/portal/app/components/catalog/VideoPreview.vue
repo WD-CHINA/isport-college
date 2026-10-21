@@ -113,11 +113,13 @@ useMessageFeedback(messageApi, failed, () => t('media.failed'))
   background: #000;
 
   :deep(.xgplayer-start) {
-    width: 56px;
-    height: 56px;
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
 
     xg-start-inner {
-      background: var(--ic-color-academy-primary);
+      background: var(--ic-color-academy-primary) !important;
     }
   }
 
