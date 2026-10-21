@@ -111,7 +111,6 @@ useMessageFeedback(messageApi, failed, () => t('media.failed'))
 .video-preview {
   width: 100%;
   min-height: 240px;
-  background: #000;
 
   :deep(.xgplayer-start) {
     width: 56px !important;
