@@ -42,13 +42,14 @@ const tools = computed(() => [
         <ul class="home-lingyue__tools learning-entries__tools">
           <li v-for="tool in tools" :key="tool.icon">
             <button
+              class="card-feedback"
               type="button"
               @click="openLingyue({ target: tool.target, agentCode: tool.agentCode })"
             >
               <span class="home-lingyue__icon"
                 ><img :src="`/home/figma/${tool.icon}`" alt=""
               /></span>
-              <strong>{{ tool.title }}</strong>
+              <strong class="card-feedback__title">{{ tool.title }}</strong>
               <img src="/home/figma/6303a.svg" alt="" />
             </button>
           </li>

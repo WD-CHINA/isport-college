@@ -14,7 +14,7 @@ watch(coverUrl, () => {
 </script>
 
 <template>
-  <ContentLink :content="content" class="content-recommendation">
+  <ContentLink :content="content" class="content-recommendation card-feedback">
     <span class="content-recommendation__cover image-zoom">
       <img
         v-if="isContentAssetUrl(coverUrl) && !imageFailed"
@@ -28,7 +28,7 @@ watch(coverUrl, () => {
       />
       <ContentTypeIcon v-else :type="content.detailType" :size="24" />
     </span>
-    <span class="content-recommendation__title">{{ content.title }}</span>
+    <span class="content-recommendation__title card-feedback__title">{{ content.title }}</span>
   </ContentLink>
 </template>
 

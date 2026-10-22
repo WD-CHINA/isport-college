@@ -30,7 +30,7 @@ const visible = computed(() => props.items.slice(0, 3))
         :desktop-slides="3"
       >
         <template #default="{ item }">
-          <ContentLink class="home-schools__card" :content="item">
+          <ContentLink class="home-schools__card card-feedback" :content="item">
             <span class="home-schools__cover image-zoom"
               ><img
                 v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
@@ -39,7 +39,7 @@ const visible = computed(() => props.items.slice(0, 3))
                 alt=""
                 loading="lazy"
             /></span>
-            <h3>{{ item.title }}</h3>
+            <h3 class="card-feedback__title">{{ item.title }}</h3>
             <p>{{ item.summary }}</p>
           </ContentLink>
         </template>
@@ -93,7 +93,7 @@ const visible = computed(() => props.items.slice(0, 3))
 
   h3 {
     margin: 24px 0 0;
-    color: var(--home-color-text);
+    color: var(--card-feedback-title, var(--home-color-text));
     font-size: 16px;
     font-weight: 500;
     line-height: 22px;

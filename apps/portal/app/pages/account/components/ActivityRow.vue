@@ -14,13 +14,13 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <article class="activity-row" :data-content-id="content.contentKey">
-    <ContentLink :content="content" class="activity-row__link">
+  <article class="activity-row card-feedback" :data-content-id="content.contentKey">
+    <ContentLink :content="content" class="activity-row__link card-feedback__link">
       <span class="activity-row__cover">
         <ContentCover :src="content.coverUrl" :type="content.detailType" :icon-size="28" />
       </span>
       <div class="activity-row__body">
-        <h3>{{ content.title }}</h3>
+        <h3 class="card-feedback__title">{{ content.title }}</h3>
         <span class="activity-row__meta">
           <span class="activity-row__channel">{{
             t(`account.channels.${content.channel.toLowerCase()}`)

@@ -30,7 +30,7 @@ const defaultVariant = computed(() => !props.variant || props.variant === 'defau
 
 <template>
   <article
-    class="content-card"
+    class="content-card card-feedback"
     :class="[
       variant === 'catalog' && 'content-card--catalog',
       variant === 'resource-recommendation' && 'content-card--recommendation',
@@ -38,7 +38,7 @@ const defaultVariant = computed(() => !props.variant || props.variant === 'defau
     ]"
     :data-content-id="content.contentKey"
   >
-    <ContentLink :content="content" class="content-card__link">
+    <ContentLink :content="content" class="content-card__link card-feedback__link">
       <div class="content-card__cover">
         <ContentCover :src="content.coverUrl" :type="content.detailType" />
         <span v-if="defaultVariant" class="content-card__kind">{{
@@ -64,7 +64,7 @@ const defaultVariant = computed(() => !props.variant || props.variant === 'defau
           class="content-card__category"
           >{{ content.categoryName }}</span
         >
-        <h3 :title="content.title">{{ content.title }}</h3>
+        <h3 class="card-feedback__title" :title="content.title">{{ content.title }}</h3>
         <small
           v-if="variant === 'catalog' && content.channel === 'RESOURCE' && levelLabel"
           class="content-card__suitable"

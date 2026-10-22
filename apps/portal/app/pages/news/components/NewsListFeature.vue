@@ -36,14 +36,14 @@ function changePage(next: number) {
     <AButton v-if="error" @click="refresh()">{{ t('catalog.retry') }}</AButton>
     <ul v-else-if="data?.list.length" class="catalog-page__news">
       <li v-for="item in data.list" :key="item.id">
-        <ContentLink :content="item">
+        <ContentLink :content="item" class="card-feedback">
           <span
             v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
             class="catalog-page__cover image-zoom"
           >
             <img class="image-zoom__image" :src="apiUrl(item.coverUrl)" alt="" />
           </span>
-          <strong>{{ item.title }}</strong>
+          <strong class="card-feedback__title">{{ item.title }}</strong>
           <span>{{ item.summary }}</span>
           <time v-if="formatPublishedAt(item.publishedAt)">{{
             formatPublishedAt(item.publishedAt)

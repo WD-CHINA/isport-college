@@ -44,7 +44,7 @@ function changePage(next: number) {
     <AButton v-if="error" @click="refresh()">{{ t('catalog.retry') }}</AButton>
     <ul v-else-if="data?.list.length" class="catalog-page__people">
       <li v-for="person in data.list" :key="person.id">
-        <NuxtLink :to="localePath(`/teachers/${person.id}`)">
+        <NuxtLink :to="localePath(`/teachers/${person.id}`)" class="card-feedback">
           <span
             v-if="isContentAssetUrl(apiUrl(person.avatarUrl))"
             class="catalog-page__portrait image-zoom"
@@ -57,7 +57,7 @@ function changePage(next: number) {
               height="72"
             />
           </span>
-          <strong>{{ person.name }}</strong>
+          <strong class="card-feedback__title">{{ person.name }}</strong>
           <span>{{ person.honorTitle || person.jobTitle }}</span>
           <span>{{ person.schoolOrg }}</span>
         </NuxtLink>

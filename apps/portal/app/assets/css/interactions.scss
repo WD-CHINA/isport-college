@@ -1,4 +1,4 @@
-// 控件统一使用透明度反馈；内容图片通过 image-zoom 显式启用容器内缩放。
+// 普通控件使用透明度反馈，卡片与内容图片分别显式启用 card-feedback 和 image-zoom。
 :where(
   a,
   button,
@@ -20,7 +20,9 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
 
 :where(#{$controls}) {
   touch-action: manipulation;
+}
 
+:where(#{$controls}):not(.card-feedback, .card-feedback__link) {
   // 统一覆盖组件库的 transition: all，避免相同操作出现不同过渡速度。
   transition: opacity var(--ic-motion-duration-fast, 150ms) ease !important;
 }
@@ -31,15 +33,24 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
 
 // 只在鼠标设备显示悬停反馈，触屏松手后不残留 hover 效果。
 @media (hover: hover) and (pointer: fine) {
-  :where(#{$controls}):not(#{$disabled}, .ant-pagination-prev, .ant-pagination-next):hover {
+  :where(#{$controls}):not(
+      #{$disabled},
+      .ant-pagination-prev,
+      .ant-pagination-next,
+      .card-feedback,
+      .card-feedback__link
+    ):hover {
     opacity: 0.88;
   }
 }
 
-:where(#{$controls}):not(#{$disabled}, .ant-pagination-prev, .ant-pagination-next):is(
-    :active,
-    [data-ic-pressed]
-  ) {
+:where(#{$controls}):not(
+    #{$disabled},
+    .ant-pagination-prev,
+    .ant-pagination-next,
+    .card-feedback,
+    .card-feedback__link
+  ):is(:active, [data-ic-pressed]) {
   opacity: 0.72;
 }
 
@@ -72,6 +83,35 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
   border-radius: inherit;
 }
 
+// 卡片保持原有静态样式，只让标题和封面响应悬停、聚焦与触屏按压。
+.card-feedback {
+  --card-feedback-title: initial;
+}
+
+.card-feedback__title {
+  color: var(--card-feedback-title, inherit);
+  transition: color var(--ic-motion-duration-normal, 250ms) var(--ic-motion-easing-standard, ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-feedback:not(#{$disabled}):hover {
+    --card-feedback-title: var(--card-feedback-title-active, var(--ic-color-academy-primary));
+  }
+}
+
+.card-feedback:not(#{$disabled}):is(:focus-visible, :has(.card-feedback__link:focus-visible)) {
+  --card-feedback-title: var(--card-feedback-title-active, var(--ic-color-academy-primary));
+}
+
+@media (hover: none), (pointer: coarse) {
+  .card-feedback:not(#{$disabled}):is(
+      [data-ic-pressed],
+      :has(.card-feedback__link[data-ic-pressed])
+    ) {
+    --card-feedback-title: var(--card-feedback-title-active, var(--ic-color-academy-primary));
+  }
+}
+
 // 只缩放内容图片，容器负责裁剪，文字、图标和卡片尺寸保持稳定。
 .image-zoom {
   overflow: hidden;
@@ -84,14 +124,15 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  :where(a[href], button, .image-zoom):not(#{$disabled}):hover .image-zoom__image {
+  :where(a[href], button, .image-zoom, .card-feedback):not(#{$disabled}):hover .image-zoom__image {
     transform: scale(1.05);
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   :where(a[href], button):focus-visible .image-zoom__image,
-  .image-zoom:has(:focus-visible) .image-zoom__image {
+  .image-zoom:has(:focus-visible) .image-zoom__image,
+  .card-feedback:has(.card-feedback__link:focus-visible) .image-zoom__image {
     transform: scale(1.05);
   }
 }
@@ -99,7 +140,8 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
 // 复用触屏按压状态，滑动、取消和松手时由 interaction-feedback 插件清理。
 @media (hover: none), (pointer: coarse) {
   @media (prefers-reduced-motion: no-preference) {
-    :where(a[href], button)[data-ic-pressed] .image-zoom__image {
+    :where(a[href], button)[data-ic-pressed] .image-zoom__image,
+    .card-feedback:has(.card-feedback__link[data-ic-pressed]) .image-zoom__image {
       transform: scale(1.025);
     }
   }
@@ -116,6 +158,10 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
 
 @media (prefers-reduced-motion: reduce) {
   .image-zoom__image {
+    transition: none;
+  }
+
+  .card-feedback__title {
     transition: none;
   }
 

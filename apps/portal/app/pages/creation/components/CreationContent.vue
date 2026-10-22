@@ -38,7 +38,7 @@ const { t } = useI18n()
             v-for="type in group.types"
             :key="type"
             type="button"
-            class="creation-content__option image-zoom"
+            class="creation-content__option image-zoom card-feedback"
             :class="`creation-content__option--${type}`"
             @click="emit('select', type)"
           >
@@ -47,7 +47,9 @@ const { t } = useI18n()
               :src="`/creation/ardot/content-${type}.svg`"
               alt=""
             />
-            <strong>{{ t(`creation.overview.typeNames.${type}`) }}</strong>
+            <strong class="card-feedback__title">{{
+              t(`creation.overview.typeNames.${type}`)
+            }}</strong>
             <small>{{ t(`creation.overview.types.${type}`) }}</small>
             <span class="creation-content__reward">{{
               t('creation.overview.reward', { count: CREATION_CONTENT_REWARDS[type] })

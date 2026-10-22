@@ -56,20 +56,20 @@ const icons: Record<string, string> = {
           class="home-research__courses"
           :class="{ 'home-research__courses--full': !side.length }"
         >
-          <article class="home-research__feature">
+          <article class="home-research__feature card-feedback">
             <span class="home-research__photo">
               <ContentCover :src="featured.coverUrl" :type="featured.detailType" />
             </span>
             <div>
-              <h3>{{ featured.title }}</h3>
+              <h3 class="card-feedback__title">{{ featured.title }}</h3>
               <p>{{ featured.summary }}</p>
-              <ContentLink :content="featured"
+              <ContentLink :content="featured" class="card-feedback__link"
                 >{{ t('home.viewContent') }} <img src="/home/figma/75760.svg" alt=""
               /></ContentLink>
             </div>
           </article>
           <div v-if="side.length" class="home-research__side">
-            <article v-for="(item, row) in side" :key="item.contentKey">
+            <article v-for="(item, row) in side" :key="item.contentKey" class="card-feedback">
               <span v-if="row" class="home-research__divider"
                 ><img src="/home/figma/be8e9.svg" width="409" height="1" alt=""
               /></span>
@@ -77,9 +77,9 @@ const icons: Record<string, string> = {
                 ><ContentCover :src="item.coverUrl" :type="item.detailType"
               /></span>
               <div class="home-research__side-copy">
-                <h3>{{ item.title }}</h3>
+                <h3 class="card-feedback__title">{{ item.title }}</h3>
                 <p>{{ item.summary }}</p>
-                <ContentLink :content="item"
+                <ContentLink :content="item" class="card-feedback__link"
                   >{{ t('home.viewContent') }} <img src="/home/figma/75760.svg" alt=""
                 /></ContentLink>
               </div>
@@ -195,7 +195,7 @@ const icons: Record<string, string> = {
 
     h3 {
       margin: 0;
-      color: var(--home-color-text);
+      color: var(--card-feedback-title, var(--home-color-text));
       font-size: 23px;
       font-weight: 600;
       line-height: 37px;

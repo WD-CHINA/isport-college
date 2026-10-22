@@ -80,7 +80,7 @@ function setLevel(value: unknown) {
       </div>
       <ul v-if="visible.length">
         <li v-for="item in visible" :key="item.contentKey">
-          <ContentLink :content="item">
+          <ContentLink :content="item" class="card-feedback">
             <span class="home-resources__cover">
               <ContentCover :src="item.coverUrl" :type="item.detailType" />
             </span>
@@ -95,7 +95,9 @@ function setLevel(value: unknown) {
                   {{ item.viewCount }}
                 </span>
               </span>
-              <strong class="home-resources__title" :title="item.title">{{ item.title }}</strong>
+              <strong class="home-resources__title card-feedback__title" :title="item.title">{{
+                item.title
+              }}</strong>
               <small v-if="item.levelLabel" class="home-resources__suitable">{{
                 t('home.suitable', { name: item.levelLabel })
               }}</small>

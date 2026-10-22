@@ -46,6 +46,7 @@ async function close(restoreFocus = false) {
 <template>
   <article
     class="home-people__card image-zoom"
+    :class="{ 'card-feedback': hasStory }"
     @pointerdown.capture="keyboardOpened = false"
     @pointerenter="enter"
     @pointerleave="leave"
@@ -63,7 +64,7 @@ async function close(restoreFocus = false) {
       </span>
       <i v-else aria-hidden="true" />
       <span class="home-people__identity">
-        <strong>{{ person.name }}</strong>
+        <strong class="card-feedback__title">{{ person.name }}</strong>
         <em v-if="person.jobTitle" :title="person.jobTitle">{{ person.jobTitle }}</em>
         <small>{{ person.schoolOrg }}</small>
       </span>
@@ -71,7 +72,7 @@ async function close(restoreFocus = false) {
     <button
       v-if="hasStory"
       ref="trigger"
-      class="home-people__story-trigger"
+      class="home-people__story-trigger card-feedback__link"
       type="button"
       :aria-label="`${person.name} · ${t('home.viewStory')}`"
       :aria-expanded="expanded"

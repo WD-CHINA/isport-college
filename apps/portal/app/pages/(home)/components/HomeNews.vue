@@ -24,7 +24,7 @@ const apiUrl = useApiUrl()
         autoplay
       >
         <template #default="{ item }">
-          <ContentLink class="home-news__card image-zoom" :content="item">
+          <ContentLink class="home-news__card image-zoom card-feedback" :content="item">
             <img
               v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
               class="home-news__cover image-zoom__image"
@@ -33,7 +33,7 @@ const apiUrl = useApiUrl()
               loading="lazy"
             />
             <div class="home-news__copy">
-              <h3>{{ item.title }}</h3>
+              <h3 class="card-feedback__title">{{ item.title }}</h3>
               <p>{{ item.summary }}</p>
             </div>
           </ContentLink>
@@ -53,6 +53,8 @@ const apiUrl = useApiUrl()
   }
 
   &__card {
+    --card-feedback-title-active: var(--ic-color-brand-200);
+
     height: 100%;
     position: relative;
     display: flex;
@@ -86,7 +88,7 @@ const apiUrl = useApiUrl()
 
   h3 {
     margin: 0;
-    color: #fff;
+    color: var(--card-feedback-title, #fff);
     font-size: 25px;
     font-weight: 500;
     line-height: 38px;
@@ -107,6 +109,8 @@ const apiUrl = useApiUrl()
     }
 
     &__card {
+      --card-feedback-title-active: var(--ic-color-brand-200);
+
       min-height: 280px;
       padding: 20px;
       border-radius: var(--ic-border-radius-lg);

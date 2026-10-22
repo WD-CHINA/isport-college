@@ -29,7 +29,6 @@ const visible = computed({
       header: 'academy-login-header',
       body: 'academy-login-body',
     }"
-    :z-index="99999999"
     :width="480"
     :footer="null"
     centered

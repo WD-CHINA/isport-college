@@ -37,7 +37,7 @@ const hotIcons = {
           autoplay
         >
           <template #default="{ item }">
-            <article class="home-featured__spotlight image-zoom">
+            <article class="home-featured__spotlight image-zoom card-feedback">
               <div class="home-featured__cover">
                 <ContentCover :src="item.coverUrl" :type="item.detailType" />
               </div>
@@ -45,9 +45,9 @@ const hotIcons = {
                 <span v-if="item.categoryName" class="home-featured__tag">{{
                   item.categoryName
                 }}</span>
-                <h3>{{ item.title }}</h3>
+                <h3 class="card-feedback__title">{{ item.title }}</h3>
                 <p>{{ item.summary }}</p>
-                <ContentLink :content="item"
+                <ContentLink :content="item" class="card-feedback__link"
                   >{{ t('home.viewContent') }} <img src="/home/figma/ec1cf.svg" alt=""
                 /></ContentLink>
               </div>
@@ -63,13 +63,13 @@ const hotIcons = {
           </div>
           <ul>
             <li v-for="item in hot.slice(0, 5)" :key="item.contentKey">
-              <ContentLink :content="item">
+              <ContentLink :content="item" class="card-feedback">
                 <span class="home-featured__thumb">
                   <ContentCover :src="item.coverUrl" :type="item.detailType" :icon-size="24" />
                 </span>
                 <span class="home-featured__hot-body">
                   <span class="home-featured__hot-copy">
-                    <strong>{{ item.title }}</strong>
+                    <strong class="card-feedback__title">{{ item.title }}</strong>
                     <em v-if="item.categoryName"
                       ><img :src="`/home/figma/${hotIcons[item.detailType]}`" alt="" />{{
                         item.categoryName
@@ -183,7 +183,7 @@ const hotIcons = {
   &__copy h3,
   &__hot h3 {
     margin: 0;
-    color: var(--ic-color-academy-text-primary);
+    color: var(--card-feedback-title, var(--ic-color-academy-text-primary));
   }
 
   &__copy {
