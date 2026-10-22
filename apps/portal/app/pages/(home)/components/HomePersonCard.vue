@@ -10,6 +10,7 @@ const storyId = useId()
 const trigger = useTemplateRef<HTMLButtonElement>('trigger')
 const closeButton = useTemplateRef<HTMLButtonElement>('closeButton')
 const hasStory = computed(() => Boolean(props.person.story?.trim()))
+let keyboardOpened = false
 
 function enter(event: PointerEvent) {
   if (event.pointerType === 'mouse' && hasStory.value) emit('update:expanded', true)
@@ -17,17 +18,21 @@ function enter(event: PointerEvent) {
 function leave(event: PointerEvent) {
   if (event.pointerType !== 'mouse') return
   const card = event.currentTarget as HTMLElement
-  if (!card.contains(document.activeElement)) emit('update:expanded', false)
+  if (!keyboardOpened || !card.contains(document.activeElement)) emit('update:expanded', false)
 }
 function blur(event: FocusEvent) {
+  if (!keyboardOpened) return
   const card = event.currentTarget as HTMLElement
   if (!(event.relatedTarget instanceof Node) || !card.contains(event.relatedTarget))
     emit('update:expanded', false)
 }
-async function open() {
+async function open(event: MouseEvent) {
+  keyboardOpened = event.detail === 0
   emit('update:expanded', true)
-  await nextTick()
-  closeButton.value?.focus({ preventScroll: true })
+  if (keyboardOpened) {
+    await nextTick()
+    closeButton.value?.focus({ preventScroll: true })
+  }
 }
 async function close(restoreFocus = false) {
   emit('update:expanded', false)
@@ -41,6 +46,7 @@ async function close(restoreFocus = false) {
 <template>
   <article
     class="home-people__card"
+    @pointerdown.capture="keyboardOpened = false"
     @pointerenter="enter"
     @pointerleave="leave"
     @focusout="blur"
@@ -79,7 +85,7 @@ async function close(restoreFocus = false) {
       <div
         v-if="expanded && hasStory"
         :id="storyId"
-        class="home-people__story swiper-no-swiping"
+        class="home-people__story"
         role="region"
         :aria-label="`${person.name} · ${t('home.teacherStory')}`"
         @keydown.left.stop
@@ -87,7 +93,7 @@ async function close(restoreFocus = false) {
       >
         <button
           ref="closeButton"
-          class="home-people__story-close"
+          class="home-people__story-close swiper-no-swiping"
           type="button"
           :aria-label="t('home.closeStory')"
           @click="close($event.detail === 0)"

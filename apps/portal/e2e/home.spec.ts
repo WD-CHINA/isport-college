@@ -69,7 +69,7 @@ test('首页服务端直出学校案例、行业动态及服务数据', async ({
   expect(html).toContain('class="home-schools"')
   expect(html).toContain('class="home-news"')
   expect(html).toContain('href="/news/1"')
-  expect(html).toContain('43,000')
+  expect(html).toContain('42,741')
   expect(html).toContain('适用：水平一')
   expect(html).not.toContain('适用：体能')
   expect(html).not.toContain('https://www.figma.com/api/mcp/asset/')

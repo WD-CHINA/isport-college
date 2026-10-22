@@ -82,8 +82,70 @@ test('名师 story 支持键盘打开及 Escape 关闭，空故事不添加交�
   ).toHaveCount(0)
 })
 
+test('故事浮层展开后仍可用鼠标左右拖动名师轮播', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await preparePeople(page)
+  const dots = page.locator('.home-people .home-swiper__dots button')
+  for (const [index, direction, nextPage] of [
+    [1, -1, 1],
+    [4, 1, 0],
+  ] as const) {
+    const card = page.locator('.home-people__card').nth(index)
+    await card.hover()
+    const body = card.locator('.home-people__story-body')
+    await expect(body).toBeVisible()
+    const bounds = (await body.boundingBox())!
+    const x = bounds.x + bounds.width / 2
+    const y = bounds.y + bounds.height / 2
+    await page.mouse.move(x, y)
+    await page.mouse.down()
+    await page.mouse.move(x + direction * 320, y, { steps: 8 })
+    await page.mouse.up()
+    await expect(dots.nth(nextPage)).toHaveAttribute('aria-pressed', 'true')
+  }
+})
+
 test.describe('手机故事浮层', () => {
   test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } })
+
+  test('手指横滑可切换卡片，浮层内竖滑可阅读长故事', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', '真实触摸手势通过 Chromium CDP 发送')
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await preparePeople(page)
+    const session = await page.context().newCDPSession(page)
+    const dots = page.locator('.home-people .home-swiper__dots button')
+    const swipe = async (x: number, y: number, dx: number, dy: number) => {
+      await session.send('Input.dispatchTouchEvent', {
+        type: 'touchStart',
+        touchPoints: [{ x, y }],
+      })
+      for (let step = 1; step <= 12; step++) {
+        await session.send('Input.dispatchTouchEvent', {
+          type: 'touchMove',
+          touchPoints: [{ x: x + (dx * step) / 12, y: y + (dy * step) / 12 }],
+        })
+      }
+      await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    }
+    const card = page.locator('.home-people__card').first()
+    await card.scrollIntoViewIfNeeded()
+    let bounds = (await card.boundingBox())!
+    await swipe(bounds.x + bounds.width - 35, bounds.y + bounds.height / 2, -230, 0)
+    await expect(dots.nth(1)).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.locator('.home-people__story')).toHaveCount(0)
+    await dots.first().tap()
+    await card.locator('.home-people__story-trigger').tap()
+    const body = card.locator('.home-people__story-body')
+    await expect(body).toBeVisible()
+    bounds = (await body.boundingBox())!
+    await swipe(bounds.x + bounds.width / 2, bounds.y + bounds.height - 20, 0, -100)
+    await expect.poll(() => body.evaluate(element => element.scrollTop)).toBeGreaterThan(0)
+    await expect(dots.first()).toHaveAttribute('aria-pressed', 'true')
+    await swipe(bounds.x + bounds.width - 20, bounds.y + bounds.height / 2, -230, 0)
+    await expect(dots.nth(1)).toHaveAttribute('aria-pressed', 'true')
+    await session.detach()
+  })
 
   test('点击展开完整 story，关闭后恢复自动轮播且无横向溢出', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
