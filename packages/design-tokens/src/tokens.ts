@@ -78,7 +78,8 @@ export const colorAcademy = {
     text: '#004b83',
   },
   text: {
-    primary: '#1c1f23',
+    primary: 'rgb(28, 31, 35)',
+    'primary-80': 'rgb(28 31 35 / 80%)',
     secondary: 'rgb(28 31 35 / 60%)',
     muted: '#68788c',
     caption: '#71808d',
