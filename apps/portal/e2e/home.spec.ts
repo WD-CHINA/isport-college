@@ -205,6 +205,7 @@ test('首页教研分类切换时，图标与文字同步激活和恢复默认�
   const buttons = page.locator('.home-research__nav button')
   for (let selected = 0; selected < (await buttons.count()); selected++) {
     await buttons.nth(selected).click()
+    await page.mouse.move(0, 0)
     for (let index = 0; index < (await buttons.count()); index++) {
       const active = index === selected
       const button = buttons.nth(index)

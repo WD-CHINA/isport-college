@@ -47,8 +47,9 @@ const hotIcons = {
                 }}</span>
                 <h3 class="card-feedback__title">{{ item.title }}</h3>
                 <p>{{ item.summary }}</p>
-                <ContentLink :content="item" class="card-feedback__link"
-                  >{{ t('home.viewContent') }} <img src="/home/figma/ec1cf.svg" alt=""
+                <ContentLink :content="item" class="card-feedback__link action-feedback"
+                  >{{ t('home.viewContent') }}
+                  <img class="action-feedback__arrow" src="/home/figma/ec1cf.svg" alt=""
                 /></ContentLink>
               </div>
             </article>
@@ -253,7 +254,7 @@ const hotIcons = {
       margin-top: auto;
       padding: 6px 12px;
       border-radius: 6px;
-      background: var(--ic-color-academy-tint);
+      background: var(--action-feedback-background, var(--ic-color-academy-tint));
     }
   }
 

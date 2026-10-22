@@ -38,6 +38,7 @@ const icons: Record<string, string> = {
           <button
             v-for="item in categories"
             :key="item.id"
+            class="control-feedback"
             type="button"
             :class="{ 'is-active': item.id === category }"
             :aria-pressed="item.id === category"
@@ -63,8 +64,9 @@ const icons: Record<string, string> = {
             <div>
               <h3 class="card-feedback__title">{{ featured.title }}</h3>
               <p>{{ featured.summary }}</p>
-              <ContentLink :content="featured" class="card-feedback__link"
-                >{{ t('home.viewContent') }} <img src="/home/figma/75760.svg" alt=""
+              <ContentLink :content="featured" class="card-feedback__link action-feedback"
+                >{{ t('home.viewContent') }}
+                <img class="action-feedback__arrow" src="/home/figma/75760.svg" alt=""
               /></ContentLink>
             </div>
           </article>
@@ -79,8 +81,9 @@ const icons: Record<string, string> = {
               <div class="home-research__side-copy">
                 <h3 class="card-feedback__title">{{ item.title }}</h3>
                 <p>{{ item.summary }}</p>
-                <ContentLink :content="item" class="card-feedback__link"
-                  >{{ t('home.viewContent') }} <img src="/home/figma/75760.svg" alt=""
+                <ContentLink :content="item" class="card-feedback__link action-feedback"
+                  >{{ t('home.viewContent') }}
+                  <img class="action-feedback__arrow" src="/home/figma/75760.svg" alt=""
                 /></ContentLink>
               </div>
             </article>
@@ -119,7 +122,7 @@ const icons: Record<string, string> = {
       border: 2px solid transparent;
       border-radius: 10px;
       background: #fff;
-      color: var(--home-color-text);
+      color: var(--control-feedback-color, var(--home-color-text));
       font-size: 18px;
       line-height: 28px;
       cursor: pointer;
@@ -127,7 +130,7 @@ const icons: Record<string, string> = {
 
     .is-active {
       border-color: var(--home-color-primary);
-      color: var(--home-color-primary);
+      color: var(--control-feedback-color, var(--home-color-primary));
       box-shadow: 0 4px 12px rgb(0 0 0 / 4%);
 
       .home-research__icon {
@@ -142,7 +145,8 @@ const icons: Record<string, string> = {
     height: 28px;
     flex: none;
     background: currentcolor;
-    opacity: 0.8;
+    opacity: var(--control-feedback-icon-opacity, 0.8);
+    transition: opacity var(--ic-motion-duration-normal, 250ms) ease;
     mask: var(--research-icon) center / contain no-repeat;
   }
 
@@ -217,7 +221,7 @@ const icons: Record<string, string> = {
     margin-top: 16px;
     padding: 6px 12px;
     border-radius: 6px;
-    background: var(--home-color-tint);
+    background: var(--action-feedback-background, var(--home-color-tint));
     color: var(--home-color-primary);
     font-size: 14px;
     font-weight: 600;
@@ -423,6 +427,12 @@ const icons: Record<string, string> = {
       left: 16px;
       right: 16px;
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-research__icon {
+    transition: none;
   }
 }
 </style>

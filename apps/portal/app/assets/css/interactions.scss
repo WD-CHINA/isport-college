@@ -22,7 +22,12 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
   touch-action: manipulation;
 }
 
-:where(#{$controls}):not(.card-feedback, .card-feedback__link) {
+:where(#{$controls}):not(
+  .card-feedback,
+  .card-feedback__link,
+  .control-feedback,
+  .action-feedback
+) {
   // 统一覆盖组件库的 transition: all，避免相同操作出现不同过渡速度。
   transition: opacity var(--ic-motion-duration-fast, 150ms) ease !important;
 }
@@ -38,7 +43,9 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
       .ant-pagination-prev,
       .ant-pagination-next,
       .card-feedback,
-      .card-feedback__link
+      .card-feedback__link,
+      .control-feedback,
+      .action-feedback
     ):hover {
     opacity: 0.88;
   }
@@ -49,7 +56,9 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
     .ant-pagination-prev,
     .ant-pagination-next,
     .card-feedback,
-    .card-feedback__link
+    .card-feedback__link,
+    .control-feedback,
+    .action-feedback
   ):is(:active, [data-ic-pressed]) {
   opacity: 0.72;
 }
@@ -81,6 +90,87 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
 
 .content-card__link {
   border-radius: inherit;
+}
+
+// 分类按钮使用文字／图标反馈，选中态的边框和背景由组件保留。
+.control-feedback {
+  --control-feedback-color: initial;
+
+  transition: color var(--ic-motion-duration-normal, 250ms) var(--ic-motion-easing-standard, ease);
+}
+
+.control-feedback:is(.is-active, [aria-pressed='true']) {
+  --control-feedback-color-active: var(--ic-color-brand-600);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .control-feedback:not(#{$disabled}):hover {
+    --control-feedback-color: var(--control-feedback-color-active, var(--ic-color-academy-primary));
+    --control-feedback-icon-opacity: 1;
+  }
+}
+
+.control-feedback:not(#{$disabled}):focus-visible {
+  --control-feedback-color: var(--control-feedback-color-active, var(--ic-color-academy-primary));
+  --control-feedback-icon-opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .control-feedback:not(#{$disabled})[data-ic-pressed] {
+    --control-feedback-color: var(--control-feedback-color-active, var(--ic-color-academy-primary));
+    --control-feedback-icon-opacity: 1;
+  }
+}
+
+// 内容入口通过底色和箭头反馈，文字保持原色，容器尺寸保持稳定。
+.action-feedback {
+  --action-feedback-background: initial;
+  --action-feedback-arrow-offset: 0px;
+
+  transition: background-color var(--ic-motion-duration-normal, 250ms)
+    var(--ic-motion-easing-standard, ease);
+}
+
+.action-feedback__arrow {
+  display: inline-block;
+  flex: none;
+  transform: translateX(var(--action-feedback-arrow-offset, 0));
+  transition: transform var(--ic-motion-duration-normal, 250ms)
+    var(--ic-motion-easing-standard, ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .action-feedback:not(#{$disabled}):hover,
+  .card-feedback__link:not(#{$disabled}):hover .action-feedback {
+    --action-feedback-background: color-mix(
+      in srgb,
+      var(--ic-color-academy-primary) 14%,
+      var(--ic-color-background-container)
+    );
+    --action-feedback-arrow-offset: 2px;
+  }
+}
+
+.action-feedback:not(#{$disabled}):focus-visible,
+.card-feedback__link:not(#{$disabled}):focus-visible .action-feedback {
+  --action-feedback-background: color-mix(
+    in srgb,
+    var(--ic-color-academy-primary) 14%,
+    var(--ic-color-background-container)
+  );
+  --action-feedback-arrow-offset: 2px;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .action-feedback:not(#{$disabled})[data-ic-pressed],
+  .card-feedback__link:not(#{$disabled})[data-ic-pressed] .action-feedback {
+    --action-feedback-background: color-mix(
+      in srgb,
+      var(--ic-color-academy-primary) 18%,
+      var(--ic-color-background-container)
+    );
+    --action-feedback-arrow-offset: 1px;
+  }
 }
 
 // 卡片保持原有静态样式，只让标题和封面响应悬停、聚焦与触屏按压。
@@ -157,6 +247,15 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .action-feedback {
+    transition: none;
+  }
+
+  .action-feedback__arrow {
+    transform: none;
+    transition: none;
+  }
+
   .image-zoom__image {
     transition: none;
   }

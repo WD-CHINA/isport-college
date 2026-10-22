@@ -97,8 +97,9 @@ const defaultVariant = computed(() => !props.variant || props.variant === 'defau
         </div>
         <span
           v-if="variant === 'catalog' && content.channel === 'RESEARCH'"
-          class="content-card__cta"
-          >{{ t('catalog.viewCase') }} →</span
+          class="content-card__cta action-feedback"
+          >{{ t('catalog.viewCase') }}
+          <span class="action-feedback__arrow" aria-hidden="true">→</span></span
         >
       </div>
     </ContentLink>
@@ -316,11 +317,14 @@ const defaultVariant = computed(() => !props.variant || props.variant === 'defau
   }
 
   &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     width: fit-content;
     margin-top: 12px;
     padding: 9px 12px;
     border-radius: 4px;
-    background: var(--ic-color-academy-tint);
+    background: var(--action-feedback-background, var(--ic-color-academy-tint));
     color: var(--catalog-primary);
     font-size: 12px;
     line-height: 14px;

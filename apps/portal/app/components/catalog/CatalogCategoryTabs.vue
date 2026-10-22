@@ -12,6 +12,7 @@ const { t } = useI18n()
   <div class="catalog-category-tabs" role="group" :aria-label="t('catalog.category')">
     <button
       v-if="channel === 'school'"
+      class="control-feedback"
       type="button"
       :aria-pressed="!category"
       @click="emit('change', '')"
@@ -21,6 +22,7 @@ const { t } = useI18n()
     <button
       v-for="item in categories"
       :key="item.id"
+      class="control-feedback"
       type="button"
       :aria-pressed="category === item.id"
       @click="emit('change', item.id)"
@@ -42,7 +44,7 @@ const { t } = useI18n()
     border: 1px solid var(--catalog-border);
     border-radius: 6px;
     background: var(--ic-color-background-container);
-    color: var(--catalog-text);
+    color: var(--control-feedback-color, var(--catalog-text));
     font-family: inherit;
     font-size: 18px;
     font-weight: 400;
@@ -54,7 +56,7 @@ const { t } = useI18n()
   button[aria-pressed='true'] {
     border-color: var(--catalog-primary);
     background: var(--ic-color-academy-tint);
-    color: var(--catalog-primary);
+    color: var(--control-feedback-color, var(--catalog-primary));
     font-weight: 600;
   }
 
