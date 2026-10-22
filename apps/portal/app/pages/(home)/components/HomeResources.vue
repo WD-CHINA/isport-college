@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { isContentAssetUrl, type WebContentCard } from '@isport/shared'
-import { useApiUrl } from '~/utils/api-url'
+import type { WebContentCard } from '@isport/shared'
 import ContentLink from '~/components/content/ContentLink.vue'
 import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
 import ContentMediaTag from '~/components/content/ContentMediaTag.vue'
-import ContentTypeIcon from '~/components/content/ContentTypeIcon.vue'
+import ContentCover from '~/components/content/ContentCover.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
 
@@ -19,7 +18,6 @@ const props = defineProps<{
 const emit = defineEmits<{ select: [id: string]; level: [id: string] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const apiUrl = useApiUrl()
 const getLevelLabel = useContentLevelLabel()
 const visible = computed(() =>
   (props.level ? props.levelItems : props.items)
@@ -84,13 +82,7 @@ function setLevel(value: unknown) {
         <li v-for="item in visible" :key="item.contentKey">
           <ContentLink :content="item">
             <span class="home-resources__cover">
-              <img
-                v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
-                class="home-resources__photo"
-                :src="apiUrl(item.coverUrl)"
-                alt=""
-              />
-              <ContentTypeIcon v-else :type="item.detailType" :size="40" />
+              <ContentCover :src="item.coverUrl" :type="item.detailType" />
             </span>
             <span class="home-resources__body">
               <span class="home-resources__meta">
@@ -185,17 +177,12 @@ function setLevel(value: unknown) {
   }
 
   &__cover {
+    position: relative;
     display: grid;
     place-items: center;
     height: 158px !important;
     background: var(--ic-color-academy-background-placeholder);
     overflow: hidden;
-  }
-
-  &__photo {
-    width: 100%;
-    height: 158px !important;
-    object-fit: cover;
   }
 
   &__body {
@@ -336,8 +323,7 @@ function setLevel(value: unknown) {
       min-height: 0;
     }
 
-    &__cover,
-    &__photo {
+    &__cover {
       height: clamp(110px, 24vw, 200px) !important;
     }
 

@@ -126,10 +126,12 @@ async function close(restoreFocus = false) {
   }
 
   p {
+    color: var(--ic-color-academy-text-primary-80);
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
+    line-clamp: 5;
+    -webkit-line-clamp: 5;
     margin: 0;
     font-size: 14px;
     line-height: 22px;
@@ -230,8 +232,9 @@ async function close(restoreFocus = false) {
     &__quote p {
       display: -webkit-box;
       overflow: hidden;
+      line-clamp: 5;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 5;
     }
 
     &__who {
@@ -288,7 +291,7 @@ async function close(restoreFocus = false) {
     flex-direction: column;
     padding: 24px;
     border-radius: inherit;
-    background: var(--ic-color-academy-text-primary);
+    background: var(--ic-color-academy-text-primary-80);
     color: var(--ic-color-text-inverse);
   }
 

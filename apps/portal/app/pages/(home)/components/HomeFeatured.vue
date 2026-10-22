@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { isContentAssetUrl, type WebContentCard } from '@isport/shared'
-import { useApiUrl } from '~/utils/api-url'
+import type { WebContentCard } from '@isport/shared'
 import ContentLink from '~/components/content/ContentLink.vue'
-import ContentTypeIcon from '~/components/content/ContentTypeIcon.vue'
+import ContentCover from '~/components/content/ContentCover.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
 import HomeCarousel from './HomeCarousel.vue'
@@ -10,7 +9,6 @@ import HomeCarousel from './HomeCarousel.vue'
 defineProps<{ featured: WebContentCard[]; hot: WebContentCard[] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const apiUrl = useApiUrl()
 const hotIcons = {
   VIDEO: 'faa76.svg',
   AUDIO: '5b8fd.svg',
@@ -41,11 +39,7 @@ const hotIcons = {
           <template #default="{ item }">
             <article class="home-featured__spotlight">
               <div class="home-featured__cover">
-                <img
-                  v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
-                  :src="apiUrl(item.coverUrl)"
-                  alt=""
-                />
+                <ContentCover :src="item.coverUrl" :type="item.detailType" />
               </div>
               <div class="home-featured__copy">
                 <span v-if="item.categoryName" class="home-featured__tag">{{
@@ -70,13 +64,8 @@ const hotIcons = {
           <ul>
             <li v-for="item in hot.slice(0, 5)" :key="item.contentKey">
               <ContentLink :content="item">
-                <img
-                  v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
-                  :src="apiUrl(item.coverUrl)"
-                  alt=""
-                />
-                <span v-else class="home-featured__thumb">
-                  <ContentTypeIcon :type="item.detailType" :size="24" />
+                <span class="home-featured__thumb">
+                  <ContentCover :src="item.coverUrl" :type="item.detailType" :icon-size="24" />
                 </span>
                 <span class="home-featured__hot-body">
                   <span class="home-featured__hot-copy">
@@ -169,18 +158,6 @@ const hotIcons = {
     overflow: hidden;
     width: 100%;
     aspect-ratio: 4 / 3;
-  }
-
-  &__cover img,
-  &__hot li > a > img:not(.home-featured__arrow) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  &__cover img {
-    position: absolute;
-    inset: 0;
   }
 
   &__copy {
@@ -313,8 +290,8 @@ const hotIcons = {
     }
   }
 
-  &__hot li > a > img:not(.home-featured__arrow),
   &__thumb {
+    position: relative;
     width: 66px;
     height: 48px;
     flex: none;
@@ -460,7 +437,6 @@ const hotIcons = {
       margin-bottom: 16px;
     }
 
-    &__hot li > a > img:not(.home-featured__arrow),
     &__thumb {
       width: 56px;
       height: 44px;

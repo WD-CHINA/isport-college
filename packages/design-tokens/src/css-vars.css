@@ -43,7 +43,8 @@
   --ic-color-academy-article-aside-text: #637184;
   --ic-color-academy-tag-background: #d6edfd;
   --ic-color-academy-tag-text: #004b83;
-  --ic-color-academy-text-primary: #1c1f23;
+  --ic-color-academy-text-primary: rgb(28, 31, 35);
+  --ic-color-academy-text-primary-80: rgb(28 31 35 / 80%);
   --ic-color-academy-text-secondary: rgb(28 31 35 / 60%);
   --ic-color-academy-text-muted: #68788c;
   --ic-color-academy-text-caption: #71808d;

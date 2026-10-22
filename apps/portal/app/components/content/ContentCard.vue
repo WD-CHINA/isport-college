@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { formatPublishedAt, isContentAssetUrl, type WebContentCard } from '@isport/shared'
+import { formatPublishedAt, type WebContentCard } from '@isport/shared'
+import ContentCover from './ContentCover.vue'
 import ContentMediaTag from './ContentMediaTag.vue'
 import ContentLink from './ContentLink.vue'
 import ContentTypeIcon from './ContentTypeIcon.vue'
-import { useApiUrl } from '~/utils/api-url'
 import { useContentLevelLabel } from '~/composables/useContentLevelLabel'
 
 const props = defineProps<{
@@ -11,10 +11,7 @@ const props = defineProps<{
   variant?: 'default' | 'catalog' | 'resource-recommendation'
 }>()
 const { t } = useI18n()
-const apiUrl = useApiUrl()
 const getLevelLabel = useContentLevelLabel()
-const imageFailed = shallowRef(false)
-const coverUrl = computed(() => apiUrl(props.content.coverUrl))
 const kind = computed(() => {
   const kinds = {
     VIDEO: 'video',
@@ -29,12 +26,6 @@ const kind = computed(() => {
 const published = computed(() => formatPublishedAt(props.content.publishedAt))
 const levelLabel = computed(() => getLevelLabel(props.content))
 const defaultVariant = computed(() => !props.variant || props.variant === 'default')
-watch(
-  () => props.content.coverUrl,
-  () => {
-    imageFailed.value = false
-  },
-)
 </script>
 
 <template>
@@ -49,17 +40,7 @@ watch(
   >
     <ContentLink :content="content" class="content-card__link">
       <div class="content-card__cover">
-        <img
-          v-if="isContentAssetUrl(coverUrl) && !imageFailed"
-          class="content-card__photo"
-          :src="coverUrl"
-          alt=""
-          loading="lazy"
-          width="640"
-          height="360"
-          @error="imageFailed = true"
-        />
-        <ContentTypeIcon v-else :type="content.detailType" :size="40" />
+        <ContentCover :src="content.coverUrl" :type="content.detailType" />
         <span v-if="defaultVariant" class="content-card__kind">{{
           t(`catalog.media.${kind}`)
         }}</span>
@@ -156,18 +137,6 @@ watch(
       padding-top: 56.25%;
       content: '';
     }
-
-    > .content-type-icon {
-      grid-area: 1 / 1;
-    }
-  }
-
-  &__photo {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 
   &__kind {

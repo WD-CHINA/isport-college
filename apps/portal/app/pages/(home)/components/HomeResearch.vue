@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { isContentAssetUrl, type WebContentCard } from '@isport/shared'
-import { useApiUrl } from '~/utils/api-url'
+import type { WebContentCard } from '@isport/shared'
+import ContentCover from '~/components/content/ContentCover.vue'
 import ContentLink from '~/components/content/ContentLink.vue'
 import AppEmpty from '~/components/app/AppEmpty.vue'
 import HomeSectionTitle from './HomeSectionTitle.vue'
@@ -13,7 +13,6 @@ const props = defineProps<{
 const emit = defineEmits<{ select: [id: string] }>()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const apiUrl = useApiUrl()
 const featured = computed(() => props.items[0])
 const side = computed(() => props.items.slice(1, 3))
 const icons: Record<string, string> = {
@@ -22,7 +21,6 @@ const icons: Record<string, string> = {
   TOPICS: 'research-events.svg',
   PRODUCTS: 'research-tutorials.svg',
 }
-const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) : ''))
 </script>
 
 <template>
@@ -60,7 +58,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
         >
           <article class="home-research__feature">
             <span class="home-research__photo">
-              <img v-if="isContentAssetUrl(cover)" :src="cover" alt="" />
+              <ContentCover :src="featured.coverUrl" :type="featured.detailType" />
             </span>
             <div>
               <h3>{{ featured.title }}</h3>
@@ -76,10 +74,7 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
                 ><img src="/home/figma/be8e9.svg" width="409" height="1" alt=""
               /></span>
               <span class="home-research__side-photo"
-                ><img
-                  v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
-                  :src="apiUrl(item.coverUrl)"
-                  alt=""
+                ><ContentCover :src="item.coverUrl" :type="item.detailType"
               /></span>
               <div class="home-research__side-copy">
                 <h3>{{ item.title }}</h3>
@@ -185,16 +180,6 @@ const cover = computed(() => (featured.value ? apiUrl(featured.value.coverUrl) :
 
   &__photo {
     width: 100%;
-  }
-
-  &__photo img,
-  &__side-photo img {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 
   &__feature {

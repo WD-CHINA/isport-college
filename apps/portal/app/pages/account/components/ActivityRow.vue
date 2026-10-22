@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import type { InteractionKind, WebContentCard } from '@isport/shared'
-import { isContentAssetUrl } from '@isport/shared'
 import ContentLink from '~/components/content/ContentLink.vue'
-import ContentTypeIcon from '~/components/content/ContentTypeIcon.vue'
-import { useApiUrl } from '~/utils/api-url'
+import ContentCover from '~/components/content/ContentCover.vue'
 
-const props = defineProps<{
+defineProps<{
   content: WebContentCard
   kind: InteractionKind
   disabled: boolean
@@ -13,28 +11,13 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ remove: [id: string] }>()
 const { t } = useI18n()
-const apiUrl = useApiUrl()
-const failed = shallowRef(false)
-const cover = computed(() => apiUrl(props.content.coverUrl))
-watch(cover, () => {
-  failed.value = false
-})
 </script>
 
 <template>
   <article class="activity-row" :data-content-id="content.contentKey">
     <ContentLink :content="content" class="activity-row__link">
       <span class="activity-row__cover">
-        <img
-          v-if="isContentAssetUrl(cover) && !failed"
-          :src="cover"
-          alt=""
-          width="128"
-          height="80"
-          loading="lazy"
-          @error="failed = true"
-        />
-        <ContentTypeIcon v-else :type="content.detailType" :size="28" />
+        <ContentCover :src="content.coverUrl" :type="content.detailType" :icon-size="28" />
       </span>
       <div class="activity-row__body">
         <h3>{{ content.title }}</h3>
@@ -108,6 +91,7 @@ watch(cover, () => {
   }
 
   &__cover {
+    position: relative;
     display: grid;
     place-items: center;
     width: 128px;
@@ -116,12 +100,6 @@ watch(cover, () => {
     overflow: hidden;
     border-radius: 6px;
     background: var(--ic-color-academy-background-placeholder);
-  }
-
-  &__cover > img:not(.content-type-icon) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 
   &__body {
