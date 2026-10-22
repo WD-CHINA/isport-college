@@ -37,7 +37,7 @@ const hotIcons = {
           autoplay
         >
           <template #default="{ item }">
-            <article class="home-featured__spotlight">
+            <article class="home-featured__spotlight image-zoom">
               <div class="home-featured__cover">
                 <ContentCover :src="item.coverUrl" :type="item.detailType" />
               </div>

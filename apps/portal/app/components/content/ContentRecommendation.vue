@@ -15,9 +15,10 @@ watch(coverUrl, () => {
 
 <template>
   <ContentLink :content="content" class="content-recommendation">
-    <span class="content-recommendation__cover">
+    <span class="content-recommendation__cover image-zoom">
       <img
         v-if="isContentAssetUrl(coverUrl) && !imageFailed"
+        class="image-zoom__image"
         :src="coverUrl"
         alt=""
         width="80"

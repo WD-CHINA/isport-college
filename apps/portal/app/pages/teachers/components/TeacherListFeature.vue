@@ -45,13 +45,18 @@ function changePage(next: number) {
     <ul v-else-if="data?.list.length" class="catalog-page__people">
       <li v-for="person in data.list" :key="person.id">
         <NuxtLink :to="localePath(`/teachers/${person.id}`)">
-          <img
+          <span
             v-if="isContentAssetUrl(apiUrl(person.avatarUrl))"
-            :src="apiUrl(person.avatarUrl)"
-            alt=""
-            width="72"
-            height="72"
-          />
+            class="catalog-page__portrait image-zoom"
+          >
+            <img
+              class="image-zoom__image"
+              :src="apiUrl(person.avatarUrl)"
+              alt=""
+              width="72"
+              height="72"
+            />
+          </span>
           <strong>{{ person.name }}</strong>
           <span>{{ person.honorTitle || person.jobTitle }}</span>
           <span>{{ person.schoolOrg }}</span>
@@ -98,10 +103,17 @@ function changePage(next: number) {
       background: #fff;
     }
 
-    img {
+    .catalog-page__portrait {
+      display: block;
       width: 72px;
       height: 72px;
       border-radius: 50%;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
     }
   }

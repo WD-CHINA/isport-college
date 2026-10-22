@@ -31,9 +31,10 @@ const visible = computed(() => props.items.slice(0, 3))
       >
         <template #default="{ item }">
           <ContentLink class="home-schools__card" :content="item">
-            <span class="home-schools__cover"
+            <span class="home-schools__cover image-zoom"
               ><img
                 v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
+                class="image-zoom__image"
                 :src="apiUrl(item.coverUrl)"
                 alt=""
                 loading="lazy"

@@ -78,12 +78,19 @@ async function select(index: number) {
       <button
         v-for="(item, index) in images"
         :key="`${item.url}-${index}`"
+        class="image-zoom"
         type="button"
         :aria-pressed="selected === index"
         :aria-label="t('media.viewImage', { index: index + 1 })"
         @click="select(index)"
       >
-        <img :src="item.url" alt="" loading="lazy" @error="emit('error')" />
+        <img
+          class="image-zoom__image"
+          :src="item.url"
+          alt=""
+          loading="lazy"
+          @error="emit('error')"
+        />
       </button>
     </div>
   </section>

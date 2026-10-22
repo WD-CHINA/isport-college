@@ -1,4 +1,4 @@
-// 全站交互只调整控件自身透明度，不添加外扩遮罩、位移或图片缩放。
+// 控件统一使用透明度反馈；内容图片通过 image-zoom 显式启用容器内缩放。
 :where(
   a,
   button,
@@ -72,6 +72,39 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
   border-radius: inherit;
 }
 
+// 只缩放内容图片，容器负责裁剪，文字、图标和卡片尺寸保持稳定。
+.image-zoom {
+  overflow: hidden;
+}
+
+.image-zoom__image {
+  transform-origin: center;
+  transition: transform var(--ic-motion-duration-normal, 250ms)
+    var(--ic-motion-easing-standard, ease);
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  :where(a[href], button, .image-zoom):not(#{$disabled}):hover .image-zoom__image {
+    transform: scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :where(a[href], button):focus-visible .image-zoom__image,
+  .image-zoom:has(:focus-visible) .image-zoom__image {
+    transform: scale(1.05);
+  }
+}
+
+// 复用触屏按压状态，滑动、取消和松手时由 interaction-feedback 插件清理。
+@media (hover: none), (pointer: coarse) {
+  @media (prefers-reduced-motion: no-preference) {
+    :where(a[href], button)[data-ic-pressed] .image-zoom__image {
+      transform: scale(1.025);
+    }
+  }
+}
+
 :is(
   .content-card__link,
   .home-resources li > a,
@@ -82,6 +115,10 @@ $disabled: ":disabled, [aria-disabled='true'], .ant-btn-disabled, .ant-btn-loadi
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .image-zoom__image {
+    transition: none;
+  }
+
   :where(#{$controls}) {
     transition: none !important;
   }

@@ -60,11 +60,12 @@ if (import.meta.server && error.value) {
     <article v-else-if="data">
       <NuxtLink :to="localePath('/teachers')">{{ t('academy.teachers') }}</NuxtLink>
       <header>
-        <img
+        <span
           v-if="isContentAssetUrl(apiUrl(data.avatarUrl))"
-          :src="apiUrl(data.avatarUrl)"
-          alt=""
-        />
+          class="teacher-detail__portrait image-zoom"
+        >
+          <img class="image-zoom__image" :src="apiUrl(data.avatarUrl)" alt="" />
+        </span>
         <h1>{{ data.name }}</h1>
         <p>{{ data.honorTitle }}</p>
         <p>{{ data.jobTitle }} · {{ data.schoolOrg }}</p>
@@ -79,10 +80,17 @@ if (import.meta.server && error.value) {
   padding-top: 32px;
   padding-bottom: 56px;
 
-  img {
+  &__portrait {
+    display: block;
     width: 96px;
     height: 96px;
     border-radius: 50%;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
 

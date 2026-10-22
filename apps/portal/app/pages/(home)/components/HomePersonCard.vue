@@ -45,7 +45,7 @@ async function close(restoreFocus = false) {
 
 <template>
   <article
-    class="home-people__card"
+    class="home-people__card image-zoom"
     @pointerdown.capture="keyboardOpened = false"
     @pointerenter="enter"
     @pointerleave="leave"
@@ -58,13 +58,11 @@ async function close(restoreFocus = false) {
     </div>
     <span class="home-people__divider" aria-hidden="true" />
     <span class="home-people__who" :aria-hidden="expanded || undefined">
-      <img
-        v-if="isContentAssetUrl(apiUrl(person.avatarUrl))"
-        :src="apiUrl(person.avatarUrl)"
-        alt=""
-      />
+      <span v-if="isContentAssetUrl(apiUrl(person.avatarUrl))" class="home-people__portrait">
+        <img class="image-zoom__image" :src="apiUrl(person.avatarUrl)" alt="" />
+      </span>
       <i v-else aria-hidden="true" />
-      <span>
+      <span class="home-people__identity">
         <strong>{{ person.name }}</strong>
         <em v-if="person.jobTitle" :title="person.jobTitle">{{ person.jobTitle }}</em>
         <small>{{ person.schoolOrg }}</small>
@@ -160,7 +158,7 @@ async function close(restoreFocus = false) {
     align-items: center;
     gap: 16px;
 
-    > span {
+    > .home-people__identity {
       display: grid;
       min-width: 0;
       flex: 1;
@@ -169,13 +167,25 @@ async function close(restoreFocus = false) {
       gap: 6px 12px;
     }
 
-    & img,
+    .home-people__portrait,
     & i {
       width: 48px;
       height: 48px;
       flex: none;
       border-radius: 50%;
       background: var(--ic-color-academy-text-muted);
+      object-fit: cover;
+    }
+  }
+
+  &__portrait {
+    display: block;
+    overflow: hidden;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
     }
   }
@@ -240,12 +250,12 @@ async function close(restoreFocus = false) {
     &__who {
       gap: 12px;
 
-      > span {
+      > .home-people__identity {
         grid-template-columns: minmax(0, 1fr);
         row-gap: 0;
       }
 
-      img,
+      .home-people__portrait,
       i {
         width: 40px;
         height: 40px;

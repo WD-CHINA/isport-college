@@ -38,12 +38,12 @@ const { t } = useI18n()
             v-for="type in group.types"
             :key="type"
             type="button"
-            class="creation-content__option"
+            class="creation-content__option image-zoom"
             :class="`creation-content__option--${type}`"
             @click="emit('select', type)"
           >
             <img
-              class="creation-content__art"
+              class="creation-content__art image-zoom__image"
               :src="`/creation/ardot/content-${type}.svg`"
               alt=""
             />

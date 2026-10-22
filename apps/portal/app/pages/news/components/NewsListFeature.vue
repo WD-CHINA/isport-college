@@ -37,8 +37,11 @@ function changePage(next: number) {
     <ul v-else-if="data?.list.length" class="catalog-page__news">
       <li v-for="item in data.list" :key="item.id">
         <ContentLink :content="item">
-          <span v-if="isContentAssetUrl(apiUrl(item.coverUrl))" class="catalog-page__cover">
-            <img :src="apiUrl(item.coverUrl)" alt="" />
+          <span
+            v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
+            class="catalog-page__cover image-zoom"
+          >
+            <img class="image-zoom__image" :src="apiUrl(item.coverUrl)" alt="" />
           </span>
           <strong>{{ item.title }}</strong>
           <span>{{ item.summary }}</span>

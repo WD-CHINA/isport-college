@@ -27,9 +27,10 @@ watch(cover, () => {
 </script>
 
 <template>
-  <span class="content-cover">
+  <span class="content-cover image-zoom">
     <img
       v-if="source"
+      class="image-zoom__image"
       :src="source"
       alt=""
       loading="lazy"

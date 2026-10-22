@@ -24,10 +24,10 @@ const apiUrl = useApiUrl()
         autoplay
       >
         <template #default="{ item }">
-          <ContentLink class="home-news__card" :content="item">
+          <ContentLink class="home-news__card image-zoom" :content="item">
             <img
               v-if="isContentAssetUrl(apiUrl(item.coverUrl))"
-              class="home-news__cover"
+              class="home-news__cover image-zoom__image"
               :src="apiUrl(item.coverUrl)"
               alt=""
               loading="lazy"
