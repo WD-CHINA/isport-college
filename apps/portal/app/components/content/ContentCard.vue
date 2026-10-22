@@ -170,6 +170,7 @@ const defaultVariant = computed(() => !props.variant || props.variant === 'defau
   p {
     display: -webkit-box;
     overflow: hidden;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     margin: 0;
@@ -193,9 +194,8 @@ const defaultVariant = computed(() => !props.variant || props.variant === 'defau
 
   &--catalog {
     min-width: 0;
-    border: 0;
     border-radius: 12px;
-    box-shadow: inset 0 0 0 1px var(--catalog-border);
+    border: 1px solid var(--ic-color-academy-border-panel);
   }
 
   &--catalog .content-card__body {
@@ -293,6 +293,7 @@ const defaultVariant = computed(() => !props.variant || props.variant === 'defau
   &--catalog.content-card--school h3 {
     display: -webkit-box;
     overflow: hidden;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     font-size: 16px;
@@ -353,6 +354,7 @@ const defaultVariant = computed(() => !props.variant || props.variant === 'defau
   &--recommendation h3 {
     display: -webkit-box;
     overflow: hidden;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     font-size: 17px;

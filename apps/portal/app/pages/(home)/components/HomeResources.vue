@@ -173,9 +173,9 @@ function setLevel(value: unknown) {
     display: block;
     overflow: hidden;
     border-radius: 12px;
-    box-shadow: inset 0 0 0 1px var(--home-color-border);
     background: #fff;
     color: var(--ic-color-academy-text-primary);
+    border: 1px solid var(--ic-color-academy-border-panel);
   }
 
   &__cover {

@@ -152,6 +152,7 @@ const hotIcons = {
   &__thumb {
     border-radius: 6px;
     background: var(--ic-color-academy-background-placeholder);
+    overflow: hidden;
   }
 
   &__cover {
@@ -191,6 +192,7 @@ const hotIcons = {
     h3 {
       display: -webkit-box;
       overflow: hidden;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
       font-size: 24px;
@@ -201,6 +203,7 @@ const hotIcons = {
     p {
       display: -webkit-box;
       overflow: hidden;
+      line-clamp: 3;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 3;
       margin: 0;
@@ -402,6 +405,7 @@ const hotIcons = {
         display: -webkit-box;
         overflow: hidden;
         -webkit-box-orient: vertical;
+        line-clamp: 2;
         -webkit-line-clamp: 2;
         font-size: 20px;
         line-height: 28px;
@@ -411,6 +415,7 @@ const hotIcons = {
         display: -webkit-box;
         overflow: hidden;
         -webkit-box-orient: vertical;
+        line-clamp: 2;
         -webkit-line-clamp: 2;
         font-size: 13px;
         line-height: 22px;
