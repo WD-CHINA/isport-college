@@ -54,7 +54,7 @@ export function createAcademyClient(request: ApiRequest) {
     home(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
       return request('GET', '/home', { query: params, signal }) as Promise<WebHome>
     },
-    resourceFilters(params?: Record<string, string | number | undefined>, signal?: AbortSignal) {
+    resourceFilters(params?: { keyword?: string }, signal?: AbortSignal) {
       return request('GET', '/resources/filters', {
         query: params,
         signal,

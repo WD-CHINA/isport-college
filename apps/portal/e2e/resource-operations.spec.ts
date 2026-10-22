@@ -81,7 +81,7 @@ test('一级分类切换重置筛选，顶部搜索清除分类与其他条件',
   await page.locator('.catalog-hero').getByRole('searchbox').fill('  资源示例 2  ')
   await page.locator('.catalog-hero').getByRole('button', { name: '搜索', exact: true }).click()
   await expect(page).toHaveURL(/keyword=/)
-  expect([...new URL(page.url()).searchParams.keys()]).toEqual(['keyword'])
+  await expect(page).toHaveURL(/category=1&keyword=/)
   await expect(page.locator('.catalog-hero').getByRole('searchbox')).toHaveValue('资源示例 2')
   await page.getByRole('button', { name: '清除搜索', exact: true }).click()
   await expect(page).not.toHaveURL(/keyword=/)

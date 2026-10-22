@@ -31,6 +31,12 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 844 })
     await page.goto('/resources?category=1')
     await waitForHydration(page)
+    await page.route('**/api/v1/resources/filters?**', async route => {
+      const response = await route.fetch()
+      const envelope = await response.json()
+      envelope.data.categoryList = [{ id: '3', name: '基本技能' }]
+      await route.fulfill({ response, json: envelope })
+    })
     await page.route('**/api/v1/resources?**', async route => {
       const url = new URL(route.request().url())
       if (url.searchParams.get('keyword') !== '抢球游戏') return route.continue()
@@ -38,9 +44,9 @@ for (const width of [1440, 390]) {
       sample.searchParams.delete('keyword')
       const response = await route.fetch({ url: sample.href })
       const envelope = await response.json()
-      // 模拟目标资源属于其他分类：带体能分类请求时无结果，全量搜索时可命中。
+      // 关键词返回基本技能分类，再按选中的基本技能分类查找目标资源。
       const target = { ...envelope.data.list[0], title: '抢球游戏', categoryName: '基本技能' }
-      const found = !url.searchParams.has('firstCategoryId')
+      const found = url.searchParams.get('firstCategoryId') === '3'
       envelope.data = { total: found ? 1 : 0, pageNum: 1, pageSize: 8, list: found ? [target] : [] }
       await route.fulfill({ response, json: envelope })
     })
@@ -49,8 +55,10 @@ for (const width of [1440, 390]) {
     await hero.getByRole('button', { name: '搜索', exact: true }).click()
     await expect(page.locator('.content-card')).toHaveCount(1)
     await expect(page.locator('.content-card')).toContainText('抢球游戏')
-    expect([...new URL(page.url()).searchParams.keys()]).toEqual(['keyword'])
-    await expect(page.locator('.content-filters__categories [aria-pressed="true"]')).toHaveCount(0)
+    await expect(page).toHaveURL(/category=3&keyword=/)
+    await expect(page.locator('.content-filters__categories [aria-pressed="true"]')).toHaveText([
+      '基本技能',
+    ])
     await expect(page.locator('.content-list-feature__heading')).not.toContainText('体能资源')
   })
 }

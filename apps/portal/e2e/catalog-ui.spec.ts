@@ -89,7 +89,7 @@ test('学校案例副标题读取 summary，空值不显示副标题', async ({ 
   await expect(summary).toHaveCSS('-webkit-line-clamp', '2')
 })
 
-test('资源顶部搜索查询全部分类，清除旧筛选后仍可继续筛选和重置', async ({ page }) => {
+test('资源顶部搜索清除旧筛选，按返回的默认分类筛选并可继续重置', async ({ page }) => {
   await page.goto('/resources?category=2&recommendedLevel=3&resourceType=0&page=2')
   await waitForHydration(page)
   const searched = page.waitForRequest(request => {
@@ -99,17 +99,14 @@ test('资源顶部搜索查询全部分类，清除旧筛选后仍可继续筛�
   await page.locator('.catalog-hero').getByRole('searchbox').fill('资源')
   await page.locator('.catalog-hero').getByRole('button', { name: '搜索', exact: true }).click()
   const params = new URL((await searched).url()).searchParams
-  for (const key of [
-    'firstCategoryId',
-    'secondCategoryId',
-    'recommendedLevel',
-    'bodyPartTagId',
-    'type',
-  ])
+  for (const key of ['secondCategoryId', 'recommendedLevel', 'bodyPartTagId', 'type'])
     expect(params.has(key)).toBe(false)
   expect(params.get('pageNum')).toBe('1')
-  expect([...new URL(page.url()).searchParams.keys()]).toEqual(['keyword'])
-  await expect(page.locator('.content-filters__categories [aria-pressed="true"]')).toHaveCount(0)
+  expect(params.get('firstCategoryId')).toBe('1')
+  await expect(page).toHaveURL(/category=1&keyword=/)
+  await expect(page.locator('.content-filters__categories [aria-pressed="true"]')).toHaveText([
+    '体能',
+  ])
   await page.getByRole('button', { name: '体能', exact: true }).click()
   await page
     .getByRole('group', { name: '二级分类', exact: true })
@@ -159,7 +156,7 @@ for (const width of [1440, 390]) {
     await expect(page.locator('.content-filters')).toHaveCount(0)
     await expect(page.locator('.content-grid')).toHaveCount(0)
     await expect(page.locator('.app-pagination')).toHaveCount(0)
-    expect([...new URL(page.url()).searchParams.keys()]).toEqual(['keyword'])
+    await expect(page).toHaveURL(/category=1&keyword=/)
     const response = await page.reload()
     const html = await response!.text()
     expect(html).not.toContain('class="content-filters')

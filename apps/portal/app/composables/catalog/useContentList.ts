@@ -9,6 +9,7 @@ import {
 import { toWebChannel } from '~/utils/web-channel'
 import { useAcademy } from '~/composables/useAcademy'
 import { useRefreshOnVisible } from '~/composables/useRefreshOnVisible'
+import { isNavigationFailure, NavigationFailureType } from 'vue-router'
 
 export function useContentList(channel: 'resource' | 'research' | 'school') {
   const academy = useAcademy()
@@ -17,19 +18,6 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
   const router = useRouter()
   const remoteChannel = toWebChannel(channel)
   const pageSize = { resource: 8, research: 4, school: 6 }[channel]
-  const filterRequest = useAsyncData(
-    () => `academy:resource-filters:${locale.value}`,
-    (_app, { signal }) => academy.resourceFilters(undefined, signal),
-    { immediate: channel === 'resource' },
-  )
-  const categories = computed(() => {
-    if (channel === 'resource') return filterRequest.data.value?.categoryList ?? []
-    const source = channel === 'research' ? RESEARCH_CATEGORIES : SCHOOL_CATEGORIES
-    return source.map(item => ({ id: item.id, name: item.label[resolveDataLocale(locale.value)] }))
-  })
-  const query = computed(() =>
-    normalizeContentQuery(route.query, channel, filterRequest.data.value),
-  )
   // 初始键不依赖尚未加载的字典，保证 SSR 与水合一致。
   // 补齐默认分类等 URL 整理不改变实际查询，因此继续复用当前键。
   const keyQuery = shallowRef(contentQueryToUrl(normalizeContentQuery(route.query, channel)))
@@ -37,15 +25,21 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
     () => `academy:list:${locale.value}:${channel}:${JSON.stringify(keyQuery.value)}`,
   )
   const request = useAsyncData(key, async (_app, { signal }) => {
-    if (channel === 'resource') await filterRequest
-    const current = query.value
+    // 固定本次参数，筛选项返回前的后续搜索不能改变这次列表请求。
+    const raw = { ...route.query }
+    const dataLocale = locale.value
+    const keyword = normalizeContentQuery(raw, channel).keyword
+    const filters =
+      channel === 'resource' ? await academy.resourceFilters({ keyword }, signal) : null
+    signal.throwIfAborted()
+    const current = normalizeContentQuery(raw, channel, filters)
     const paging = {
       keyword: current.keyword,
       pageNum: current.page,
       pageSize,
     }
     if (remoteChannel === 'RESOURCE') {
-      return academy.resources(
+      const page = await academy.resources(
         {
           ...paging,
           firstCategoryId: current.category,
@@ -56,18 +50,33 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
         },
         signal,
       )
+      return { page, filters, keyword, locale: dataLocale }
     }
     const listed = { ...paging, categoryCode: current.category }
-    return remoteChannel === 'RESEARCH'
-      ? academy.research(listed, signal)
-      : academy.schools(listed, signal)
+    const page =
+      remoteChannel === 'RESEARCH'
+        ? await academy.research(listed, signal)
+        : await academy.schools(listed, signal)
+    return { page, filters, keyword, locale: dataLocale }
   })
+  const data = computed(() => request.data.value?.page)
+  const resourceFilters = computed(() => {
+    const result = request.data.value
+    const keyword = normalizeContentQuery(route.query, channel).keyword
+    return result?.keyword === keyword && result?.locale === locale.value ? result.filters : null
+  })
+  const categories = computed(() => {
+    if (channel === 'resource') return resourceFilters.value?.categoryList ?? []
+    const source = channel === 'research' ? RESEARCH_CATEGORIES : SCHOOL_CATEGORIES
+    return source.map(item => ({ id: item.id, name: item.label[resolveDataLocale(locale.value)] }))
+  })
+  const query = computed(() => normalizeContentQuery(route.query, channel, resourceFilters.value))
   watch(
     () => route.query,
     (next, previous) => {
       const normalize = (raw: Record<string, unknown>) =>
         JSON.stringify(
-          contentQueryToUrl(normalizeContentQuery(raw, channel, filterRequest.data.value)),
+          contentQueryToUrl(normalizeContentQuery(raw, channel, resourceFilters.value)),
         )
       if (normalize(next) !== normalize(previous)) {
         keyQuery.value = contentQueryToUrl(normalizeContentQuery(next, channel))
@@ -96,13 +105,13 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
       window.scrollTo({ left: 0, top: 0 })
     }
   })
-  watch([() => route.query, filterRequest.data], () => {
+  watch([() => route.query, resourceFilters], () => {
     if (import.meta.client && mounted) void normalizeUrl()
   })
   function update(filters: WebListQuery) {
     return router.push({ path: route.path, query: contentQueryToUrl({ ...filters, page: 1 }) })
   }
-  function search(keyword: string) {
+  async function search(keyword: string) {
     const normalized = keyword.trim().slice(0, 100) || undefined
     const filters =
       channel === 'resource'
@@ -111,20 +120,29 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
             keyword: normalized,
           }
         : { ...query.value, keyword: normalized }
-    return update(filters)
+    const previousKey = key.value
+    const navigation = await update(filters)
+    if (
+      isNavigationFailure(navigation, NavigationFailureType.duplicated) ||
+      (!navigation && key.value === previousKey)
+    ) {
+      await request.refresh()
+      return true
+    }
+    return !navigation
   }
   function changePage(page: number) {
     return router.push({ path: route.path, query: contentQueryToUrl({ ...query.value, page }) })
   }
   async function retry() {
-    if (filterRequest.error.value) await filterRequest.refresh()
     await request.refresh()
   }
   useRefreshOnVisible(retry)
   return {
     query,
     request,
-    filterRequest,
+    data,
+    resourceFilters,
     categories,
     update,
     search,

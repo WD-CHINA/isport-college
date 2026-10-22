@@ -37,8 +37,8 @@ export function normalizeContentQuery(
   if (id(category) && (!filters || filters.categoryList.some(item => item.id === category))) {
     query.category = category
   }
-  // 关键词搜索未指定分类时查询全部资源，普通浏览仍默认首个分类。
-  if (!query.category && !query.keyword && filters?.categoryList.length) {
+  // 关键词先缩小可选分类，再默认选中返回的首个分类。
+  if (!query.category && filters?.categoryList.length) {
     query.category = filters.categoryList[0]?.id
   }
   const second = id(raw.secondCategoryId)

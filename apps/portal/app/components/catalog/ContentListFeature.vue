@@ -12,10 +12,9 @@ import { contentQueryToUrl, type ContentChannel } from '@isport/shared'
 
 const props = defineProps<{ channel: ContentChannel }>()
 const { t } = useI18n()
-const { query, request, filterRequest, categories, update, search, changePage, retry } =
+const { query, request, data, resourceFilters, categories, update, search, changePage, retry } =
   useContentList(props.channel)
-const { data, status, error } = request
-const { data: resourceFilters, error: filterError } = filterRequest
+const { status, error } = request
 const emptySearch = computed(
   () =>
     props.channel === 'resource' &&
@@ -38,7 +37,7 @@ async function scrollToList() {
   if (props.channel === 'resource') listStart.value?.scrollIntoView({ block: 'start' })
 }
 async function handleSearch(keyword: string) {
-  if (!(await search(keyword))) await scrollToList()
+  if (await search(keyword)) await scrollToList()
 }
 async function handlePageChange(page: number) {
   if (!(await changePage(page))) await scrollToList()
@@ -52,7 +51,6 @@ useHead(() => {
   return { link: [{ key: 'canonical', rel: 'canonical', href: canonicalUrl(route.path, params) }] }
 })
 const [messageApi, ContextHolder] = message.useMessage()
-useMessageFeedback(messageApi, filterError, () => t('academy.requestFailed'), 'warning')
 useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))
 await request
 </script>
