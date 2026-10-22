@@ -128,7 +128,6 @@ const publisher = computed(
       border: 0;
       border-radius: var(--ic-border-radius-lg);
       background: var(--ic-color-background-container);
-      box-shadow: inset 0 0 0 1px var(--ic-color-academy-border-panel);
     }
 
     :deep(.preview-frame__toolbar) {

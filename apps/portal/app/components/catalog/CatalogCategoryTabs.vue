@@ -9,16 +9,20 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <div class="catalog-category-tabs" role="group" :aria-label="t('catalog.category')">
-    <button
-      v-if="channel === 'school'"
+  <div
+    v-if="channel === 'research'"
+    class="catalog-category-tabs"
+    role="group"
+    :aria-label="t('catalog.category')"
+  >
+    <!--<button
       class="control-feedback"
       type="button"
       :aria-pressed="!category"
       @click="emit('change', '')"
     >
       <span>{{ t('catalog.allCases') }}</span>
-    </button>
+    </button>-->
     <button
       v-for="item in categories"
       :key="item.id"

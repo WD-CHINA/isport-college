@@ -14,7 +14,7 @@ defineProps<{ title: string }>()
 <style lang="scss" scoped>
 .preview-frame {
   overflow: hidden;
-  border: 1px solid #dbe3ef;
+  border: 1px solid #dbe3ef !important;
   border-radius: 12px;
   background: #f1f5f9;
 
