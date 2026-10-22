@@ -3,7 +3,6 @@ defineProps<{ direction: 'prev' | 'next' }>()
 </script>
 
 <template>
-  <!-- 每个跳页按钮独立创建 SVG，避免共享图标 VNode 在水合或翻页时被移走。 -->
   <a class="ant-pagination-item-link" aria-hidden="true">
     <div class="ant-pagination-item-container">
       <span class="ant-pagination-item-link-icon">

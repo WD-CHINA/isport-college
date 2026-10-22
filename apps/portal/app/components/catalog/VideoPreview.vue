@@ -37,8 +37,6 @@ async function mountPlayer() {
       autoplay: false,
       playsinline: true,
       cssFullscreen: false,
-      playbackRate: false,
-      ignores: ['playbackrate'],
     })
     player.on('error', () => {
       if (current !== generation) return

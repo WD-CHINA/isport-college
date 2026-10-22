@@ -60,6 +60,8 @@ function set(field: Exclude<keyof WebListQuery, 'page' | 'keyword'>, value: unkn
   if (field === 'category') {
     next.secondCategoryId = undefined
     next.bodyPartTagId = undefined
+    next.recommendedLevel = undefined
+    next.resourceType = undefined
   }
   model.value = next
 }

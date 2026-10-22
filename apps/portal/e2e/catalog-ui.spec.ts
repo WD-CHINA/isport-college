@@ -89,13 +89,28 @@ test('学校案例副标题读取 summary，空值不显示副标题', async ({ 
   await expect(summary).toHaveCSS('-webkit-line-clamp', '2')
 })
 
-test('资源主视觉搜索保留筛选，二级分类与重置同步地址', async ({ page }) => {
-  await page.goto('/resources?category=1&recommendedLevel=3')
+test('资源顶部搜索查询全部分类，清除旧筛选后仍可继续筛选和重置', async ({ page }) => {
+  await page.goto('/resources?category=2&recommendedLevel=3&resourceType=0&page=2')
   await waitForHydration(page)
+  const searched = page.waitForRequest(request => {
+    const url = new URL(request.url())
+    return url.pathname === '/api/v1/resources' && url.searchParams.get('keyword') === '资源'
+  })
   await page.locator('.catalog-hero').getByRole('searchbox').fill('资源')
   await page.locator('.catalog-hero').getByRole('button', { name: '搜索', exact: true }).click()
-  await expect(page).toHaveURL(/keyword=/)
-  await expect(page).toHaveURL(/recommendedLevel=3/)
+  const params = new URL((await searched).url()).searchParams
+  for (const key of [
+    'firstCategoryId',
+    'secondCategoryId',
+    'recommendedLevel',
+    'bodyPartTagId',
+    'type',
+  ])
+    expect(params.has(key)).toBe(false)
+  expect(params.get('pageNum')).toBe('1')
+  expect([...new URL(page.url()).searchParams.keys()]).toEqual(['keyword'])
+  await expect(page.locator('.content-filters__categories [aria-pressed="true"]')).toHaveCount(0)
+  await page.getByRole('button', { name: '体能', exact: true }).click()
   await page
     .getByRole('group', { name: '二级分类', exact: true })
     .getByRole('button', { name: '力量', exact: true })
@@ -105,6 +120,59 @@ test('资源主视觉搜索保留筛选，二级分类与重置同步地址', as
   await expect(page).toHaveURL(/\/resources\?category=1$/)
   await expect(page.locator('.catalog-hero').getByRole('searchbox')).toHaveValue('')
 })
+
+for (const width of [1440, 390]) {
+  test(`${width}px 资源类型可选课件，发送 type=99 且刷新后保留`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 })
+    await page.goto('/resources?category=1')
+    await waitForHydration(page)
+    const typeSelect = page.locator('.content-filters__field .ant-select').last()
+    await typeSelect.click()
+    const option = page.locator('.ant-select-item-option[title="课件"]')
+    await expect(option).toHaveCount(1)
+    const changed = page.waitForRequest(request => {
+      const url = new URL(request.url())
+      return url.pathname === '/api/v1/resources' && url.searchParams.get('type') === '99'
+    })
+    await option.click()
+    await changed
+    await expect(page).toHaveURL(/resourceType=99/)
+    await expect(page.locator('.content-filters__field .ant-select').last()).toContainText('课件')
+    await page.reload()
+    await waitForHydration(page)
+    await expect(page).toHaveURL(/resourceType=99/)
+    await expect(page.locator('.content-filters__field .ant-select').last()).toContainText('课件')
+    await page.locator('.content-filters__categories button').nth(1).click()
+    await expect(page).not.toHaveURL(/resourceType=/)
+    await expect(page.locator('.content-filters__field .ant-select').last()).toContainText('全部')
+  })
+
+  test(`${width}px 全部资源搜索无结果时隐藏筛选和列表，清除搜索后恢复`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 })
+    await page.goto('/resources?category=2&recommendedLevel=3&resourceType=0')
+    await waitForHydration(page)
+    const hero = page.locator('.catalog-hero')
+    await hero.getByRole('searchbox').fill('不存在的教学资源')
+    await hero.getByRole('button', { name: '搜索', exact: true }).click()
+    const empty = page.locator('.content-list-feature__search-empty')
+    await expect(empty).toContainText('没有找到相关教学资源，请换个关键词试试。')
+    await expect(page.locator('.content-filters')).toHaveCount(0)
+    await expect(page.locator('.content-grid')).toHaveCount(0)
+    await expect(page.locator('.app-pagination')).toHaveCount(0)
+    expect([...new URL(page.url()).searchParams.keys()]).toEqual(['keyword'])
+    const response = await page.reload()
+    const html = await response!.text()
+    expect(html).not.toContain('class="content-filters')
+    expect(html).toContain('没有找到相关教学资源，请换个关键词试试。')
+    await waitForHydration(page)
+    await expect(empty).toBeVisible()
+    await hero.getByRole('button', { name: '清除搜索', exact: true }).click()
+    await expect(page).toHaveURL(/\/resources\?category=1$/)
+    await expect(page.locator('.content-filters')).toBeVisible()
+    await expect(page.locator('.content-card')).toHaveCount(8)
+    await expect(empty).toHaveCount(0)
+  })
+}
 
 for (const [channel, category] of [
   ['research', 'RESEARCH'],

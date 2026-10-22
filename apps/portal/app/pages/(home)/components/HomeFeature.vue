@@ -28,7 +28,7 @@ const {
   researchItems,
   levelItems,
 } = useAcademyHome()
-const { data, error, status, refresh } = request
+const { data, error, status } = request
 const [messageApi, ContextHolder] = message.useMessage()
 useMessageFeedback(messageApi, error, () => t('academy.requestFailed'))
 await request
@@ -45,10 +45,7 @@ function selectResource(id: string) {
     <HomeHero />
     <HomeCapabilities />
     <HomePartners />
-    <div v-if="error" class="container-page academy-home__status">
-      <AButton @click="refresh()">{{ t('catalog.retry') }}</AButton>
-    </div>
-    <div v-else-if="status === 'pending'" class="container-page academy-home__status">
+    <div v-if="status === 'pending'" class="container-page academy-home__status">
       <ContentGrid :items="[]" loading />
     </div>
     <template v-else-if="data">

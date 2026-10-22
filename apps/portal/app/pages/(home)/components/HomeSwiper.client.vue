@@ -13,6 +13,7 @@ const props = defineProps<{
   autoplayDelay: number
   effect: 'slide' | 'fade'
 }>()
+const emit = defineEmits<{ change: [page: number] }>()
 const { t } = useI18n()
 const container = shallowRef<SwiperContainer | null>(null)
 const instance = shallowRef<Swiper | null>(null)
@@ -71,9 +72,13 @@ function sync() {
     active.value = 0
     return
   }
-  active.value = swiper.params.loop
+  const next = swiper.params.loop
     ? Math.floor(swiper.realIndex / groupSize.value)
     : swiper.snapIndex
+  if (next !== active.value) {
+    active.value = next
+    emit('change', currentPage.value)
+  }
 }
 function goToPage(page: number) {
   const index = page * groupSize.value
@@ -117,6 +122,13 @@ function motionChanged() {
   if (instance.value)
     instance.value.params.speed = motionQuery.matches ? 0 : props.effect === 'fade' ? 600 : 350
 }
+watch(
+  () => props.autoplay,
+  enabled => {
+    if (enabled) resume()
+    else pause()
+  },
+)
 onMounted(async () => {
   await customElements.whenDefined('swiper-container')
   if (disposed || !container.value) return

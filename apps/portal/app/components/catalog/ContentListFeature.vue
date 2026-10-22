@@ -3,6 +3,7 @@ import { canonicalUrl } from '~/utils/seo'
 import { message } from 'antdv-next'
 import { useMessageFeedback } from '~/composables/useMessageFeedback'
 import AppPagination from '~/components/app/AppPagination.vue'
+import AppEmpty from '~/components/app/AppEmpty.vue'
 import ContentFilters from './ContentFilters.vue'
 import ContentGrid from '~/components/content/ContentGrid.vue'
 import CatalogHero from './CatalogHero.vue'
@@ -15,6 +16,13 @@ const { query, request, filterRequest, categories, update, search, changePage, r
   useContentList(props.channel)
 const { data, status, error } = request
 const { data: resourceFilters, error: filterError } = filterRequest
+const emptySearch = computed(
+  () =>
+    props.channel === 'resource' &&
+    Boolean(query.value.keyword) &&
+    status.value === 'success' &&
+    data.value?.total === 0,
+)
 const title = computed(() => t(`catalog.channels.${props.channel}`))
 const sectionTitle = computed(() => {
   const category = categories.value.find(item => item.id === query.value.category)?.name
@@ -61,6 +69,7 @@ await request
       }"
     >
       <ContentFilters
+        v-if="!emptySearch"
         :model-value="query"
         :channel="channel"
         :categories="categories"
@@ -69,7 +78,7 @@ await request
       />
       <AButton v-if="error" @click="retry">{{ t('catalog.retry') }}</AButton>
       <template v-else>
-        <header class="content-list-feature__heading">
+        <header v-if="!emptySearch" class="content-list-feature__heading">
           <h2>{{ sectionTitle }}</h2>
           <p class="content-list-feature__count" role="status">
             {{
@@ -84,7 +93,13 @@ await request
             {{ t(`catalog.sectionIntro.${channel}`) }}
           </p>
         </header>
+        <AppEmpty
+          v-if="emptySearch"
+          class="content-list-feature__search-empty"
+          :description="t('catalog.noSearchResults')"
+        />
         <ContentGrid
+          v-else
           :items="data?.list ?? []"
           :loading="status === 'pending'"
           variant="catalog"
@@ -197,6 +212,11 @@ await request
     margin: 0;
     color: var(--catalog-muted);
     font-size: 12px;
+  }
+
+  &__search-empty {
+    margin: 0;
+    padding-block: var(--ic-spacing-8) var(--ic-spacing-12);
   }
 
   &__description {

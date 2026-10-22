@@ -108,8 +108,6 @@ export function useContentList(channel: 'resource' | 'research' | 'school') {
       channel === 'resource'
         ? {
             page: 1,
-            category: categories.value[0]?.id,
-            recommendedLevel: query.value.recommendedLevel,
             keyword: normalized,
           }
         : { ...query.value, keyword: normalized }

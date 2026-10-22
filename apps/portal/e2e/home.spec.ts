@@ -84,8 +84,8 @@ for (const prefix of ['', '/en']) {
     const teachersHtml = html.match(/<section class="home-people"[\s\S]*?<\/section>/)?.[0]
     expect(teachersHtml).toContain('home-people__card')
     expect(teachersHtml).not.toContain('href=')
-    expect(teachersHtml).toContain('优秀教师')
-    expect(teachersHtml).not.toContain('教师故事')
+    expect(teachersHtml).toContain('教师故事')
+    expect(teachersHtml).not.toContain('优秀教师')
     const capabilitiesHtml = html.match(
       /<section class="home-capabilities"[\s\S]*?<\/section>/,
     )?.[0]
@@ -103,7 +103,7 @@ for (const prefix of ['', '/en']) {
     }
     const people = page.locator('.home-people__card')
     await expect(people.first()).toContainText('张老师')
-    await expect(people.first().locator('.home-people__quote p')).toHaveText('优秀教师')
+    await expect(people.first().locator('.home-people__quote p')).toContainText('教师故事')
     await expect(people.first().locator('.home-people__who em')).toHaveText('体育教师')
     await expect(people.getByRole('link')).toHaveCount(0)
     await people.first().click()
@@ -236,7 +236,7 @@ for (const [path, numericLabel] of [
   })
 }
 
-test('名师荣誉与职务分别展示，空荣誉留白且分隔线位置一致', async ({ page }) => {
+test('名师故事与职务分别展示，空故事留白且分隔线位置一致', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.goto('/')
   await waitForHydration(page)
@@ -256,7 +256,7 @@ test('名师荣誉与职务分别展示，空荣誉留白且分隔线位置一�
       jobTitle: '体育组教研组长',
       honorTitle: '宝安区优秀教师',
       avatarUrl: '/media/sample.png',
-      story: '<p>旧版教师故事不应覆盖荣誉</p>',
+      story: '分享体育课堂的教学理念与实践经验。',
     },
     {
       id: 4,
@@ -287,8 +287,8 @@ test('名师荣誉与职务分别展示，空荣誉留白且分隔线位置一�
       'src',
       /\/media\/sample.png$/,
     )
-    if (teacher.honorTitle) {
-      await expect(card.locator('.home-people__quote p')).toHaveText(teacher.honorTitle)
+    if (teacher.story) {
+      await expect(card.locator('.home-people__quote p')).toHaveText(teacher.story)
     } else {
       await expect(card.locator('.home-people__quote p')).toHaveCount(0)
     }
@@ -342,7 +342,7 @@ for (const width of [320, 390, 675, 767]) {
           element.evaluate(node => Boolean((node as HTMLElement & { swiper?: unknown }).swiper)),
         )
         .toBe(true)
-      await expect(carousel.getByRole('button')).toHaveCount(
+      await expect(carousel.locator('.home-swiper__controls').getByRole('button')).toHaveCount(
         await carousel.locator('.home-swiper__dots button').count(),
       )
       await carousel.getByRole('button', { name: '第 2 页', exact: true }).click()

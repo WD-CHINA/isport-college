@@ -52,7 +52,7 @@ test('资源仍支持新窗口打开详情，其他栏目卡片保持路由导�
   await expect(page).toHaveURL('/preview/article/schools/1')
 })
 
-test('默认分类及一级切换清除下级条件，搜索保留水平并清除其他条件', async ({ page }) => {
+test('一级分类切换重置筛选，顶部搜索清除分类与其他条件', async ({ page }) => {
   await page.goto('/resources')
   await waitForHydration(page)
   await expect(page.locator('.ant-message-notice-warning')).toHaveCount(0)
@@ -75,13 +75,13 @@ test('默认分类及一级切换清除下级条件，搜索保留水平并清�
   expect(query.get('pageNum')).toBe('1')
   expect(query.has('secondCategoryId')).toBe(false)
   expect(query.has('bodyPartTagId')).toBe(false)
-  expect(query.get('recommendedLevel')).toBe('3')
+  expect(query.has('recommendedLevel')).toBe(false)
+  expect(query.has('type')).toBe(false)
   await expect(page.getByRole('group', { name: '身体部位', exact: true })).toHaveCount(0)
   await page.locator('.catalog-hero').getByRole('searchbox').fill('  资源示例 2  ')
   await page.locator('.catalog-hero').getByRole('button', { name: '搜索', exact: true }).click()
-  await expect(page).toHaveURL(/category=1/)
-  await expect(page).toHaveURL(/recommendedLevel=3/)
-  expect(new URL(page.url()).searchParams.has('resourceType')).toBe(false)
+  await expect(page).toHaveURL(/keyword=/)
+  expect([...new URL(page.url()).searchParams.keys()]).toEqual(['keyword'])
   await expect(page.locator('.catalog-hero').getByRole('searchbox')).toHaveValue('资源示例 2')
   await page.getByRole('button', { name: '清除搜索', exact: true }).click()
   await expect(page).not.toHaveURL(/keyword=/)
@@ -89,7 +89,7 @@ test('默认分类及一级切换清除下级条件，搜索保留水平并清�
 })
 
 test('每页 8 条，翻页和刷新保持查询，筛选回到第一页', async ({ page }) => {
-  await page.goto('/resources?keyword=分页样例')
+  await page.goto('/resources?category=1&keyword=分页样例')
   await waitForHydration(page)
   await expect(page.locator('.content-card')).toHaveCount(8)
   await page.getByRole('button', { name: '页 2', exact: true }).click()

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useBreakpoint } from 'antdv-next'
+import { useBreakpoint, type PaginationProps } from 'antdv-next'
+import { h } from 'vue'
 import AppPaginationJumpIcon from './AppPaginationJumpIcon.vue'
 
 withDefaults(
@@ -14,6 +15,13 @@ withDefaults(
 )
 const emit = defineEmits<{ change: [page: number] }>()
 const screens = useBreakpoint()
+// itemRender 每次渲染都创建图标，避免 jumpIcon 插槽缓存已挂载或已水合的 VNode。
+const renderItem: NonNullable<PaginationProps['itemRender']> = (_page, type, element) => {
+  if (type === 'jump-prev' || type === 'jump-next') {
+    return h(AppPaginationJumpIcon, { direction: type === 'jump-prev' ? 'prev' : 'next' })
+  }
+  return element
+}
 </script>
 
 <template>
@@ -29,16 +37,10 @@ const screens = useBreakpoint()
       :show-size-changer="false"
       :show-less-items="variant === 'catalog' && !screens?.sm"
       :hide-on-single-page="hideOnSinglePage"
+      :item-render="renderItem"
       responsive
       @change="value => emit('change', value)"
     >
-      <!-- 组件库会缓存图标插槽，随页码重新创建，避免复用已经卸载的 VNode。 -->
-      <template #jumpPrevIcon>
-        <AppPaginationJumpIcon :key="`prev-${page}`" direction="prev" />
-      </template>
-      <template #jumpNextIcon>
-        <AppPaginationJumpIcon :key="`next-${page}`" direction="next" />
-      </template>
       <template v-if="variant === 'catalog'" #prevIcon>
         <button class="ant-pagination-item-link" type="button" tabindex="-1">
           <svg class="app-pagination__arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">

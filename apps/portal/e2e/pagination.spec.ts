@@ -1,6 +1,10 @@
 import { expect, test, waitForHydration } from './academy.fixture'
 
 test('左右跳页按钮反复挂载后，省略号仍有独立的图形内容', async ({ page }) => {
+  const hydrationErrors: string[] = []
+  page.on('console', message => {
+    if (/hydration/i.test(message.text())) hydrationErrors.push(message.text())
+  })
   await page.goto('/resources?keyword=分页样例&page=9')
   await waitForHydration(page)
   const pagination = page.locator('.app-pagination--catalog')
@@ -25,9 +29,37 @@ test('左右跳页按钮反复挂载后，省略号仍有独立的图形内容',
   await page.mouse.move(0, 0)
   await pagination.scrollIntoViewIfNeeded()
   await pagination.screenshot({ path: 'test-results/pagination-page9.png' })
+  expect(hydrationErrors).toEqual([])
 })
 
 for (const width of [390, 1440]) {
+  test(`${width}px 分页图标服务端输出完整，水合及响应式切换无警告`, async ({ page }) => {
+    const errors: string[] = []
+    page.on('pageerror', error => errors.push(error.message))
+    page.on('console', message => {
+      if (/hydration/i.test(message.text())) errors.push(message.text())
+    })
+    await page.setViewportSize({ width, height: 900 })
+    const response = await page.goto('/resources?keyword=分页样例')
+    const html = await response!.text()
+    expect(html).toMatch(/class="ant-pagination-item-ellipsis">\s*<svg/)
+    await waitForHydration(page)
+    const pagination = page.locator('.app-pagination--catalog')
+    for (const nextWidth of [width === 390 ? 1440 : 390, width]) {
+      await page.setViewportSize({ width: nextWidth, height: 900 })
+      const jumpNext = pagination.locator('.ant-pagination-jump-next')
+      await expect(jumpNext.locator('.ant-pagination-item-ellipsis svg')).toHaveCount(1)
+      await jumpNext.click()
+      await expect(pagination.locator('.ant-pagination-jump-prev')).toBeVisible()
+      await pagination.getByRole('button', { name: '页 1', exact: true }).click()
+      await expect(page).not.toHaveURL(/page=/)
+    }
+    await page.reload()
+    await waitForHydration(page)
+    await expect(pagination.locator('.ant-pagination-jump-next svg')).toHaveCount(2)
+    expect(errors).toEqual([])
+  })
+
   test(`${width}px 目录分页省略号清晰可见，悬停切换箭头且前后跳页正常`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 })
     await page.goto('/resources?keyword=分页样例')

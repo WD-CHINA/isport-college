@@ -37,7 +37,8 @@ export function normalizeContentQuery(
   if (id(category) && (!filters || filters.categoryList.some(item => item.id === category))) {
     query.category = category
   }
-  if (!query.category && filters?.categoryList.length) {
+  // 关键词搜索未指定分类时查询全部资源，普通浏览仍默认首个分类。
+  if (!query.category && !query.keyword && filters?.categoryList.length) {
     query.category = filters.categoryList[0]?.id
   }
   const second = id(raw.secondCategoryId)
@@ -64,7 +65,11 @@ export function normalizeContentQuery(
     query.bodyPartTagId = body
   }
   const type = scalar(raw.resourceType)
-  if (/^[01256]$/.test(type) && (!filters || filters.typeList.some(item => item.id === type))) {
+  // 课件为固定筛选项，兼容尚未包含 99 的旧版筛选字典。
+  if (
+    type === '99' ||
+    (/^[01256]$/.test(type) && (!filters || filters.typeList.some(item => item.id === type)))
+  ) {
     query.resourceType = type
   }
   return query
