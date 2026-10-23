@@ -155,7 +155,7 @@ const publisher = computed(
     padding: 32px 28px 8px;
     border-radius: var(--ic-border-radius-lg);
     background: var(--ic-color-background-container);
-    box-shadow: inset 0 0 0 1px var(--ic-color-academy-border-panel);
+    border: 1px solid var(--ic-color-academy-border-panel);
 
     h1 {
       margin: 0;
